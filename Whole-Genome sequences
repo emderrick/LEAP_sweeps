@@ -1,0 +1,28 @@
+The first thing I did was with the whole-genome sequences of the original spike-in bacteria.
+I assembled the raw fastq reads using spades 
+I submitted this job to the queue because it is RAM heavy.
+
+#!/usr/bin/bash
+for file in *R1.fastq*
+do
+filetwo="${file//R1.fastq/R2.fastq}"
+out="${file//R1.fastq/spadesoutput}"
+spades.py -o $out -1 $file -2 $filetwo --isolate
+done
+
+After assembling with SPAdes you get output files of contigs.
+I annotated these contigs using the program PROKKA.
+I downloaded PROKKA through singluarity and ran the program with salloc asking for 10 CPUS
+I used the --centre X --compliant flags to generate clean contig names for contigs_23.fa because the names were too long.
+
+#!/usr/bin/bash
+module load bioperl/1.7.7
+module load java/13.0.2
+module load hmmer/3.2.1
+module load singularity
+
+for file in *fa 
+do
+out="${file//.fa/prokkaoutput}"
+singularity exec prokka.sif prokka --outdir $out --cpus 10 $file
+done
