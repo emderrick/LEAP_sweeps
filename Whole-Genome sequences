@@ -40,3 +40,25 @@ module load fastani/1.32
 export GTDBTK_DATA_PATH=/home/ederrick/scratch/leap/release202
 
 gtdbtk classify_wf --genome_dir /home/ederrick/scratch/leap/spades_contigs --pplacer_cpus 1 --cpus 40 --extension fa --out_dir /home/ederrick/scratch/leap/gtdboutput
+
+
+Next I downloaded the resistance gene identifier through a virtual environment to identify antibiotic resistance genes in the original WGS. This program uses the
+CARD database from McMaster.
+I did not have enough memory to run this on my computer so I asked for 10G through salloc.
+
+source /home/ederrick/scratch/virtual_envs/rgi/bin/activate
+
+module load nixpkgs/16.09
+module load gcc/7.3.0
+module load python/3.7.4
+module load scipy-stack
+module load bowtie2/2.3.5.1 
+module load samtools/1.10
+module load bamtools/2.4.1 
+module load diamond/0.9.32
+module load blast+
+
+rgi load --card_json /home/ederrick/scratch/virtual_environments/card.json
+
+rgi main -i contig_file -t contig -n 1 -o rgi_output -d wgs --include_loose
+
