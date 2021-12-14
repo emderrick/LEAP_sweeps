@@ -1,5 +1,7 @@
-# LEAP_2021
+# Workflow for the reference sequences
 
+SPAdes
+------
 The first thing I did was with the whole-genome sequences of the original spike-in bacteria.
 I assembled the raw fastq reads using spades 
 I submitted this job to the cluster because it is RAM heavy.
@@ -13,6 +15,9 @@ I submitted this job to the cluster because it is RAM heavy.
 	done
 
 After assembling with SPAdes you get output files of contigs.
+
+PROKKA
+------
 I annotated these contigs using the program PROKKA.
 I downloaded PROKKA through singluarity and ran the program with salloc asking for 10 CPUS
 I used the --centre X --compliant flags to generate clean contig names for contigs_23.fa because the names were too long.
@@ -29,6 +34,8 @@ I used the --centre X --compliant flags to generate clean contig names for conti
 	singularity exec prokka.sif prokka --outdir $out --cpus 10 $file
 	done
 
+GTDBtk
+------
 To classify the genomes, I used GTDBtk. This is also a RAM heavy program so I submitted it through the cluster.
 
 
@@ -44,6 +51,8 @@ To classify the genomes, I used GTDBtk. This is also a RAM heavy program so I su
 
 	gtdbtk classify_wf --genome_dir /home/ederrick/scratch/leap/spades_contigs --pplacer_cpus 1 --cpus 40 --extension fa --out_dir /home/ederrick/scratch/leap/gtdboutput
 
+Resistance Gene Identifier
+--------------------------
 
 Next I downloaded the resistance gene identifier through a virtual environment to identify antibiotic resistance genes in the original WGS. This program uses the
 CARD database from McMaster.
