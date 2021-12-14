@@ -2,13 +2,13 @@ The first thing I did was with the whole-genome sequences of the original spike-
 I assembled the raw fastq reads using spades 
 I submitted this job to the cluster because it is RAM heavy.
 
-#!/usr/bin/bash
-for file in *R1.fastq*
-do
-filetwo="${file//R1.fastq/R2.fastq}"
-out="${file//R1.fastq/spadesoutput}"
-spades.py -o $out -1 $file -2 $filetwo --isolate
-done
+	#!/usr/bin/bash
+	for file in *R1.fastq*
+	do
+	filetwo="${file//R1.fastq/R2.fastq}"
+	out="${file//R1.fastq/spadesoutput}"
+	spades.py -o $out -1 $file -2 $filetwo --isolate
+	done
 
 After assembling with SPAdes you get output files of contigs.
 I annotated these contigs using the program PROKKA.
