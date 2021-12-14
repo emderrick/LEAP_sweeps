@@ -17,7 +17,7 @@ After assembling with SPAdes you get output files of contigs.
 I annotated these contigs using the program PROKKA.
 I downloaded PROKKA through singluarity and ran the program with salloc asking for 10 CPUS
 I used the --centre X --compliant flags to generate clean contig names for contigs_23.fa because the names were too long.
-.. code-block:: sh
+
 	#!/usr/bin/bash
 	module load bioperl/1.7.7
 	module load java/13.0.2
@@ -32,7 +32,7 @@ I used the --centre X --compliant flags to generate clean contig names for conti
 
 To classify the genomes, I used GTDBtk. This is also a RAM heavy program so I submitted it through the cluster.
 
-.. code-block:: sh
+
 	#!/usr/bin/bash
 	
 	module load python/3.7.7
@@ -50,7 +50,7 @@ Next I downloaded the resistance gene identifier through a virtual environment t
 CARD database from McMaster.
 I did not have enough memory to run this on my computer so I asked for 10G through salloc.
 
-.. code-block:: sh
+
 	source /home/ederrick/scratch/virtual_envs/rgi/bin/activate
 	
 	module load nixpkgs/16.09
