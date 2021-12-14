@@ -3,7 +3,6 @@
 The first thing I did was with the whole-genome sequences of the original spike-in bacteria.
 I assembled the raw fastq reads using spades 
 I submitted this job to the cluster because it is RAM heavy.
-.. code-block:: sh
 
 	#!/usr/bin/bash
 	for file in *R1.fastq*
