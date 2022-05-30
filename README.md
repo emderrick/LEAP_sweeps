@@ -5,6 +5,7 @@
 First trim the reads to remove the Illumina adaptors. I sumbitted this on Narval in a bash script.
 I downloaded the adaptor file from the trimmomatic github page it is TruSeq3-PE.fa
 
+```bash
 #!/usr/bin/bash
 for file in *R1_001.fastq.gz*
 do
@@ -17,6 +18,7 @@ java -jar $EBROOTTRIMMOMATIC/trimmomatic-0.39.jar PE -threads 8 -phred33 $file $
 filetwo $paired1 $unpaired1 $paired2 $unpaired2 ILLUMINACLIP:TruSeq3-PE.fa:2:30:
 10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
 done
+```
 
 SPAdes
 ------
