@@ -64,7 +64,9 @@ anvi-init-bam K1_1_raw.bam -o K1_1.bam
 First reformat fasta deflines and remove short contigs (<1000bp). An example with K1
 
 ```bash
-anvi-script-reformat-fasta K1_contigs.fa -o K1_contigs-fixed.fa -l 1000 --simplify-names
+module load scipy-stack/2021a
+module load python/3.7
+anvi-script-reformat-fasta K1_contigs.fa -o K1_contigs_fixed.fa -l 1000 --simplify-names
 ```
 
 Then make a contigs database of each. This uses prodigal for gene calling. An example with K1
