@@ -51,7 +51,7 @@ module load bowtie2
 After running bowtie2 we will have a .sam file for each sample. We need to convert the sam file to a bam file for anvio.
 
 ```bash
-
+ samtools view -b I4_1_I4.sam > I4_1_I4_raw.bam
 ```
 anvio needs the bam files to be indexed so we need to run this for each sample (do in loop)
 
