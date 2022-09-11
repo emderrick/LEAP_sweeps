@@ -148,6 +148,8 @@ done
 deactivate
 ```
 
+Then we use cluster contigs to make a collection.
+
 ```bash
 
 source anvio/bin/activate
