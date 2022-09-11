@@ -40,20 +40,30 @@ once I have a coassembly for each pond I will follow the anvio pipeline.
 Once we have our coassemblies we need to map the reads at each timepoint to the coassembly.
 We will use bowtie2.
 
-```bashn
+```bash
 #!/usr/bin/bash
-
 module load bowtie2
 
+for f in *_R1.fastq.gz
+do
+f2="${f//R1.fastq.gz/R2.fastq.gz}"
+out="${f//_R1.fastq.gz/.sam}"
+bowtie2 -x I4_contigs -1 $f -2 $f2 --threads 40 -S $out
+done
 ```
 **samtools**
 ------
-After running bowtie2 we will have a .sam file for each sample. We need to convert the sam file to a bam file for anvio.
+After running bowtie2 we will have a .sam file for each sample. We need to convert the sam file to a bam file for anvio. Program needed lots of memory to work properly (20G).
 
 ```bash
- samtools view -b I4_1_I4.sam > I4_1_I4_raw.bam
+ #!/usr/bin/bash
+for f in *I4.sam*
+do
+out="${f//.sam/raw.bam}"
+samtools view -b $f > $out
+done
 ```
-anvio needs the bam files to be indexed so we need to run this for each sample (do in loop)
+
 
 ```bash
 anvi-init-bam K1_1_raw.bam -o K1_1.bam
@@ -69,7 +79,7 @@ module load scipy-stack/2021a
 module load python/3.7
 anvi-script-reformat-fasta K1_contigs.fa -o K1_contigs_fixed.fa -l 1000 --simplify-names
 ```
-
+Then rename it to get rid of fixed in title
 Then make a contigs database of each. This uses prodigal for gene calling. An example with K1
 
 ```bash
