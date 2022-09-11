@@ -40,7 +40,7 @@ once I have a coassembly for each pond I will follow the anvio pipeline.
 Once we have our coassemblies we need to map the reads at each timepoint to the coassembly.
 We will use bowtie2.
 
-```bash
+```bashn
 #!/usr/bin/bash
 
 module load bowtie2
@@ -64,6 +64,7 @@ anvi-init-bam K1_1_raw.bam -o K1_1.bam
 First reformat fasta deflines and remove short contigs (<1000bp). An example with K1
 
 ```bash
+#!/usr/bin/bash
 module load scipy-stack/2021a
 module load python/3.7
 anvi-script-reformat-fasta K1_contigs.fa -o K1_contigs_fixed.fa -l 1000 --simplify-names
@@ -72,13 +73,40 @@ anvi-script-reformat-fasta K1_contigs.fa -o K1_contigs_fixed.fa -l 1000 --simpli
 Then make a contigs database of each. This uses prodigal for gene calling. An example with K1
 
 ```bash
-anvi-gen-contigs-database -f K1_contigs-fixed.fa -o K1_contigs.db -n 'K1 contigs database'
+#!/usr/bin/bash
+source anvio/bin/activate
+module load scipy-stack/2021a
+module load python/3.7
+module load prodigal
+module load diamond
+module load hmmer
+
+for f in *.fa
+do
+out="${f//.fa/.db}"
+anvi-gen-contigs-database -f $f -o $out -T 16
+done
+deactivate
+
 ```
 
 Then run HMMS
 
 ```bash
-anvi-run-hmms -c contigs.db
+
+#!/usr/bin/bash
+source anvio/bin/activate
+module load scipy-stack/2021a
+module load python/3.7
+module load prodigal
+module load diamond
+module load hmmer
+
+for f in *.db
+do
+anvi-run-hmms -c $f -T 16
+done
+deactivate
 ```
 
 To take a look at number of bacteria present and other stats etc run 
@@ -89,8 +117,18 @@ anvi-display-contigs-stats K1_contigs.db
 Then we profile each bam file with the corresponding coassembly
 
 ```bash
-anvi-profile -i K1_1.bam -c contigs_K1.db --min-contig-length 2500 --output-dir K1_1_profile --sample-name K1_1
+#!/usr/bin/bash
+source anvio/bin/activate
+module load scipy-stack/2021a
+module load python/3.7
+
+for f in *_I4.bam*
+do
+anvi-profile -i $f -c I4_contigs.db -T 16
+done
+deactivate
 ```
+
 **RGI**
 ------
 ```bash
