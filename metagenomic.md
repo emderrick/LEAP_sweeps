@@ -128,11 +128,28 @@ done
 deactivate
 ```
 
-To take a look at number of bacteria present and other stats etc run 
-
 ```bash
-anvi-display-contigs-stats K1_contigs.db
+#!/usr/bin/bash
+#SBATCH --time=2:00:00
+#SBATCH --account=ctb-shapiro
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=1
+
+source anvio/bin/activate
+module load scipy-stack/2021a
+module load python/3.7
+module load prodigal
+module load diamond
+module load hmmer
+
+for f in *.db
+do
+anvi-run-scg-taxonomy -c $f
+done
+deactivate
+
 ```
+
 Then we profile each bam file with the corresponding coassembly
 
 ```bash
