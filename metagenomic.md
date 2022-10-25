@@ -171,8 +171,20 @@ Then we use cluster contigs to make a collection.
 
 source anvio/bin/activate
 module load scipy-stack/2021a
-module load metabat2/2.14
-anvi-cluster-contigs -p I8_merged/PROFILE.db -c I8_contigs.db -C I8_collection --driver metabat2 --just-do-it
+anvi-cluster-contigs -p I8_merged/PROFILE.db -c I8_contigs.db -C I8_collection --driver concoct --just-do-it
+
+```
+Visualizing bins using anvi-interactive
+
+```bash
+
+source anvio/bin/activate
+module load scipy-stack/2021a
+module load diamond
+module load prodigal
+
+anvi-interactive -p I4_profiles_merged/PROFILE.db -c I4_contigs.db -C I4_collection --server-only -P 8080
+
 ```
 
 **RGI**
