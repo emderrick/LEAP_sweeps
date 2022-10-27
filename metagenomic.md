@@ -182,6 +182,7 @@ source anvio/bin/activate
 module load scipy-stack/2021a
 module load diamond
 module load prodigal
+module load hmmer
 
 anvi-interactive -p I4_profiles_merged/PROFILE.db -c I4_contigs.db -C I4_collection --server-only -P 8080
 
