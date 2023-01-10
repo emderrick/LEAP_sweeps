@@ -127,6 +127,7 @@ anvi-run-hmms -c $f -T 16
 done
 deactivate
 ```
+The run scg-taxonomy
 
 ```bash
 #!/usr/bin/bash
@@ -215,7 +216,7 @@ anvi-refine -p I4_profiles_merged/PROFILE.db -c I4_contigs.db -C I4_collection -
 
 ```
 
-Then rename all bins to MAGs that are <10 red and <70 comp and include pond name in the MAG
+Then rename all bins to MAGs that are <10 red and >70 comp and include pond name in the MAG
 
 ```bash
 
