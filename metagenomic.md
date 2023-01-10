@@ -30,7 +30,7 @@ done
 #SBATCH --cpus-per-task=32
 module load megahit/1.2.9
 
-megahit -1 L3_1_R1.fastq.gz,L3_2_R1.fastq.gz,L3_3_R1.fastq.gz,L3_4_R1.fastq.gz,L3_5_R1.fastq.gz -2 L3_1_R2.fastq.gz,L3_2_R2.fastq.gz,L3_3_R2.fastq.gz,L3_4_R2.fastq.gz,L3_5_R2.fastq.
+megahit -1 I4_1_R1.fastq.gz,I4_2_R1.fastq.gz,I4_3_R1.fastq.gz,I4_4_R1.fastq.gz,I4_5_R1.fastq.gz -2 I4_1_R2.fastq.gz,I4_2_R2.fastq.gz,I4_3_R2.fastq.gz,I4_4_R2.fastq.gz,I4_5_R2.fastq.
 gz -t 32 -o L3_coassembly
 ```
 once I have a coassembly for each pond I will follow the anvio pipeline.
@@ -80,16 +80,16 @@ deactivate
 
 **Anvio**
 ------
-First reformat fasta deflines and remove short contigs (<1000bp). An example with K1
+First reformat fasta deflines and remove short contigs (<1000bp)
 
 ```bash
 #!/usr/bin/bash
 module load scipy-stack/2021a
 module load python/3.7
-anvi-script-reformat-fasta K1_contigs.fa -o K1_contigs_fixed.fa -l 1000 --simplify-names
+anvi-script-reformat-fasta I4_contigs.fa -o I4_contigs_fixed.fa -l 1000 --simplify-names
 ```
 Then rename it to get rid of fixed in title
-Then make a contigs database of each. This uses prodigal for gene calling. An example with K1
+Then make a contigs database of each. This uses prodigal for gene calling.
 
 ```bash
 #!/usr/bin/bash
@@ -131,7 +131,7 @@ deactivate
 ```bash
 #!/usr/bin/bash
 #SBATCH --time=2:00:00
-#SBATCH --account=ctb-shapiro
+#SBATCH --account=
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 
@@ -171,7 +171,7 @@ Then we use cluster contigs to make a collection.
 
 source anvio/bin/activate
 module load scipy-stack/2021a
-anvi-cluster-contigs -p I8_merged/PROFILE.db -c I8_contigs.db -C I8_collection --driver concoct --just-do-it
+anvi-cluster-contigs -p I4_profiles_merged/PROFILE.db -c I4_contigs.db -C I4_collection --driver concoct --just-do-it
 
 ```
 Visualizing bins using anvi-interactive
@@ -184,7 +184,83 @@ module load diamond
 module load prodigal
 module load hmmer
 
-anvi-interactive -p I4_profiles_merged/PROFILE.db -c I4_contigs.db -C I4_collection --server-only -P 8080
+anvi-interactive -p I4_profiles_merged/PROFILE.db -c I4_contigs.db -C I4_collection --server-only -P 8081
+
+```
+Summarize bins
+
+```bash
+
+source anvio/bin/activate
+module load scipy-stack/2021a
+module load diamond
+module load prodigal
+module load hmmer
+
+anvi-summarize -p I4_profiles_merged/PROFILE.db -c I4_contigs.db -C I4_collection -o I4_bins_summary
+
+```
+
+Then refine each bin of each pond with anvi-refine
+
+```bash
+
+source anvio/bin/activate
+module load scipy-stack/2021a
+module load diamond
+module load prodigal
+module load hmmer
+
+anvi-refine -p I4_profiles_merged/PROFILE.db -c I4_contigs.db -C I4_collection --server-only -P 8081 -b Bin_01
+
+```
+
+Then rename all bins to MAGs that are <10 red and <70 comp and include pond name in the MAG
+
+```bash
+
+source anvio/bin/activate
+module load scipy-stack/2021a
+module load diamond
+module load prodigal
+module load hmmer
+
+anvi-rename-bins -c I4_contigs.db -p I4_profiles_merged/PROFILE.db --prefix I4 --collection-to-read I4_collection --collection-to-write I4_MAGS_FINAL --report-file I4_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10 
+
+```
+
+Then summarize final collection of refined bins
+
+```bash
+
+source anvio/bin/activate
+module load scipy-stack/2021a
+module load diamond
+module load prodigal
+module load hmmer
+
+anvi-summarize -p I4_profiles_merged/PROFILE.db -c I4_contigs.db -C I4_MAGS_FINAL -o I4_BINS_FINAL_SUMMARY
+
+```
+Then extract a fasta file of each MAG from each pond and put in new directory called redundant_MAGS. Use salloc and 10G of memory.
+
+```bash
+
+source anvio/bin/activate
+module load scipy-stack/2021a
+module load diamond
+module load prodigal
+module load hmmer
+
+#!/usr/bin/bash
+for f in I4_BINS_FINAL_SUMMARY/bin_by_bin/*MAG*
+ do
+	name="${f//I4_BINS_FINAL_SUMMARY}"
+	name1="${name///bin_by_bin}"
+	name2="${name1///}"
+	anvi-script-reformat-fasta $f/$name2-contigs.fa --simplify-names --prefix $name2 -o redundant_MAGS/$name2.fa
+done
+
 
 ```
 
