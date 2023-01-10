@@ -262,7 +262,21 @@ for f in I4_BINS_FINAL_SUMMARY/bin_by_bin/*MAG*
 	anvi-script-reformat-fasta $f/$name2-contigs.fa --simplify-names --prefix $name2 -o redundant_MAGS/$name2.fa
 done
 
+```
+Then I created a tab deliminated text file "all_redundant_mags.txt" that contained the name of each MAG and its file path.
 
+Then I computed genome similarity with fastANI. I used 16 threads
+
+```bash
+
+source anvio/bin/activate
+module load scipy-stack/2021a
+module load diamond
+module load prodigal
+module load hmmer
+module load fastani/1.32
+
+anvi-compute-genome-similarity -f all_redundant_mags.txt -o MAG_similarity --program fastANI -T 16
 ```
 
 **RGI**
