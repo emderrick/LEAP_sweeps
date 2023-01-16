@@ -265,7 +265,7 @@ done
 ```
 Then I created a tab deliminated text file "all_redundant_mags.txt" that contained the name of each MAG and its file path.
 
-Then I computed genome similarity with fastANI. I used 16 threads
+Then I dereplicated the MAGs with an anvio program using fastANI. I used 16 threads. I used a 98% ANI.
 
 ```bash
 
@@ -276,7 +276,7 @@ module load prodigal
 module load hmmer
 module load fastani/1.32
 
-anvi-compute-genome-similarity -f all_redundant_mags.txt -o MAG_similarity --program fastANI -T 16
+anvi-dereplicate-genomes -f all_redundant_mags.txt -o dereplicate_MAGS --similarity-threshold 0.98 --program fastANI -T 16
 ```
 
 **RGI**
