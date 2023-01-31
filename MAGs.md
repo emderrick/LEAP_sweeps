@@ -27,3 +27,6 @@ module load prodigal
 
 prodigal -i ALL_MAGS.fa -d mag_genes.fna -a mag_genes.faa -o mag_genes.out
 ```
+Need to covert sam to bam
+
+need to sort bam files
