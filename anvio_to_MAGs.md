@@ -1,7 +1,7 @@
 # Workflow for the metagenomic data
 
 **Trimmomatic**
-------
+
 First trim the reads to remove the Illumina adaptors. I sumbitted this on Narval in a bash script.
 I downloaded the adaptor file from the trimmomatic github page it is TruSeq3-PE.fa
 
@@ -20,7 +20,7 @@ filetwo $paired1 $unpaired1 $paired2 $unpaired2 ILLUMINACLIP:TruSeq3-PE.fa:2:30:
 done
 ```
 **MEGAHIT**
-------
+
 ```bash
 #!/usr/bin/bash
 #SBATCH --time=8:00:00
@@ -36,7 +36,7 @@ gz -t 32 -o L3_coassembly
 once I have a coassembly for each pond I will follow the anvio pipeline.
 
 **bowtie2**
-------
+
 Once we have our coassemblies we need to map the reads at each timepoint to the coassembly.
 We will use bowtie2.
 
@@ -52,7 +52,7 @@ bowtie2 -x I4_contigs -1 $f -2 $f2 --threads 40 -S $out
 done
 ```
 **samtools**
-------
+
 After running bowtie2 we will have a .sam file for each sample. We need to convert the sam file to a bam file for anvio. Program needed lots of memory to work properly (20G).
 
 ```bash
@@ -79,7 +79,7 @@ deactivate
 ```
 
 **Anvio**
-------
+
 First reformat fasta deflines and remove short contigs (<1000bp)
 
 ```bash
