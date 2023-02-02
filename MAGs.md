@@ -2,10 +2,22 @@
 
 I now have my dereplicated MAGs. I also created a file with scaffolds_to_genomes.sh that has two columns, the first is the scaffold/contig name and the second column is the MAG name. 
 
+Create a fasta file of all MAGs. (In directory containing all non-redundant MAGs)
+
+```bash
+cat *.fa > ALL_MAGS.fa
+```
+
+Build a bowtie index of all MAGs. I did this with salloc.
+
+```bash
+module load bowtie2
+bowtie2-build ALL_MAGS.fa
+```
+
 I will map the metagenomic reads from each timepoint to a database containing all the non-redudant MAGs.
 
 ```bash
-
 #!/usr/bin/bash
 #SBATCH --time=8:00:00
 #SBATCH --account=
@@ -49,8 +61,8 @@ do
 out="${f//default.sam/default.bam}"
 samtools view -b $f > $out
 done
-
 ```
+
 Then need to sort bam files
 
 ```bash
@@ -66,7 +78,6 @@ do
 out="${f//default.bam/_sorted.bam}"
 samtools sort $f > $out
 done
-
 ```
 
 **InStrain**
