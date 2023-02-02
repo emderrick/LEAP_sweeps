@@ -83,6 +83,7 @@ done
 **InStrain**
 
 "By default, if a read maps equally well to multiple genomes, Bowtie2 will pick one of the positions randomly and give the read a MAPQ score of 1. Thus, if you’d like to remove multi-mapped reads, you can set the minimum mapQ score to 2. Must be >, not >=" - I will set MAPQ to 1 which means must be greater than 1 so 2.
+
 There is also an option to set the minimum coverage for a genome to be profiled. I will set this to 5X which will save a lot of time.
 
 ```bash
