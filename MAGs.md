@@ -82,7 +82,7 @@ done
 
 **InStrain**
 
-"By default, if a read maps equally well to multiple genomes, Bowtie2 will pick one of the positions randomly and give the read a MAPQ score of 1. Thus, if you’d like to remove multi-mapped reads, you can set the minimum mapQ score to 2. Must be >, not >=" - I will set MAPQ to 1 which means must be greater than 1 so 2.
+"By default, if a read maps equally well to multiple genomes, Bowtie2 will pick one of the positions randomly and give the read a MAPQ score of 1. Thus, if you’d like to remove multi-mapped reads, you can set the minimum mapQ score to 2. 
 
 There is also an option to set the minimum coverage for a genome to be profiled. I will set this to 5X which will save a lot of time.
 
@@ -129,4 +129,24 @@ samtools merge -o L6_pulse2.bam L6_4_sorted.bam L6_5_sorted.bam --threads 8
 samtools merge -o L7_pulse1.bam L7_2_sorted.bam L7_3_sorted.bam --threads 8 
 samtools merge -o L8_pulse1.bam L8_2_sorted.bam L8_3_sorted.bam --threads 8
 samtools merge -o L8_pulse2.bam L8_4_sorted.bam L8_5_sorted.bam --threads 8
+```
+
+InStrain profile on merged files. Changing some parameters from earlier
+
+```bash
+#!/usr/bin/bash
+#SBATCH --time=4:00:00
+#SBATCH --account=
+#SBATCH --cpus-per-task=32
+#SBATCH --mem-per-cpu=4G
+
+module load python/3.8.10
+module load StdEnv/2020  gcc/9.3.0
+module load prodigal samtools/1.16
+
+for f in *sorted.bam
+do
+out="${f//sorted.bam/cov5_instrain_profile}"
+inStrain profile $f ALL_MAGS.fa -o $out -p 32 -g mag_genes.fna -s genome_scaffold.stb --min_mapq 2 --database_mode --min_genome_coverage 5
+done
 ```
