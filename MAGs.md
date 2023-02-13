@@ -103,3 +103,30 @@ out="${f//sorted.bam/cov5_instrain_profile}"
 inStrain profile $f ALL_MAGS.fa -o $out -p 32 -g mag_genes.fna -s genome_scaffold.stb --min_mapq 1 --skip_mm_profiling --min_genome_coverage 5
 done
 ```
+This didn't leave me with many MAGs with over 5X coverage present in multiple ponds. 
+
+I am going to merge the timepoints after the first pulse and the timepoints after the second pulse. 
+
+There is no merging for I4 pulse 2 because there is no timepoint 5. There is no pulse 2 for L7.
+
+In interactive node with 8 cpu and 4G memory.
+
+```bash
+module load samtools
+samtools merge -o I4_pulse1.bam I4_2_sorted.bam I4_3_sorted.bam --threads 8
+samtools merge -o I8_pulse1.bam I8_2_sorted.bam I8_3_sorted.bam --threads 8
+samtools merge -o I8_pulse2.bam I8_4_sorted.bam I8_5_sorted.bam --threads 8
+samtools merge -o K1_pulse1.bam K1_2_sorted.bam K1_3_sorted.bam --threads 8
+samtools merge -o K1_pulse2.bam K1_4_sorted.bam K1_5_sorted.bam --threads 8
+samtools merge -o L2_pulse1.bam L2_2_sorted.bam L2_3_sorted.bam --threads 8
+samtools merge -o L2_pulse2.bam L2_4_sorted.bam L2_5_sorted.bam --threads 8
+samtools merge -o L3_pulse1.bam L3_2_sorted.bam L3_3_sorted.bam --threads 8
+samtools merge -o L3_pulse2.bam L3_4_sorted.bam L3_5_sorted.bam --threads 8
+samtools merge -o L4_pulse1.bam L4_2_sorted.bam L4_3_sorted.bam --threads 8
+samtools merge -o L4_pulse2.bam L4_4_sorted.bam L4_5_sorted.bam --threads 8
+samtools merge -o L6_pulse1.bam L6_2_sorted.bam L6_3_sorted.bam --threads 8
+samtools merge -o L6_pulse2.bam L6_4_sorted.bam L6_5_sorted.bam --threads 8
+samtools merge -o L7_pulse1.bam L7_2_sorted.bam L7_3_sorted.bam --threads 8 
+samtools merge -o L8_pulse1.bam L8_2_sorted.bam L8_3_sorted.bam --threads 8
+samtools merge -o L8_pulse2.bam L8_4_sorted.bam L8_5_sorted.bam --threads 8
+```
