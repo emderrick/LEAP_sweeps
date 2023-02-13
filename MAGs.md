@@ -144,7 +144,7 @@ module load python/3.8.10
 module load StdEnv/2020  gcc/9.3.0
 module load prodigal samtools/1.16
 
-for f in *sorted.bam
+for f in *pulse*.bam
 do
 out="${f//sorted.bam/cov5_instrain_profile}"
 inStrain profile $f ALL_MAGS.fa -o $out -p 32 -g mag_genes.fna -s genome_scaffold.stb --min_mapq 2 --database_mode --min_genome_coverage 5
