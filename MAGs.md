@@ -131,7 +131,7 @@ samtools merge -o L8_pulse1.bam L8_2_sorted.bam L8_3_sorted.bam --threads 8
 samtools merge -o L8_pulse2.bam L8_4_sorted.bam L8_5_sorted.bam --threads 8
 ```
 
-InStrain profile on merged files. Changing some parameters from earlier
+InStrain profile on merged files. Changing some parameters from earlier. The --database_mode flag does --min_read_ani 0.92 --skip_mm_profiling --min_genome_coverage 1 but I want --min_genome_coverage 5 so I will use those three parameters individually instead of using --database_mode
 
 ```bash
 #!/usr/bin/bash
@@ -147,6 +147,6 @@ module load prodigal samtools/1.16
 for f in *pulse*.bam
 do
 out="${f//sorted.bam/cov5_instrain_profile}"
-inStrain profile $f ALL_MAGS.fa -o $out -p 32 -g mag_genes.fna -s genome_scaffold.stb --min_mapq 2 --database_mode --min_genome_coverage 5
+inStrain profile $f ALL_MAGS.fa -o $out -p 32 -g mag_genes.fna -s genome_scaffold.stb --min_mapq 2 --min_read_ani 0.92 --skip_mm_profiling --min_genome_coverage 5
 done
 ```
