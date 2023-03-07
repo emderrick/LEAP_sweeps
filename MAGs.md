@@ -81,6 +81,7 @@ done
 ```
 
 **InStrain**
+used inStrain version 1.6.4
 
 "By default, if a read maps equally well to multiple genomes, Bowtie2 will pick one of the positions randomly and give the read a MAPQ score of 1. Thus, if you’d like to remove multi-mapped reads, you can set the minimum mapQ score to 2. 
 
