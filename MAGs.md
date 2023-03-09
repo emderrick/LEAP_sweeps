@@ -80,6 +80,21 @@ samtools sort $f > $out
 done
 ```
 
+Then need to index bam files (inStrain will also do this for you if you don't)
+
+```bash
+#!/usr/bin/bash
+#SBATCH --time=2:00:00
+#SBATCH --account=
+#SBATCH --cpus-per-task=4
+#SBATCH --mem-per-cpu=8G
+
+module load samtools
+for f in *sorted.bam
+do
+samtools index $f
+done
+```
 **InStrain**
 used inStrain version 1.6.4
 
@@ -149,5 +164,25 @@ for f in *pulse*.bam
 do
 out="${f//sorted.bam/cov5_instrain_profile}"
 inStrain profile $f ALL_MAGS.fa -o $out -p 32 -g mag_genes.fna -s genome_scaffold.stb --min_mapq 2 --min_read_ani 0.92 --skip_mm_profiling --min_genome_coverage 5
+done
+```
+
+InStrain released verson 1.7.1 so going to try that. Also changing min_read_ani to 0.99.
+
+```bash
+#!/usr/bin/bash
+#SBATCH --time=4:00:00
+#SBATCH --account=
+#SBATCH --cpus-per-task=32
+#SBATCH --mem-per-cpu=4G
+
+module load python/3.8.10
+module load StdEnv/2020  gcc/9.3.0
+module load prodigal samtools/1.16
+
+for f in *pulse*.bam
+do
+out="${f//.bam/_ANI_99_instrain_profile}"
+inStrain profile $f ALL_MAGS.fa -o $out -p 32 -g mag_genes.fna -s genome_scaffold.stb --min_mapq 2 --min_read_ani 0.99 --skip_mm_profiling --min_genome_coverage 5
 done
 ```
