@@ -176,6 +176,7 @@ InStrain released verson 1.7.1 so going to try that. Also changing min_read_ani 
 #SBATCH --cpus-per-task=32
 #SBATCH --mem-per-cpu=4G
 
+source /home/ederrick/virtual_envs/instrain/bin/activate
 module load python/3.8.10
 module load StdEnv/2020  gcc/9.3.0
 module load prodigal samtools/1.16
