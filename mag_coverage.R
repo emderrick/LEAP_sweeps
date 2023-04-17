@@ -11,7 +11,7 @@ mag_list<-list("L3_MAG_00058", "I8_MAG_00005", "L4_MAG_00099", "L8_MAG_00019", "
                "L7_MAG_00043", "L7_MAG_00028")
 
 #PLOTTING SCAFFOLD COVERAGE 
-#load scaffold summary
+#load scaffold summary from output created using combine_instrain_files.R
 mag_scaffolds <- read_csv("mag_scaffolds.csv")
 mag_scaf <- filter(mag_scaffolds, mag %in% mag_list)
 mag_scaf<-filter(mag_scaf, coverage >=4)
