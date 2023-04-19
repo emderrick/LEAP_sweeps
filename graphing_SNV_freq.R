@@ -4,6 +4,7 @@ library(dplyr)
 library(viridis)
 library(stringr)
 
+
 setwd("/Users/Emma/OneDrive - McGill University/Documents/phd docs/Chapter 1/Aim 1A")
 
 #create list of MAGs I'm using
