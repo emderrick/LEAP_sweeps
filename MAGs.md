@@ -187,3 +187,41 @@ out="${f//.bam/_ANI_99_instrain_profile}"
 inStrain profile $f ALL_MAGS.fa -o $out -p 32 -g mag_genes.fna -s genome_scaffold.stb --min_mapq 2 --min_read_ani 0.99 --skip_mm_profiling --min_genome_coverage 5
 done
 ```
+
+InStrain doesn't report coverage at positions where an SNV isn't called so need to run samtools depth to find the coverage at each position.
+
+```bash
+#!/usr/bin/bash
+#SBATCH --time=1:00:00
+#SBATCH --account=
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem-per-cpu=10G
+
+module load samtools/1.17
+for f in *.bam
+do
+out="${f//.bam/_depth.txt}"
+samtools depth $f -o $out -a -Q 2 -@ 8
+done
+```
+
+These outputs are huge so I'm going to filter each output for each MAG. Will end up with 26 x 7 files to merge
+
+nohup bash -c 'for f in *depth.txt; do grep "I8_MAG_00005*" $f > ${f%.txt}_I8_MAG_00005.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep "L4_MAG_00099*" $f > ${f%.txt}_L4_MAG_00099.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep "L3_MAG_00058*" $f > ${f%.txt}_L3_MAG_00058.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep "L7_MAG_00028*" $f > ${f%.txt}_L7_MAG_00028.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep "L7_MAG_00043*" $f > ${f%.txt}_L7_MAG_00043.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep "L8_MAG_00011*" $f > ${f%.txt}_L8_MAG_00011.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep "L8_MAG_00019*" $f > ${f%.txt}_L8_MAG_00019.txt; done' &
+
+
+
+
+
+
+
+
+
+
