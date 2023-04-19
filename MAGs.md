@@ -188,6 +188,27 @@ inStrain profile $f ALL_MAGS.fa -o $out -p 32 -g mag_genes.fna -s genome_scaffol
 done
 ```
 
+Rerunning InStrain AGAIN to change min read ani to 0.95 because the InStrain documentation says to set it 3% lower than you actually want it. and to report all SNVs even ones that have low coverage.
+
+```bash
+#!/usr/bin/bash
+#SBATCH --time=24:00:00
+#SBATCH --account=
+#SBATCH --cpus-per-task=32
+#SBATCH --mem-per-cpu=4G
+
+source /home/ederrick/virtual_envs/instrain/bin/activate
+module load python/3.8.10
+module load StdEnv/2020  gcc/9.3.0
+module load prodigal samtools/1.16
+
+for f in *.bam
+do
+out="${f//.bam/_ANI_95_instrain_profile}"
+inStrain profile $f ALL_MAGS.fa -o $out -p 32 -g mag_genes.fna -s genome_scaffold.stb --min_mapq 2 --min_read_ani 0.95 --skip_mm_profiling --min_genome_coverage 5 --min_freq 0
+done
+```
+
 InStrain doesn't report coverage at positions where an SNV isn't called so need to run samtools depth to find the coverage at each position.
 
 ```bash
@@ -208,16 +229,36 @@ done
 
 These outputs are huge so I'm going to filter each output for each MAG. Will end up with 26 x 7 files to merge
 
-nohup bash -c 'for f in *depth.txt; do grep "I8_MAG_00005*" $f > ${f%.txt}_I8_MAG_00005.txt; done' &
-nohup bash -c 'for f in *depth.txt; do grep "L4_MAG_00099*" $f > ${f%.txt}_L4_MAG_00099.txt; done' &
-nohup bash -c 'for f in *depth.txt; do grep "L3_MAG_00058*" $f > ${f%.txt}_L3_MAG_00058.txt; done' &
-nohup bash -c 'for f in *depth.txt; do grep "L7_MAG_00028*" $f > ${f%.txt}_L7_MAG_00028.txt; done' &
-nohup bash -c 'for f in *depth.txt; do grep "L7_MAG_00043*" $f > ${f%.txt}_L7_MAG_00043.txt; done' &
-nohup bash -c 'for f in *depth.txt; do grep "L8_MAG_00011*" $f > ${f%.txt}_L8_MAG_00011.txt; done' &
-nohup bash -c 'for f in *depth.txt; do grep "L8_MAG_00019*" $f > ${f%.txt}_L8_MAG_00019.txt; done' &
+```bash
+nohup bash -c 'for f in *depth.txt; do grep I8_MAG_00005 $f > ${f%.txt}_I8_MAG_00005.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep L4_MAG_00099 $f > ${f%.txt}_L4_MAG_00099.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep L3_MAG_00058 $f > ${f%.txt}_L3_MAG_00058.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep L7_MAG_00028 $f > ${f%.txt}_L7_MAG_00028.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep L7_MAG_00043 $f > ${f%.txt}_L7_MAG_00043.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep L8_MAG_00011 $f > ${f%.txt}_L8_MAG_00011.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep L8_MAG_00019 $f > ${f%.txt}_L8_MAG_00019.txt; done' &
+```
 
+Need to add column with the pulse to the depth files
 
+```bash
+for f in *MAG*
+do
+col="${f//_depth*/}"
+out="${f//.txt/_fixed.txt}"
+sed "s/.*/&\t"$col"/" $f > $out
+done
+```
 
+then overwrite old files
+
+```bash
+for f in *fixed.txt
+do
+out="${f//_fixed.txt/.txt}"
+mv $f $out
+done
+```
 
 
 
