@@ -215,7 +215,6 @@ InStrain doesn't report coverage at positions where an SNV isn't called so need 
 #!/usr/bin/bash
 #SBATCH --time=1:00:00
 #SBATCH --account=
-#SBATCH --nodes=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem-per-cpu=10G
 
@@ -260,8 +259,17 @@ mv $f $out
 done
 ```
 
+then combine the outputs by MAG to later merge in R with SNV info by MAG.
 
-
+```bash
+cat *I8_MAG_00005* > I8_MAG_00005_depth.txt
+cat *L3_MAG_00058* > L3_MAG_00058_depth.txt
+cat *L4_MAG_00099* > L4_MAG_00099_depth.txt
+cat *L7_MAG_00028* > L7_MAG_00028_depth.txt
+cat *L7_MAG_00043* > L7_MAG_00043_depth.txt
+cat *L8_MAG_00011* > L8_MAG_00011_depth.txt
+cat *L8_MAG_00019* > L8_MAG_00019_depth.txt
+```
 
 
 
