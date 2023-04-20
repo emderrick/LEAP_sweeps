@@ -6,6 +6,10 @@ library(stringr)
 
 setwd("/Users/Emma/OneDrive - McGill University/Documents/phd docs/Chapter 1/Aim 1A")
 
+mag_list<-list("L3_MAG_00058", "I8_MAG_00005", "L4_MAG_00099", "L8_MAG_00019", "L8_MAG_00011",
+               "L7_MAG_00043", "L7_MAG_00028", "I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052",
+               "L7_MAG_00020", "L8_MAG_00042", "L2_MAG_00048")
+
 #list genome files from instrain output in directory
 genome_files<-list.files("95_profiles/",recursive = T, pattern=".*genome_info.tsv",full.names = T)
 
@@ -20,9 +24,20 @@ for(i in 1:length(genome_files)){
   all_mags<-rbind(all_mags,pond_time_mags)
 }
 
-#adding new columns with info I need
+#will use this file for graphing summary figures
+summary_mags <- filter(all_mags, genome %in% mag_list)
+summary_mags$pond<-summary_mags$timepoint%>%substr(1,2)
+summary_mags$time<-summary_mags$timepoint%>%substr(9,9)
+summary_mags$time<- as.numeric(summary_mags$time)
+summary_mags$new_time<-summary_mags$time +1
+summary_mags <- mutate(summary_mags, treatment = ifelse(pond == "I4" | pond == "K1" | pond == "L3" | pond == "L4" | pond == "I8", "control", "glyphosate"))
+summary_mags <- mutate(summary_mags, treatment =ifelse(pond == "I8", "phosphorus", treatment))
+write.csv(summary_mags, "ANI_95_mags.csv", row.names = F)
+
+#adding new columns with info I need to big file
 all_mags$genome_length<- all_mags$length
 all_mags$mag<- all_mags$genome
+
 
 #make a new dataframe with only 3 columns I need to add to the scaffold file
 mag_length <- all_mags[, c("mag", "genome_length", "timepoint", "coverage")]
@@ -72,10 +87,14 @@ mag_scaf_SNV$new_time<-mag_scaf_SNV$time.y +1
 
 #list of mags with potential
 mag_list<-list("L3_MAG_00058", "I8_MAG_00005", "L4_MAG_00099", "L8_MAG_00019", "L8_MAG_00011",
-               "L7_MAG_00043", "L7_MAG_00028")
+               "L7_MAG_00043", "L7_MAG_00028", "I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052",
+               "L7_MAG_00020", "L8_MAG_00042", "L2_MAG_00048")
 
 #filter to only include candidate mags
 mags <- filter(mag_scaf_SNV, mag.x %in% mag_list)
+
+#save so I don't have to keep re-running this
+write.csv(mags, "ANI_95_SNVs.csv", row.names = F)
 
 #filter SNVs within 100bp of beginning and end of scaffold
 mags$pos_from_end<-mags$length-mags$position
@@ -93,5 +112,3 @@ mags$number_divergent<- 1
 mags <- mutate(mags, treatment = ifelse(pond.y == "I4" | pond.y == "K1" | pond.y == "L3" | pond.y == "L4" | pond.y == "I8", "control", "glyphosate"))
 mags <- mutate(mags, treatment =ifelse(pond.y == "I8", "phosphorus", treatment))
 
-#save so I don't have to keep re-running this
-write.csv(mags, "ANI_95_mags.csv", row.names = F)
