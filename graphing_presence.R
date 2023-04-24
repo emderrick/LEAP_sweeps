@@ -18,7 +18,7 @@ ggplot(completed_mags, aes(x = new_time, y=genome)) +
 ggsave("mag_time.png", limitsize = FALSE)
 
 #individual by MAG
-ggplot(subset(completed_mags, genome=="L3_MAG_00058"), aes(x = new_time, y=pond, colour=treatment))+
+L3_MAG_00058_pres <- ggplot(subset(completed_mags, genome=="L3_MAG_00058"), aes(x = new_time, y=pond, colour=treatment))+
   geom_point(size=4)+
   scale_colour_manual(values = c("#00A86B", "#AF69EF", "#9932CC"))+
   theme_classic(base_size=13)+
@@ -29,7 +29,7 @@ ggplot(subset(completed_mags, genome=="L3_MAG_00058"), aes(x = new_time, y=pond,
 
 ggsave("L3_MAG_00058_time_pond.png", limitsize = FALSE)
 
-I8_MAG_00005_pres <- ggplot(subset(completed_mags, genome=="I8_MAG_00005"), aes(x = new_time, y=pond))+
+I8_MAG_00005_pres <- ggplot(subset(completed_mags, genome=="I8_MAG_00005"), aes(x = new_time, y=pond, colour=treatment))+
   geom_point(size=4)+
   scale_colour_manual(values = c("#00A86B", "#AF69EF", "#9932CC"))+
   theme_classic(base_size=13)+
@@ -40,7 +40,7 @@ I8_MAG_00005_pres <- ggplot(subset(completed_mags, genome=="I8_MAG_00005"), aes(
 
 ggsave("I8_MAG_00005_time_pond.png", limitsize = FALSE)
 
-L4_MAG_00099_pres <- ggplot(subset(completed_mags, genome=="L4_MAG_00099"), aes(x = new_time, y=pond))+
+L4_MAG_00099_pres <- ggplot(subset(completed_mags, genome=="L4_MAG_00099"), aes(x = new_time, y=pond, colour=treatment))+
   geom_point(size=4)+
   scale_colour_manual(values = c("#00A86B", "#AF69EF", "#9932CC"))+
   theme_classic(base_size=13)+
@@ -51,7 +51,7 @@ L4_MAG_00099_pres <- ggplot(subset(completed_mags, genome=="L4_MAG_00099"), aes(
 
 ggsave("L4_MAG_00099_time_pond.png", limitsize = FALSE)
 
-L8_MAG_00019_pres <- ggplot(subset(completed_mags, genome=="L8_MAG_00019"), aes(x = new_time, y=pond))+
+L8_MAG_00019_pres <- ggplot(subset(completed_mags, genome=="L8_MAG_00019"), aes(x = new_time, y=pond, colour=treatment))+
   geom_point(size=4)+
   scale_colour_manual(values = c("#00A86B", "#AF69EF", "#9932CC"))+
   theme_classic(base_size=13)+
@@ -62,7 +62,7 @@ L8_MAG_00019_pres <- ggplot(subset(completed_mags, genome=="L8_MAG_00019"), aes(
 
 ggsave("L8_MAG_00019_time_pond.png", limitsize = FALSE)
 
-L8_MAG_00011_pres <- ggplot(subset(completed_mags, genome=="L8_MAG_00011"), aes(x = new_time, y=pond))+
+L8_MAG_00011_pres <- ggplot(subset(completed_mags, genome=="L8_MAG_00011"), aes(x = new_time, y=pond, colour=treatment))+
   geom_point(size=4)+
   scale_colour_manual(values = c("#00A86B", "#AF69EF", "#9932CC"))+
   theme_classic(base_size=13)+
@@ -73,7 +73,7 @@ L8_MAG_00011_pres <- ggplot(subset(completed_mags, genome=="L8_MAG_00011"), aes(
 
 ggsave("L8_MAG_00011_time_pond.png", limitsize = FALSE)
 
-L7_MAG_00043_pres <- ggplot(subset(completed_mags, genome=="L7_MAG_00043"), aes(x = new_time, y=pond))+
+L7_MAG_00043_pres <- ggplot(subset(completed_mags, genome=="L7_MAG_00043"), aes(x = new_time, y=pond, colour=treatment))+
   geom_point(size=4)+
   scale_colour_manual(values = c("#00A86B", "#AF69EF", "#9932CC"))+
   theme_classic(base_size=13)+
@@ -84,7 +84,7 @@ L7_MAG_00043_pres <- ggplot(subset(completed_mags, genome=="L7_MAG_00043"), aes(
 
 ggsave("L7_MAG_00043_time_pond.png", limitsize = FALSE)
 
-L7_MAG_00028_pres <- ggplot(subset(completed_mags, genome=="L7_MAG_00028"), aes(x = new_time, y=pond))+
+L7_MAG_00028_pres <- ggplot(subset(completed_mags, genome=="L7_MAG_00028"), aes(x = new_time, y=pond, colour=treatment))+
   geom_point(size=4)+
   scale_colour_manual(values = c("#00A86B", "#AF69EF", "#9932CC"))+
   theme_classic(base_size=13)+
@@ -95,7 +95,7 @@ L7_MAG_00028_pres <- ggplot(subset(completed_mags, genome=="L7_MAG_00028"), aes(
 
 ggsave("L7_MAG_00028_time_pond.png", limitsize = FALSE)
 
-I4_MAG_00006_pres <- ggplot(subset(completed_mags, genome=="I4_MAG_00006"), aes(x = new_time, y=pond))+
+I4_MAG_00006_pres <- ggplot(subset(completed_mags, genome=="I4_MAG_00006"), aes(x = new_time, y=pond, colour=treatment))+
   geom_point(size=4)+
   scale_colour_manual(values = c("#00A86B", "#AF69EF", "#9932CC"))+
   theme_classic(base_size=13)+
@@ -106,7 +106,7 @@ I4_MAG_00006_pres <- ggplot(subset(completed_mags, genome=="I4_MAG_00006"), aes(
 
 ggsave("I4_MAG_00006_time_pond.png", limitsize = FALSE)
 
-I4_MAG_00065_pres <- ggplot(subset(completed_mags, genome=="I4_MAG_00065"), aes(x = new_time, y=pond))+
+I4_MAG_00065_pres <- ggplot(subset(completed_mags, genome=="I4_MAG_00065"), aes(x = new_time, y=pond, colour=treatment))+
   geom_point(size=4)+
   scale_colour_manual(values = c("#00A86B", "#AF69EF", "#9932CC"))+
   theme_classic(base_size=13)+
@@ -117,7 +117,7 @@ I4_MAG_00065_pres <- ggplot(subset(completed_mags, genome=="I4_MAG_00065"), aes(
 
 ggsave("I4_MAG_00065_time_pond.png", limitsize = FALSE)
 
-L2_MAG_00052_pres <- ggplot(subset(completed_mags, genome=="L2_MAG_00052"), aes(x = new_time, y=pond))+
+L2_MAG_00052_pres <- ggplot(subset(completed_mags, genome=="L2_MAG_00052"), aes(x = new_time, y=pond, colour=treatment))+
   geom_point(size=4)+
   scale_colour_manual(values = c("#00A86B", "#AF69EF", "#9932CC"))+
   theme_classic(base_size=13)+
@@ -128,7 +128,7 @@ L2_MAG_00052_pres <- ggplot(subset(completed_mags, genome=="L2_MAG_00052"), aes(
 
 ggsave("L2_MAG_00052_time_pond.png", limitsize = FALSE)
 
-L7_MAG_00020_pres <- ggplot(subset(completed_mags, genome=="L7_MAG_00020"), aes(x = new_time, y=pond))+
+L7_MAG_00020_pres <- ggplot(subset(completed_mags, genome=="L7_MAG_00020"), aes(x = new_time, y=pond, colour=treatment))+
   geom_point(size=4)+
   scale_colour_manual(values = c("#00A86B", "#AF69EF", "#9932CC"))+
   theme_classic(base_size=13)+
@@ -139,7 +139,7 @@ L7_MAG_00020_pres <- ggplot(subset(completed_mags, genome=="L7_MAG_00020"), aes(
 
 ggsave("L7_MAG_00020_time_pond.png", limitsize = FALSE)
 
-L8_MAG_00042_pres <- ggplot(subset(completed_mags, genome=="L8_MAG_00042"), aes(x = new_time, y=pond))+
+L8_MAG_00042_pres <- ggplot(subset(completed_mags, genome=="L8_MAG_00042"), aes(x = new_time, y=pond, colour=treatment))+
   geom_point(size=4)+
   scale_colour_manual(values = c("#00A86B", "#AF69EF", "#9932CC"))+
   theme_classic(base_size=13)+
@@ -150,7 +150,7 @@ L8_MAG_00042_pres <- ggplot(subset(completed_mags, genome=="L8_MAG_00042"), aes(
 
 ggsave("L8_MAG_00042_time_pond.png", limitsize = FALSE)
 
-L2_MAG_00048_pres <- ggplot(subset(completed_mags, genome=="L2_MAG_00048"), aes(x = new_time, y=pond))+
+L2_MAG_00048_pres <- ggplot(subset(completed_mags, genome=="L2_MAG_00048"), aes(x = new_time, y=pond, colour=treatment))+
   geom_point(size=4)+
   scale_colour_manual(values = c("#00A86B", "#AF69EF", "#9932CC"))+
   theme_classic(base_size=13)+

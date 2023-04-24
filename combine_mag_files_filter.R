@@ -78,7 +78,7 @@ mag_scaf_SNV$group<- paste(mag_scaf_SNV$mag, "in pond", mag_scaf_SNV$pond)
 write.csv(mag_scaf_SNV, "ANI_95_all_SNVs.csv", row.names = F)
 
 #filter to only include candidate mags
-mags <- filter(mag_scaf_SNV, mag.x %in% mag_list)
+mags <- filter(mag_scaf_SNV, mag %in% mag_list)
 
 #save version with just MAGs of interest
 write.csv(mags, "ANI_95_mag_SNVs.csv", row.names = F)
@@ -98,4 +98,3 @@ mags$number_divergent<- 1
 #add new column for treatment
 mags <- mutate(mags, treatment = ifelse(pond.y == "I4" | pond.y == "K1" | pond.y == "L3" | pond.y == "L4" | pond.y == "I8", "control", "glyphosate"))
 mags <- mutate(mags, treatment =ifelse(pond.y == "I8", "phosphorus", treatment))
-

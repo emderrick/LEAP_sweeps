@@ -7,14 +7,9 @@ library(ggpubr)
 
 setwd("/Users/Emma/OneDrive - McGill University/Documents/phd docs/Chapter 1/Aim 1A")
 
-#create list of MAGs I'm using
-mag_list<-list("L3_MAG_00058", "I8_MAG_00005", "L4_MAG_00099", "L8_MAG_00019", "L8_MAG_00011",
-               "L7_MAG_00043", "L7_MAG_00028", "I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052",
-               "L7_MAG_00020", "L8_MAG_00042", "L2_MAG_00048")
-
 #PLOTTING REFERENCE FREQ AT EACH POSITION
 #load mag snv info
-mags <- read_csv("ANI_95_mags.csv")
+mags <- read_csv("ANI_95_mag_SNVs.csv")
 
 #CLASS 1 EXAMPLES
 
