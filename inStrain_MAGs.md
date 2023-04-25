@@ -236,6 +236,12 @@ nohup bash -c 'for f in *depth.txt; do grep L7_MAG_00028 $f > ${f%.txt}_L7_MAG_0
 nohup bash -c 'for f in *depth.txt; do grep L7_MAG_00043 $f > ${f%.txt}_L7_MAG_00043.txt; done' &
 nohup bash -c 'for f in *depth.txt; do grep L8_MAG_00011 $f > ${f%.txt}_L8_MAG_00011.txt; done' &
 nohup bash -c 'for f in *depth.txt; do grep L8_MAG_00019 $f > ${f%.txt}_L8_MAG_00019.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep I4_MAG_00006 $f > ${f%.txt}_I4_MAG_00006.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep I4_MAG_00065 $f > ${f%.txt}_I4_MAG_00065.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep L2_MAG_00052 $f > ${f%.txt}_L2_MAG_00052.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep L7_MAG_00020 $f > ${f%.txt}_L7_MAG_00020.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep L8_MAG_00042 $f > ${f%.txt}_L8_MAG_00042.txt; done' &
+nohup bash -c 'for f in *depth.txt; do grep L2_MAG_00048 $f > ${f%.txt}_L2_MAG_00048.txt; done' &
 ```
 
 Need to add column with the pulse to the depth files
@@ -269,6 +275,12 @@ cat *L7_MAG_00028* > L7_MAG_00028_depth.txt
 cat *L7_MAG_00043* > L7_MAG_00043_depth.txt
 cat *L8_MAG_00011* > L8_MAG_00011_depth.txt
 cat *L8_MAG_00019* > L8_MAG_00019_depth.txt
+cat *I4_MAG_00006* > I4_MAG_00006_depth.txt
+cat *I4_MAG_00065* > I4_MAG_00065_depth.txt
+cat *L2_MAG_00052* > L2_MAG_00052_depth.txt
+cat *L7_MAG_00020* > L7_MAG_00020_depth.txt
+cat *L8_MAG_00042* > L8_MAG_00042_depth.txt
+cat *L2_MAG_00048* > L2_MAG_00048_depth.txt
 ```
 
 
