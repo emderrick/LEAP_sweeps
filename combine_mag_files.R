@@ -83,18 +83,3 @@ mags <- filter(mag_scaf_SNV, mag %in% mag_list)
 #save version with just MAGs of interest
 write.csv(mags, "ANI_95_mag_SNVs.csv", row.names = F)
 
-#filter SNVs within 100bp of beginning and end of scaffold
-mags$pos_from_end<-mags$length-mags$position
-mags<- filter(mags, position > 100)
-mags<- filter(mags, pos_from_end > 100)
-mags<-filter(mags, coverage >=4)
-
-#assign value of 1 to everything that isn't an SNS and assign 0 to SNS
-mags <- mutate(mags, number_SNVs = ifelse(class == "SNS", 0, 1))
-#assign value of 1 to SNS and 0 to everythign else
-mags <- mutate(mags, number_SNSs = ifelse(class == "SNS", 1, 0))
-mags$number_divergent<- 1
-
-#add new column for treatment
-mags <- mutate(mags, treatment = ifelse(pond.y == "I4" | pond.y == "K1" | pond.y == "L3" | pond.y == "L4" | pond.y == "I8", "control", "glyphosate"))
-mags <- mutate(mags, treatment =ifelse(pond.y == "I8", "phosphorus", treatment))
