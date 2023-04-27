@@ -21,7 +21,6 @@ I will map the metagenomic reads from each timepoint to a database containing al
 #!/usr/bin/bash
 #SBATCH --time=8:00:00
 #SBATCH --account=
-#SBATCH --nodes=1
 #SBATCH --cpus-per-task=32
 
 module load bowtie2

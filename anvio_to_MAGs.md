@@ -25,7 +25,6 @@ done
 #!/usr/bin/bash
 #SBATCH --time=8:00:00
 #SBATCH --account=
-#SBATCH --nodes=1
 #SBATCH --mem-per-cpu=10G
 #SBATCH --cpus-per-task=32
 module load megahit/1.2.9
@@ -133,7 +132,6 @@ The run scg-taxonomy
 #!/usr/bin/bash
 #SBATCH --time=2:00:00
 #SBATCH --account=
-#SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 
 source anvio/bin/activate
