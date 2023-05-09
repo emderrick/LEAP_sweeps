@@ -204,14 +204,14 @@ ggarrange(I4_MAG_00006_heat, L2_MAG_00048_heat, L7_MAG_00028_heat,
           L3_MAG_00058_heat, I4_MAG_00065_heat, L4_MAG_00099_heat,
           L2_MAG_00052_heat, L7_MAG_00043_heat, L7_MAG_00020_heat, 
           labels = c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"),
-          ncol = 3, nrow = 3)
-ggsave(filename="95_SNV_heat.png", limitsize = FALSE, width=16, height=16)
+          ncol = 4, nrow = 3)
+ggsave(filename="95_SNV_heat.png", limitsize = FALSE, width=30, height=20)
 
 ggarrange(I4_MAG_00006_heat, L2_MAG_00048_heat, L7_MAG_00028_heat,
           L8_MAG_00011_heat, L8_MAG_00019_heat, L8_MAG_00042_heat,
           labels = c("A", "B", "C", "D", "E", "F"),
           ncol = 3, nrow = 2)
-ggsave(filename="first6_95_SNV_heat.png", limitsize = FALSE, width=16, height=10)
+ggsave(filename="first6_95_SNV_heat.png", limitsize = FALSE, width=12, height=10)
 
 ggarrange(L3_MAG_00058_heat, I4_MAG_00065_heat, L4_MAG_00099_heat,
           L2_MAG_00052_heat, L7_MAG_00043_heat, L7_MAG_00020_heat, 
