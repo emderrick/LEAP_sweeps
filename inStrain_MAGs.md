@@ -282,6 +282,8 @@ cat *L8_MAG_00042* > L8_MAG_00042_depth.txt
 cat *L2_MAG_00048* > L2_MAG_00048_depth.txt
 ```
 
+End of running InStrain. Downstream SNV and gene analysis in SNVs_genes.md
+
 
 
 
