@@ -36,12 +36,4 @@ This is a place for all analyses of the 2021 LEAP experiement. In this experimen
       + need to add this part to another section
 ### not included in pipeline
 * RGI.md
-      + running RGI with CARD database on metagenomic data
 * wgs.md
-      + processing of whole genome sequences
-      + probably won't use this for anything
-
-
-
-
-
