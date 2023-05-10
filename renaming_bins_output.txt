@@ -1,5 +1,3 @@
-(anvio) [ederrick@nc30509 leapmeta]$ anvi-rename-bins -c I4_contigs.db -p I4_profiles_merged/PROFILE.db --prefix I4 --collection-to-read I4_collection --collection-to-write I4_MAGS_FINAL --report-file I4_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10 
-
 WARNING
 ===============================================
 This run will use the completion and redundancy estimate recovered from the
