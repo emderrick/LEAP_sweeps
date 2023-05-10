@@ -24,7 +24,7 @@ This is a place for all analyses of the 2021 LEAP experiement. In this experimen
 8. combine_depth.R
    + combines the samtools depth output with the inStrain output to get depth at all positions
 9. graphing_heatmaps.R
-   + plots heatmaps of the reference frequency at each position there is an SNV
+   + plots heatmaps of the reference frequency at each position there is an SNV 
 10. find_snvs.R
    + finds positions where ref is above 0.5 in all ctl and above 0.5 in all gly
    + saves list of genes these positions are in
