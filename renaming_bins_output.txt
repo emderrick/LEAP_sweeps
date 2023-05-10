@@ -1,3 +1,5 @@
+anvi-rename-bins -c I4_contigs.db -p I4_profiles_merged/PROFILE.db --prefix I4 --collection-to-read I4_collection --collection-to-write I4_MAGS_FINAL --report-file I4_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10 
+
 WARNING
 ===============================================
 This run will use the completion and redundancy estimate recovered from the
@@ -23,7 +25,7 @@ Collections ..................................: The collection 'I4_MAGS_FINAL' t
                                                 I4_MAG_00048, I4_MAG_00049, I4_MAG_00050.
 Rename .......................................: All 218 bins in the collection "I4_collection" is renamed, and stored under the collection name "I4_MAGS_FINAL".
 
-(anvio) [ederrick@nc30509 leapmeta]$ anvi-rename-bins -c I8_contigs.db -p I8_profiles_merged/PROFILE.db --prefix I8 --collection-to-read I8_collection --collection-to-write I8_MAGS_FINAL --report-file I8_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10 
+anvi-rename-bins -c I8_contigs.db -p I8_profiles_merged/PROFILE.db --prefix I8 --collection-to-read I8_collection --collection-to-write I8_MAGS_FINAL --report-file I8_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10 
 
 WARNING
 ===============================================
@@ -49,7 +51,7 @@ Collections ..................................: The collection 'I8_MAGS_FINAL' t
                                                 I8_MAG_00039, I8_MAG_00040, I8_MAG_00041, I8_MAG_00042, I8_MAG_00043, I8_MAG_00044, I8_MAG_00045, I8_MAG_00046, I8_MAG_00047,
                                                 I8_MAG_00048, I8_MAG_00049, I8_MAG_00050.
 Rename .......................................: All 188 bins in the collection "I8_collection" is renamed, and stored under the collection name "I8_MAGS_FINAL".
-(anvio) [ederrick@nc30509 leapmeta]$ anvi-rename-bins -c K1_contigs.db -p K1_profiles_merged/PROFILE.db --prefix K1 --collection-to-read K1_collection --collection-to-write K1_MAGS_FINAL --report-file K1_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10 
+anvi-rename-bins -c K1_contigs.db -p K1_profiles_merged/PROFILE.db --prefix K1 --collection-to-read K1_collection --collection-to-write K1_MAGS_FINAL --report-file K1_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10 
 
 WARNING
 ===============================================
@@ -75,7 +77,7 @@ Collections ..................................: The collection 'K1_MAGS_FINAL' t
                                                 K1_MAG_00039, K1_MAG_00040, K1_MAG_00041, K1_MAG_00042, K1_MAG_00043, K1_MAG_00044, K1_MAG_00045, K1_MAG_00046, K1_MAG_00047,
                                                 K1_MAG_00048, K1_MAG_00049, K1_MAG_00050.
 Rename .......................................: All 236 bins in the collection "K1_collection" is renamed, and stored under the collection name "K1_MAGS_FINAL".
-(anvio) [ederrick@nc30509 leapmeta]$ anvi-rename-bins -c L2_contigs.db -p L2_profiles_merged/PROFILE.db --prefix L2 --collection-to-read L2_collection --collection-to-write L2_MAGS_FINAL --report-file L2_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10 
+anvi-rename-bins -c L2_contigs.db -p L2_profiles_merged/PROFILE.db --prefix L2 --collection-to-read L2_collection --collection-to-write L2_MAGS_FINAL --report-file L2_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10 
 
 WARNING
 ===============================================
@@ -101,7 +103,7 @@ Collections ..................................: The collection 'L2_MAGS_FINAL' t
                                                 L2_MAG_00039, L2_MAG_00040, L2_MAG_00041, L2_MAG_00042, L2_MAG_00043, L2_MAG_00044, L2_MAG_00045, L2_MAG_00046, L2_MAG_00047,
                                                 L2_MAG_00048, L2_MAG_00049, L2_MAG_00050.
 Rename .......................................: All 153 bins in the collection "L2_collection" is renamed, and stored under the collection name "L2_MAGS_FINAL".
-(anvio) [ederrick@nc30509 leapmeta]$ anvi-rename-bins -c L3_contigs.db -p L3_profiles_merged/PROFILE.db --prefix L3 --collection-to-read L3_collection --collection-to-write L3_MAGS_FINAL --report-file L3_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10
+anvi-rename-bins -c L3_contigs.db -p L3_profiles_merged/PROFILE.db --prefix L3 --collection-to-read L3_collection --collection-to-write L3_MAGS_FINAL --report-file L3_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10
 
 WARNING
 ===============================================
@@ -127,7 +129,7 @@ Collections ..................................: The collection 'L3_MAGS_FINAL' t
                                                 L3_MAG_00039, L3_MAG_00040, L3_MAG_00041, L3_MAG_00042, L3_MAG_00043, L3_MAG_00044, L3_MAG_00045, L3_MAG_00046, L3_MAG_00047,
                                                 L3_MAG_00048, L3_MAG_00049, L3_MAG_00050.
 Rename .......................................: All 231 bins in the collection "L3_collection" is renamed, and stored under the collection name "L3_MAGS_FINAL".
-(anvio) [ederrick@nc30509 leapmeta]$ anvi-rename-bins -c L4_contigs.db -p L4_profiles_merged/PROFILE.db --prefix L4 --collection-to-read L4_collection --collection-to-write L4_MAGS_FINAL --report-file L4_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10 
+anvi-rename-bins -c L4_contigs.db -p L4_profiles_merged/PROFILE.db --prefix L4 --collection-to-read L4_collection --collection-to-write L4_MAGS_FINAL --report-file L4_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10 
 
 WARNING
 ===============================================
@@ -153,7 +155,7 @@ Collections ..................................: The collection 'L4_MAGS_FINAL' t
                                                 L4_MAG_00039, L4_MAG_00040, L4_MAG_00041, L4_MAG_00042, L4_MAG_00043, L4_MAG_00044, L4_MAG_00045, L4_MAG_00046, L4_MAG_00047,
                                                 L4_MAG_00048, L4_MAG_00049, L4_MAG_00050.
 Rename .......................................: All 273 bins in the collection "L4_collection" is renamed, and stored under the collection name "L4_MAGS_FINAL".
-(anvio) [ederrick@nc30509 leapmeta]$ anvi-rename-bins -c L6_contigs.db -p L6_profiles_merged/PROFILE.db --prefix L6 --collection-to-read L6_collection --collection-to-write L6_MAGS_FINAL --report-file L6_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10 
+anvi-rename-bins -c L6_contigs.db -p L6_profiles_merged/PROFILE.db --prefix L6 --collection-to-read L6_collection --collection-to-write L6_MAGS_FINAL --report-file L6_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10 
 
 WARNING
 ===============================================
@@ -179,7 +181,7 @@ Collections ..................................: The collection 'L6_MAGS_FINAL' t
                                                 L6_MAG_00039, L6_MAG_00040, L6_MAG_00041, L6_MAG_00042, L6_MAG_00043, L6_MAG_00044, L6_MAG_00045, L6_MAG_00046, L6_MAG_00047,
                                                 L6_Bin_00048, L6_Bin_00049, L6_Bin_00050.
 Rename .......................................: All 110 bins in the collection "L6_collection" is renamed, and stored under the collection name "L6_MAGS_FINAL".
-(anvio) [ederrick@nc30509 leapmeta]$ anvi-rename-bins -c L7_contigs.db -p L7_profiles_merged/PROFILE.db --prefix L7 --collection-to-read L7_collection --collection-to-write L7_MAGS_FINAL --report-file L7_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10 
+anvi-rename-bins -c L7_contigs.db -p L7_profiles_merged/PROFILE.db --prefix L7 --collection-to-read L7_collection --collection-to-write L7_MAGS_FINAL --report-file L7_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10 
 
 WARNING
 ===============================================
@@ -205,7 +207,7 @@ Collections ..................................: The collection 'L7_MAGS_FINAL' t
                                                 L7_MAG_00039, L7_MAG_00040, L7_MAG_00041, L7_MAG_00042, L7_MAG_00043, L7_MAG_00044, L7_MAG_00045, L7_MAG_00046, L7_Bin_00047,
                                                 L7_Bin_00048, L7_Bin_00049, L7_Bin_00050.
 Rename .......................................: All 113 bins in the collection "L7_collection" is renamed, and stored under the collection name "L7_MAGS_FINAL".
-(anvio) [ederrick@nc30509 leapmeta]$ anvi-rename-bins -c L8_contigs.db -p L8_profiles_merged/PROFILE.db --prefix L8 --collection-to-read L8_collection --collection-to-write L8_MAGS_FINAL --report-file L8_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10
+anvi-rename-bins -c L8_contigs.db -p L8_profiles_merged/PROFILE.db --prefix L8 --collection-to-read L8_collection --collection-to-write L8_MAGS_FINAL --report-file L8_rename.txt --call-MAGs --min-completion-for-MAG 70 --max-redundancy-for-MAG 10
 
 WARNING
 ===============================================
