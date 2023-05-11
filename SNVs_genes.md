@@ -25,6 +25,9 @@ download_eggnog_data.py --data_dir /home/ederrick/eggnog/
 ```
 to run eggNOG on my gene that are nucleotide sequences
 ```bash
-
-emapper.py -m diamond --itype CDS -i genes.fa --output_dir eggNOG_genes_output --data_dir /home/ederrick/eggnog/
+salloc --time=01:00:00 --account= --cpus-per-task=4 --mem-per-cpu=6G
+source /home/ederrick/eggnog/bin/activate
+export EGGNOG_DATA_DIR=/home/ederrick/eggnog
+emapper.py -m diamond --itype CDS -i genes.fa --output_dir eggNOG_genes_output --cpu 4 -o eggNOG_genes
+deactivate
 ```
