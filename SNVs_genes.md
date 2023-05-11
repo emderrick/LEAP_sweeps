@@ -12,3 +12,19 @@ sed  '/>/i--' mag_genes.fna > mag_genes.fasta
 cat unique_genes.txt | xargs -i sed -n '/{}/,/--/p' mag_genes.fasta > genes.fa
 sed -i '/--/d' genes.fa 
 ```
+I'm going to use eggNOG to annotate my genes because prokka can't use just genes it needs to be contigs
+I installed eggNOG in a virtual environment
+```bash
+python3 -m venv eggnog
+source eggnog/bin/activate
+python3 -m pip install eggnog-mapper
+```
+then I'll install the required databases in the eggnog folder
+```bash
+download_eggnog_data.py --data_dir /home/ederrick/eggnog/
+```
+to run eggNOG on my gene that are nucleotide sequences
+```bash
+
+emapper.py -m diamond --itype CDS -i genes.fa --output_dir eggNOG_genes_output --data_dir /home/ederrick/eggnog/
+```
