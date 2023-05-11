@@ -1,7 +1,7 @@
 library(tidyverse)
 library(dplyr)
 
-filtered_SNVs <- read_csv("filtered_SNVs.csv")
+filtered_SNVs <- read_csv("filtered_TP_SNVs.csv")
 
 #have to do each MAG individually or I run out of memory
 

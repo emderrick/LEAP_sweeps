@@ -18,6 +18,9 @@ mags <- mutate(mags, number_SNVs = ifelse(class == "SNS", 0, 1))
 mags <- mutate(mags, number_SNSs = ifelse(class == "SNS", 1, 0))
 mags$number_divergent<- 1
 mags$group<- paste(mags$mag, "in pond", mags$pond, "at time", mags$new_time)
+write.csv(filtered_mags, "filtered_ANI_95_mag_SNVs.csv", row.names=F)
+
+#filter out timepoints I won't use for heatmaps
 mags <- filter(mags, mag != "I8_MAG_00005")
 mags <- mags %>% filter(!(mag=="L3_MAG_00058" & new_time=="1"))
 mags <- mags %>% filter(!(mag=="L3_MAG_00058" & new_time=="3"))
@@ -32,4 +35,4 @@ mags <- mags %>% filter(!(mag=="L2_MAG_00048" & new_time=="2" & pond=="L7"))
 mags <- mags %>% filter(!(mag=="L2_MAG_00052" & new_time=="1"))
 filtered_mags <- mags
 
-write.csv(filtered_mags, "filtered_SNVs.csv", row.names=F)
+write.csv(filtered_mags, "filtered_TP_SNVs.csv", row.names=F)

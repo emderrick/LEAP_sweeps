@@ -11,20 +11,7 @@ mag_list<-list("L3_MAG_00058", "I8_MAG_00005", "L4_MAG_00099", "L8_MAG_00019", "
                "L7_MAG_00043", "L7_MAG_00028", "I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052",
                "L7_MAG_00020", "L8_MAG_00042", "L2_MAG_00048")
 #load mag snv info
-mags <- read_csv("ANI_95_mag_SNVs.csv")
-
-#filter SNVs within 100bp of beginning and end of scaffold
-mags<-filter(mags, coverage >=4)
-mags$pos_from_end<-mags$length-mags$position
-mags<- filter(mags, position > 100)
-mags<- filter(mags, pos_from_end > 100)
-
-#assign value of 1 to everything that isn't an SNS and assign 0 to SNS
-mags <- mutate(mags, number_SNVs = ifelse(class == "SNS", 0, 1))
-#assign value of 1 to SNS and 0 to everythign else
-mags <- mutate(mags, number_SNSs = ifelse(class == "SNS", 1, 0))
-mags$number_divergent<- 1
-mags$group<- paste(mags$mag, "in pond", mags$pond, "at time", mags$new_time)
+mags <- read_csv("filtered_ANI_95_mag_SNVs.csv")
 
 #sum up number of SNVs by scaffold
 mag_cov <- aggregate(mags$number_SNVs, by=list(mag=mags$mag, scaffold=mags$scaffold, length=mags$length, group=mags$group, coverage=mags$coverage), FUN=sum) 
