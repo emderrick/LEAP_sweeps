@@ -28,6 +28,7 @@ to run eggNOG on my gene that are nucleotide sequences
 salloc --time=01:00:00 --account= --cpus-per-task=4 --mem-per-cpu=6G
 source /home/ederrick/eggnog/bin/activate
 export EGGNOG_DATA_DIR=/home/ederrick/eggnog
+mkdir eggNOG_genes_output
 emapper.py -m diamond --itype CDS -i genes.fa --output_dir eggNOG_genes_output --cpu 4 -o eggNOG_genes
 deactivate
 ```
