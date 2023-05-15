@@ -1,6 +1,20 @@
 library(tidyverse)
 library(dplyr)
 
+#list genome files from instrain output in directory
+gene_files<-list.files("95_profiles/",recursive = T, pattern=".*gene_info.tsv",full.names = T)
+
+#create an empty dataframe
+all_genes<-data.frame()
+
+#add genome files into dataframe and add column that is the name of the file
+for(i in 1:length(gene_files)){
+  pond_time_genes<-read.table(gene_files[i],sep="\t",header=T)
+  timepoint<-gsub(".*profile_output/", "", gene_files[i]) %>% substr(1,9)
+  pond_time_genes<-cbind(pond_time_genes,timepoint=rep(timepoint,nrow(pond_time_genes)))
+  all_genes<-rbind(all_genes,pond_time_genes)
+}
+
 L3_MAG_00058 <- read_csv("all_L3_MAG_00058_SNVs.csv")
 #L3 and L4 are controls, L7 and L8 are gly
 L3_MAG_00058_L3 <- filter(L3_MAG_00058, (pond=="L3" & final_ref_freq >= 0.5))
@@ -115,10 +129,20 @@ L2_MAG_00052_genes<- subset(L2_MAG_00052_50, select=c(mag.x, groups, gene.x))
 L7_MAG_00043_genes<- subset(L7_MAG_00043_50, select=c(mag.x, groups, gene.x))
 L7_MAG_00020_genes<- subset(L7_MAG_00020_50, select=c(mag.x, groups, gene.x))
 
-all_genes <- rbind(I4_MAG_00006_genes, L7_MAG_00028_genes, L8_MAG_00011_genes, L8_MAG_00019_genes,
+genes <- rbind(I4_MAG_00006_genes, L7_MAG_00028_genes, L8_MAG_00011_genes, L8_MAG_00019_genes,
                    L8_MAG_00042_genes, L3_MAG_00058_genes, I4_MAG_00065_genes, L4_MAG_00099_genes,
                    L2_MAG_00052_genes, L7_MAG_00043_genes, L7_MAG_00020_genes)
-all_genes <- rename(all_genes, gene = gene.x, mag=mag.x)
-only_genes <- subset(all_genes, gene!="NA", select=c(gene))
-write.csv(all_genes, file="all_genes.csv", row.names=F)
-write.csv(only_genes, file="only_genes.csv", row.names=F)
+genes <- rename(genes, gene = gene.x, mag=mag.x)
+
+all_gene_coord <- subset(all_genes, select=c(gene, start, end))
+all_gene_coord <- all_gene_coord %>% distinct(gene, .keep_all = T)
+all_gene_coord$new_start<-all_gene_coord$start+1
+all_gene_coord$new_end<-all_gene_coord$end+1
+only_genes <- subset(genes, gene!="NA", select=c(gene))
+unique_genes <- distinct(only_genes)
+gene_locations<- left_join(unique_genes, all_gene_coord, by=c("gene"))
+
+write.csv(genes, file="all_genes.csv", row.names=F)
+write.csv(gene_locations, file="gene_locations.csv", row.names=F)
+
+
