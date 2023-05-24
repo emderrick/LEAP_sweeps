@@ -33,7 +33,7 @@ I4_MAG_00006_index<-tapply(I4_MAG_00006$final_ref_freq,I4_MAG_00006$groups,FUN=m
 I4_MAG_00006_index_df<-data.frame(groups=names(I4_MAG_00006_index),median=I4_MAG_00006_index)
 I4_MAG_00006_median<- right_join(I4_MAG_00006_index_df, I4_MAG_00006, by=c("groups"))
 
-I4_MAG_00006_heat <- ggplot(I4_MAG_00006_median, aes(x = name2, y = groups, fill= final_ref_freq)) +
+I4_MAG_00006_heat <- ggplot(I4_MAG_00006_median, aes(x = name, y = groups, fill= final_ref_freq)) +
   geom_tile() +
   scale_fill_viridis(direction=-1, na.value = "white") +
   theme_classic() +
@@ -46,7 +46,7 @@ ggsave(filename="I4_MAG_00006_SNV_95_heatmap.png", dpi = 500)
 
 I4_MAG_00006$simple_class<-I4_MAG_00006$class%>%str_sub(-3,-1)
 
-I4_MAG_00006_snv <- ggplot(I4_MAG_00006, aes(x = name2, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+I4_MAG_00006_snv <- ggplot(I4_MAG_00006, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
   geom_bar(stat="identity")+ 
   scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
@@ -73,7 +73,7 @@ I4_MAG_00065_index<-tapply(I4_MAG_00065$final_ref_freq,I4_MAG_00065$groups,FUN=m
 I4_MAG_00065_index_df<-data.frame(groups=names(I4_MAG_00065_index),median=I4_MAG_00065_index)
 I4_MAG_00065_median<- right_join(I4_MAG_00065_index_df, I4_MAG_00065, by=c("groups"))
 
-I4_MAG_00065_heat <- ggplot(I4_MAG_00065_median, aes(x = name2, y = groups, fill= final_ref_freq)) +
+I4_MAG_00065_heat <- ggplot(I4_MAG_00065_median, aes(x = name, y = groups, fill= final_ref_freq)) +
   geom_tile() +
   scale_fill_viridis(direction=-1, na.value = "white") +
   theme_classic() +
@@ -86,7 +86,7 @@ ggsave(filename="I4_MAG_00065_SNV_95_heatmap.png", dpi = 500)
 
 I4_MAG_00065$simple_class<-I4_MAG_00065$class%>%str_sub(-3,-1)
 
-I4_MAG_00065_snv <- ggplot(I4_MAG_00065, aes(x = name2, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+I4_MAG_00065_snv <- ggplot(I4_MAG_00065, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
   geom_bar(stat="identity")+ 
   scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
@@ -113,7 +113,7 @@ L2_MAG_00048_index<-tapply(L2_MAG_00048$final_ref_freq,L2_MAG_00048$groups,FUN=m
 L2_MAG_00048_index_df<-data.frame(groups=names(L2_MAG_00048_index),median=L2_MAG_00048_index)
 L2_MAG_00048_median<- right_join(L2_MAG_00048_index_df, L2_MAG_00048, by=c("groups"))
 
-L2_MAG_00048_heat <- ggplot(L2_MAG_00048_median, aes(x = name2, y = groups, fill= final_ref_freq)) +
+L2_MAG_00048_heat <- ggplot(L2_MAG_00048_median, aes(x = name, y = groups, fill= final_ref_freq)) +
   geom_tile() +
   scale_fill_viridis(direction=-1, na.value = "white") +
   theme_classic() +
@@ -126,7 +126,7 @@ ggsave(filename="L2_MAG_00048_SNV_95_heatmap.png", dpi = 500)
 
 L2_MAG_00048$simple_class<-L2_MAG_00048$class%>%str_sub(-3,-1)
 
-L2_MAG_00048_snv <- ggplot(L2_MAG_00048, aes(x = name2, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L2_MAG_00048_snv <- ggplot(L2_MAG_00048, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
   geom_bar(stat="identity")+ 
   scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
@@ -153,7 +153,7 @@ L2_MAG_00052_index<-tapply(L2_MAG_00052$final_ref_freq,L2_MAG_00052$groups,FUN=m
 L2_MAG_00052_index_df<-data.frame(groups=names(L2_MAG_00052_index),median=L2_MAG_00052_index)
 L2_MAG_00052_median<- right_join(L2_MAG_00052_index_df, L2_MAG_00052, by=c("groups"))
 
-L2_MAG_00052_heat <- ggplot(L2_MAG_00052_median, aes(x = name2, y = groups, fill= final_ref_freq)) +
+L2_MAG_00052_heat <- ggplot(L2_MAG_00052_median, aes(x = name, y = groups, fill= final_ref_freq)) +
   geom_tile() +
   scale_fill_viridis(direction=-1, na.value = "white") +
   theme_classic() +
@@ -166,7 +166,7 @@ ggsave(filename="L2_MAG_00052_SNV_95_heatmap.png", dpi = 500)
 
 L2_MAG_00052$simple_class<-L2_MAG_00052$class%>%str_sub(-3,-1)
 
-L2_MAG_00052_snv <- ggplot(L2_MAG_00052, aes(x = name2, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L2_MAG_00052_snv <- ggplot(L2_MAG_00052, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
   geom_bar(stat="identity")+ 
   scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
@@ -193,7 +193,7 @@ L3_MAG_00058_index<-tapply(L3_MAG_00058$final_ref_freq,L3_MAG_00058$groups,FUN=m
 L3_MAG_00058_index_df<-data.frame(groups=names(L3_MAG_00058_index),median=L3_MAG_00058_index)
 L3_MAG_00058_median<- right_join(L3_MAG_00058_index_df, L3_MAG_00058, by=c("groups"))
 
-L3_MAG_00058_heat <- ggplot(L3_MAG_00058_median, aes(x = name2, y = groups, fill= final_ref_freq)) +
+L3_MAG_00058_heat <- ggplot(L3_MAG_00058_median, aes(x = name, y = groups, fill= final_ref_freq)) +
   geom_tile() +
   scale_fill_viridis(direction=-1, na.value = "white") +
   theme_classic() +
@@ -206,7 +206,7 @@ ggsave(filename="L3_MAG_00058_SNV_95_heatmap.png", dpi = 500)
 
 L3_MAG_00058$simple_class<-L3_MAG_00058$class%>%str_sub(-3,-1)
 
-L3_MAG_00058_snv <- ggplot(L3_MAG_00058, aes(x = name2, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L3_MAG_00058_snv <- ggplot(L3_MAG_00058, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
   geom_bar(stat="identity")+ 
   scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
@@ -233,7 +233,7 @@ L4_MAG_00099_index<-tapply(L4_MAG_00099$final_ref_freq,L4_MAG_00099$groups,FUN=m
 L4_MAG_00099_index_df<-data.frame(groups=names(L4_MAG_00099_index),median=L4_MAG_00099_index)
 L4_MAG_00099_median<- right_join(L4_MAG_00099_index_df, L4_MAG_00099, by=c("groups"))
 
-L4_MAG_00099_heat <- ggplot(L4_MAG_00099_median, aes(x = name2, y = groups, fill= final_ref_freq)) +
+L4_MAG_00099_heat <- ggplot(L4_MAG_00099_median, aes(x = name, y = groups, fill= final_ref_freq)) +
   geom_tile() +
   scale_fill_viridis(direction=-1, na.value = "white") +
   theme_classic() +
@@ -246,7 +246,7 @@ ggsave(filename="L4_MAG_00099_SNV_95_heatmap.png", dpi = 500)
 
 L4_MAG_00099$simple_class<-L4_MAG_00099$class%>%str_sub(-3,-1)
 
-L4_MAG_00099_snv <- ggplot(L4_MAG_00099, aes(x = name2, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L4_MAG_00099_snv <- ggplot(L4_MAG_00099, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
   geom_bar(stat="identity")+ 
   scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
@@ -312,7 +312,7 @@ L7_MAG_00028_index<-tapply(L7_MAG_00028$final_ref_freq,L7_MAG_00028$groups,FUN=m
 L7_MAG_00028_index_df<-data.frame(groups=names(L7_MAG_00028_index),median=L7_MAG_00028_index)
 L7_MAG_00028_median<- right_join(L7_MAG_00028_index_df, L7_MAG_00028, by=c("groups"))
 
-L7_MAG_00028_heat <- ggplot(L7_MAG_00028_median, aes(x = name2, y = groups, fill= final_ref_freq)) +
+L7_MAG_00028_heat <- ggplot(L7_MAG_00028_median, aes(x = name, y = groups, fill= final_ref_freq)) +
   geom_tile() +
   scale_fill_viridis(direction=-1, na.value = "white") +
   theme_classic() +
@@ -325,7 +325,7 @@ ggsave(filename="L7_MAG_00028_SNV_95_heatmap.png", dpi = 500)
 
 L7_MAG_00028$simple_class<-L7_MAG_00028$class%>%str_sub(-3,-1)
 
-L7_MAG_00028_snv <- ggplot(L7_MAG_00028, aes(x = name2, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L7_MAG_00028_snv <- ggplot(L7_MAG_00028, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
   geom_bar(stat="identity")+ 
   scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
@@ -352,7 +352,7 @@ L7_MAG_00043_index<-tapply(L7_MAG_00043$final_ref_freq,L7_MAG_00043$groups,FUN=m
 L7_MAG_00043_index_df<-data.frame(groups=names(L7_MAG_00043_index),median=L7_MAG_00043_index)
 L7_MAG_00043_median<- right_join(L7_MAG_00043_index_df, L7_MAG_00043, by=c("groups"))
 
-L7_MAG_00043_heat <- ggplot(L7_MAG_00043_median, aes(x = name2, y = groups, fill= final_ref_freq)) +
+L7_MAG_00043_heat <- ggplot(L7_MAG_00043_median, aes(x = name, y = groups, fill= final_ref_freq)) +
   geom_tile() +
   scale_fill_viridis(direction=-1, na.value = "white") +
   theme_classic() +
@@ -365,7 +365,7 @@ ggsave(filename="L7_MAG_00043_SNV_95_heatmap.png", dpi = 500)
 
 L7_MAG_00043$simple_class<-L7_MAG_00043$class%>%str_sub(-3,-1)
 
-L7_MAG_00043_snv <- ggplot(L7_MAG_00043, aes(x = name2, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L7_MAG_00043_snv <- ggplot(L7_MAG_00043, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
   geom_bar(stat="identity")+ 
   scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
@@ -392,7 +392,7 @@ L8_MAG_00011_index<-tapply(L8_MAG_00011$final_ref_freq,L8_MAG_00011$groups,FUN=m
 L8_MAG_00011_index_df<-data.frame(groups=names(L8_MAG_00011_index),median=L8_MAG_00011_index)
 L8_MAG_00011_median<- right_join(L8_MAG_00011_index_df, L8_MAG_00011, by=c("groups"))
 
-L8_MAG_00011_heat <- ggplot(L8_MAG_00011_median, aes(x = name2, y = groups, fill= final_ref_freq)) +
+L8_MAG_00011_heat <- ggplot(L8_MAG_00011_median, aes(x = name, y = groups, fill= final_ref_freq)) +
   geom_tile() +
   scale_fill_viridis(direction=-1, na.value = "white") +
   theme_classic() +
@@ -405,7 +405,7 @@ ggsave(filename="L8_MAG_00011_SNV_95_heatmap.png", dpi = 500)
 
 L8_MAG_00011$simple_class<-L8_MAG_00011$class%>%str_sub(-3,-1)
 
-L8_MAG_00011_snv <- ggplot(L8_MAG_00011, aes(x = name2, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L8_MAG_00011_snv <- ggplot(L8_MAG_00011, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
   geom_bar(stat="identity")+ 
   scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
@@ -432,7 +432,7 @@ L8_MAG_00019_index<-tapply(L8_MAG_00019$final_ref_freq,L8_MAG_00019$groups,FUN=m
 L8_MAG_00019_index_df<-data.frame(groups=names(L8_MAG_00019_index),median=L8_MAG_00019_index)
 L8_MAG_00019_median<- right_join(L8_MAG_00019_index_df, L8_MAG_00019, by=c("groups"))
 
-L8_MAG_00019_heat <- ggplot(L8_MAG_00019_median, aes(x = name2, y = groups, fill= final_ref_freq)) +
+L8_MAG_00019_heat <- ggplot(L8_MAG_00019_median, aes(x = name, y = groups, fill= final_ref_freq)) +
   geom_tile() +
   scale_fill_viridis(direction=-1, na.value = "white") +
   theme_classic() +
@@ -445,7 +445,7 @@ ggsave(filename="L8_MAG_00019_SNV_95_heatmap.png", dpi = 500)
 
 L8_MAG_00019$simple_class<-L8_MAG_00019$class%>%str_sub(-3,-1)
 
-L8_MAG_00019_snv <- ggplot(L8_MAG_00019, aes(x = name2, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L8_MAG_00019_snv <- ggplot(L8_MAG_00019, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
   geom_bar(stat="identity")+ 
   scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
@@ -472,7 +472,7 @@ L8_MAG_00042_index<-tapply(L8_MAG_00042$final_ref_freq,L8_MAG_00042$groups,FUN=m
 L8_MAG_00042_index_df<-data.frame(groups=names(L8_MAG_00042_index),median=L8_MAG_00042_index)
 L8_MAG_00042_median<- right_join(L8_MAG_00042_index_df, L8_MAG_00042, by=c("groups"))
 
-L8_MAG_00042_heat <- ggplot(L8_MAG_00042_median, aes(x = name2, y = groups, fill= final_ref_freq)) +
+L8_MAG_00042_heat <- ggplot(L8_MAG_00042_median, aes(x = name, y = groups, fill= final_ref_freq)) +
   geom_tile() +
   scale_fill_viridis(direction=-1, na.value = "white") +
   theme_classic() +
@@ -485,7 +485,7 @@ ggsave(filename="L8_MAG_00042_SNV_95_heatmap.png", dpi = 500)
 
 L8_MAG_00042$simple_class<-L8_MAG_00042$class%>%str_sub(-3,-1)
 
-L8_MAG_00042_snv <- ggplot(L8_MAG_00042, aes(x = name2, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L8_MAG_00042_snv <- ggplot(L8_MAG_00042, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
   geom_bar(stat="identity")+ 
   scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
