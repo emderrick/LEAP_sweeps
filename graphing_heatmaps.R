@@ -27,7 +27,7 @@ I4_MAG_00006 <- I4_MAG_00006 %>% mutate(new_name = case_when(timepoint%>%substr(
                                                              timepoint%>%substr(1,2) == "L8" ~ "GBH D"))
 
 I4_MAG_00006$time2<-as.numeric(I4_MAG_00006$timepoint%>%substr(9,9))+1
-I4_MAG_00006$name<-paste(I4_MAG_00006$new_name, " at T", I4_MAG_00006$time2)
+I4_MAG_00006$name<-paste(I4_MAG_00006$new_name, sep=" at T", I4_MAG_00006$time2)
 
 I4_MAG_00006_index<-tapply(I4_MAG_00006$final_ref_freq,I4_MAG_00006$groups,FUN=median,na.rm=T)
 I4_MAG_00006_index_df<-data.frame(groups=names(I4_MAG_00006_index),median=I4_MAG_00006_index)
@@ -67,7 +67,7 @@ I4_MAG_00065 <- I4_MAG_00065 %>% mutate(new_name = case_when(timepoint%>%substr(
                                                              timepoint%>%substr(1,2) == "L8" ~ "GBH D"))
 
 I4_MAG_00065$time2<-as.numeric(I4_MAG_00065$timepoint%>%substr(9,9))+1
-I4_MAG_00065$name<-paste(I4_MAG_00065$new_name, " at T", I4_MAG_00065$time2)
+I4_MAG_00065$name<-paste(I4_MAG_00065$new_name, sep=" at T", I4_MAG_00065$time2)
 
 I4_MAG_00065_index<-tapply(I4_MAG_00065$final_ref_freq,I4_MAG_00065$groups,FUN=median,na.rm=T)
 I4_MAG_00065_index_df<-data.frame(groups=names(I4_MAG_00065_index),median=I4_MAG_00065_index)
@@ -107,7 +107,7 @@ L2_MAG_00048 <- L2_MAG_00048 %>% mutate(new_name = case_when(timepoint%>%substr(
                                                              timepoint%>%substr(1,2) == "L8" ~ "GBH D"))
 
 L2_MAG_00048$time2<-as.numeric(L2_MAG_00048$timepoint%>%substr(9,9))+1
-L2_MAG_00048$name<-paste(L2_MAG_00048$new_name, " at T", L2_MAG_00048$time2)
+L2_MAG_00048$name<-paste(L2_MAG_00048$new_name, sep=" at T", L2_MAG_00048$time2)
 
 L2_MAG_00048_index<-tapply(L2_MAG_00048$final_ref_freq,L2_MAG_00048$groups,FUN=median,na.rm=T)
 L2_MAG_00048_index_df<-data.frame(groups=names(L2_MAG_00048_index),median=L2_MAG_00048_index)
@@ -147,7 +147,7 @@ L2_MAG_00052 <- L2_MAG_00052 %>% mutate(new_name = case_when(timepoint%>%substr(
                                                              timepoint%>%substr(1,2) == "L8" ~ "GBH D"))
 
 L2_MAG_00052$time2<-as.numeric(L2_MAG_00052$timepoint%>%substr(9,9))+1
-L2_MAG_00052$name<-paste(L2_MAG_00052$new_name, " at T", L2_MAG_00052$time2)
+L2_MAG_00052$name<-paste(L2_MAG_00052$new_name, sep=" at T", L2_MAG_00052$time2)
 
 L2_MAG_00052_index<-tapply(L2_MAG_00052$final_ref_freq,L2_MAG_00052$groups,FUN=median,na.rm=T)
 L2_MAG_00052_index_df<-data.frame(groups=names(L2_MAG_00052_index),median=L2_MAG_00052_index)
@@ -187,7 +187,7 @@ L3_MAG_00058 <- L3_MAG_00058 %>% mutate(new_name = case_when(timepoint%>%substr(
                                                              timepoint%>%substr(1,2) == "L8" ~ "GBH D"))
 
 L3_MAG_00058$time2<-as.numeric(L3_MAG_00058$timepoint%>%substr(9,9))+1
-L3_MAG_00058$name<-paste(L3_MAG_00058$new_name, " at T", L3_MAG_00058$time2)
+L3_MAG_00058$name<-paste(L3_MAG_00058$new_name, sep=" at T", L3_MAG_00058$time2)
 
 L3_MAG_00058_index<-tapply(L3_MAG_00058$final_ref_freq,L3_MAG_00058$groups,FUN=median,na.rm=T)
 L3_MAG_00058_index_df<-data.frame(groups=names(L3_MAG_00058_index),median=L3_MAG_00058_index)
@@ -227,7 +227,7 @@ L4_MAG_00099 <- L4_MAG_00099 %>% mutate(new_name = case_when(timepoint%>%substr(
                                                              timepoint%>%substr(1,2) == "L8" ~ "GBH D"))
 
 L4_MAG_00099$time2<-as.numeric(L4_MAG_00099$timepoint%>%substr(9,9))+1
-L4_MAG_00099$name<-paste(L4_MAG_00099$new_name, " at T", L4_MAG_00099$time2)
+L4_MAG_00099$name<-paste(L4_MAG_00099$new_name, sep=" at T", L4_MAG_00099$time2)
 
 L4_MAG_00099_index<-tapply(L4_MAG_00099$final_ref_freq,L4_MAG_00099$groups,FUN=median,na.rm=T)
 L4_MAG_00099_index_df<-data.frame(groups=names(L4_MAG_00099_index),median=L4_MAG_00099_index)
@@ -267,7 +267,7 @@ L7_MAG_00020 <- L7_MAG_00020 %>% mutate(new_name = case_when(timepoint%>%substr(
                                                              timepoint%>%substr(1,2) == "L8" ~ "GBH D"))
 
 L7_MAG_00020$time2<-as.numeric(L7_MAG_00020$timepoint%>%substr(9,9))+1
-L7_MAG_00020$name<-paste(L7_MAG_00020$new_name, " at T", L7_MAG_00020$time2)
+L7_MAG_00020$name<-paste(L7_MAG_00020$new_name, sep=" at T", L7_MAG_00020$time2)
 L7_MAG_00020_index<-tapply(L7_MAG_00020$final_ref_freq,L7_MAG_00020$groups,FUN=median,na.rm=T)
 L7_MAG_00020_index_df<-data.frame(groups=names(L7_MAG_00020_index),median=L7_MAG_00020_index)
 L7_MAG_00020_median<- right_join(L7_MAG_00020_index_df, L7_MAG_00020, by=c("groups"))
@@ -306,7 +306,7 @@ L7_MAG_00028 <- L7_MAG_00028 %>% mutate(new_name = case_when(timepoint%>%substr(
                                                              timepoint%>%substr(1,2) == "L8" ~ "GBH D"))
 
 L7_MAG_00028$time2<-as.numeric(L7_MAG_00028$timepoint%>%substr(9,9))+1
-L7_MAG_00028$name<-paste(L7_MAG_00028$new_name, " at T", L7_MAG_00028$time2)
+L7_MAG_00028$name<-paste(L7_MAG_00028$new_name, sep=" at T", L7_MAG_00028$time2)
 
 L7_MAG_00028_index<-tapply(L7_MAG_00028$final_ref_freq,L7_MAG_00028$groups,FUN=median,na.rm=T)
 L7_MAG_00028_index_df<-data.frame(groups=names(L7_MAG_00028_index),median=L7_MAG_00028_index)
@@ -346,7 +346,7 @@ L7_MAG_00043 <- L7_MAG_00043 %>% mutate(new_name = case_when(timepoint%>%substr(
                                                              timepoint%>%substr(1,2) == "L8" ~ "GBH D"))
 
 L7_MAG_00043$time2<-as.numeric(L7_MAG_00043$timepoint%>%substr(9,9))+1
-L7_MAG_00043$name<-paste(L7_MAG_00043$new_name, " at T", L7_MAG_00043$time2)
+L7_MAG_00043$name<-paste(L7_MAG_00043$new_name, sep=" at T", L7_MAG_00043$time2)
 
 L7_MAG_00043_index<-tapply(L7_MAG_00043$final_ref_freq,L7_MAG_00043$groups,FUN=median,na.rm=T)
 L7_MAG_00043_index_df<-data.frame(groups=names(L7_MAG_00043_index),median=L7_MAG_00043_index)
@@ -386,7 +386,7 @@ L8_MAG_00011 <- L8_MAG_00011 %>% mutate(new_name = case_when(timepoint%>%substr(
                                                              timepoint%>%substr(1,2) == "L8" ~ "GBH D"))
 
 L8_MAG_00011$time2<-as.numeric(L8_MAG_00011$timepoint%>%substr(9,9))+1
-L8_MAG_00011$name<-paste(L8_MAG_00011$new_name, " at T", L8_MAG_00011$time2)
+L8_MAG_00011$name<-paste(L8_MAG_00011$new_name, sep=" at T", L8_MAG_00011$time2)
 
 L8_MAG_00011_index<-tapply(L8_MAG_00011$final_ref_freq,L8_MAG_00011$groups,FUN=median,na.rm=T)
 L8_MAG_00011_index_df<-data.frame(groups=names(L8_MAG_00011_index),median=L8_MAG_00011_index)
@@ -426,7 +426,7 @@ L8_MAG_00019 <- L8_MAG_00019 %>% mutate(new_name = case_when(timepoint%>%substr(
                                                              timepoint%>%substr(1,2) == "L8" ~ "GBH D"))
 
 L8_MAG_00019$time2<-as.numeric(L8_MAG_00019$timepoint%>%substr(9,9))+1
-L8_MAG_00019$name<-paste(L8_MAG_00019$new_name, " at T", L8_MAG_00019$time2)
+L8_MAG_00019$name<-paste(L8_MAG_00019$new_name, sep=" at T", L8_MAG_00019$time2)
 
 L8_MAG_00019_index<-tapply(L8_MAG_00019$final_ref_freq,L8_MAG_00019$groups,FUN=median,na.rm=T)
 L8_MAG_00019_index_df<-data.frame(groups=names(L8_MAG_00019_index),median=L8_MAG_00019_index)
@@ -466,7 +466,7 @@ L8_MAG_00042 <- L8_MAG_00042 %>% mutate(new_name = case_when(timepoint%>%substr(
                                                              timepoint%>%substr(1,2) == "L8" ~ "GBH D"))
 
 L8_MAG_00042$time2<-as.numeric(L8_MAG_00042$timepoint%>%substr(9,9))+1
-L8_MAG_00042$name<-paste(L8_MAG_00042$new_name, " at T", L8_MAG_00042$time2)
+L8_MAG_00042$name<-paste(L8_MAG_00042$new_name, sep=" at T", L8_MAG_00042$time2)
 
 L8_MAG_00042_index<-tapply(L8_MAG_00042$final_ref_freq,L8_MAG_00042$groups,FUN=median,na.rm=T)
 L8_MAG_00042_index_df<-data.frame(groups=names(L8_MAG_00042_index),median=L8_MAG_00042_index)
