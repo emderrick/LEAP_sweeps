@@ -45,18 +45,21 @@ I4_MAG_00006_heat <- ggplot(I4_MAG_00006_median, aes(x = name, y = groups, fill=
 ggsave(filename="I4_MAG_00006_SNV_95_heatmap.png", dpi = 500)
 
 I4_MAG_00006$simple_class<-I4_MAG_00006$class%>%str_sub(-3,-1)
+I4_MAG_00006_SNSsum <- I4_MAG_00006 %>% group_by(name) %>% summarize_at(c('number_SNSs', 'number_SNVs', 'number_divergent'), sum, na.rm=T)
 
-I4_MAG_00006_snv <- ggplot(I4_MAG_00006, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+I4_MAG_00006_snv <- ggplot(I4_MAG_00006_SNSsum, aes(x = name, y=(number_SNSs/number_divergent)))+
   geom_bar(stat="identity")+ 
-  scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
   theme(legend.title=element_blank(),text=element_text(size=15))+
-  labs(x="Pond",  y= "SNVs / Mbp")
+  ylim(0, 1)+
+  labs(x="Pond",  y= "fraction of SNVs dominated by a single allele")
 ggsave("I4_MAG_00006_#SNV.png", limitsize = F, dpi = 500)
 
 ggarrange(I4_MAG_00006_heat, I4_MAG_00006_snv,
           ncol=1, nrow=2,
-          align="hv", label.x="Pond")
+          align="hv", label.x="Pond",
+          common.legend = T,
+          legend="right")
 ggsave(filename = "I4_MAG_00006.png", limitsize=F, width=16, height=18)
 
 #for I4_MAG_00065
@@ -85,18 +88,22 @@ I4_MAG_00065_heat <- ggplot(I4_MAG_00065_median, aes(x = name, y = groups, fill=
 ggsave(filename="I4_MAG_00065_SNV_95_heatmap.png", dpi = 500)
 
 I4_MAG_00065$simple_class<-I4_MAG_00065$class%>%str_sub(-3,-1)
+I4_MAG_00065_SNSsum <- I4_MAG_00065 %>% group_by(name) %>% summarize_at(c('number_SNSs', 'number_SNVs', 'number_divergent'), sum, na.rm=T)
 
-I4_MAG_00065_snv <- ggplot(I4_MAG_00065, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+I4_MAG_00065_snv <- ggplot(I4_MAG_00065_SNSsum, aes(x = name, y=(number_SNSs/number_divergent)))+
   geom_bar(stat="identity")+ 
-  scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
   theme(legend.title=element_blank(),text=element_text(size=15))+
-  labs(x="Pond",  y= "SNVs / Mbp")
+  ylim(0, 1)+
+  labs(x="Pond",  y= "fraction of SNVs dominated by a single allele")
 ggsave("I4_MAG_00065_#SNV.png", limitsize = F, dpi = 500)
 
 ggarrange(I4_MAG_00065_heat, I4_MAG_00065_snv,
           ncol=1, nrow=2,
-          align="hv", label.x="Pond")
+          align="hv", 
+          label.x="Pond",           
+          common.legend = T,           
+          legend="right")
 ggsave(filename = "I4_MAG_00065.png", limitsize=F, width=16, height=18)
 
 #for L2_MAG_00048
@@ -125,18 +132,22 @@ L2_MAG_00048_heat <- ggplot(L2_MAG_00048_median, aes(x = name, y = groups, fill=
 ggsave(filename="L2_MAG_00048_SNV_95_heatmap.png", dpi = 500)
 
 L2_MAG_00048$simple_class<-L2_MAG_00048$class%>%str_sub(-3,-1)
+L2_MAG_00048_SNSsum <- L2_MAG_00048 %>% group_by(name) %>% summarize_at(c('number_SNSs', 'number_SNVs', 'number_divergent'), sum, na.rm=T)
 
-L2_MAG_00048_snv <- ggplot(L2_MAG_00048, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L2_MAG_00048_snv <- ggplot(L2_MAG_00048_SNSsum, aes(x = name, y=(number_SNSs/number_divergent)))+
   geom_bar(stat="identity")+ 
-  scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
   theme(legend.title=element_blank(),text=element_text(size=15))+
-  labs(x="Pond",  y= "SNVs / Mbp")
+  ylim(0, 1)+
+  labs(x="Pond",  y= "fraction of SNVs dominated by a single allele")
 ggsave("L2_MAG_00048_#SNV.png", limitsize = F, dpi = 500)
 
 ggarrange(L2_MAG_00048_heat, L2_MAG_00048_snv,
           ncol=1, nrow=2,
-          align="hv", label.x="Pond")
+          align="hv", 
+          label.x="Pond",           
+          common.legend = T,           
+          legend="right")
 ggsave(filename = "L2_MAG_00048.png", limitsize=F, width=16, height=18)
 
 #for L2_MAG_00052
@@ -165,18 +176,22 @@ L2_MAG_00052_heat <- ggplot(L2_MAG_00052_median, aes(x = name, y = groups, fill=
 ggsave(filename="L2_MAG_00052_SNV_95_heatmap.png", dpi = 500)
 
 L2_MAG_00052$simple_class<-L2_MAG_00052$class%>%str_sub(-3,-1)
+L2_MAG_00052_SNSsum <- L2_MAG_00052 %>% group_by(name) %>% summarize_at(c('number_SNSs', 'number_SNVs', 'number_divergent'), sum, na.rm=T)
 
-L2_MAG_00052_snv <- ggplot(L2_MAG_00052, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L2_MAG_00052_snv <- ggplot(L2_MAG_00052_SNSsum, aes(x = name, y=(number_SNSs/number_divergent)))+
   geom_bar(stat="identity")+ 
-  scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
   theme(legend.title=element_blank(),text=element_text(size=15))+
-  labs(x="Pond",  y= "SNVs / Mbp")
+  ylim(0, 1)+
+  labs(x="Pond",  y= "fraction of SNVs dominated by a single allele")
 ggsave("L2_MAG_00052_#SNV.png", limitsize = F, dpi = 500)
 
 ggarrange(L2_MAG_00052_heat, L2_MAG_00052_snv,
           ncol=1, nrow=2,
-          align="hv", label.x="Pond")
+          align="hv", 
+          label.x="Pond",           
+          common.legend = T,           
+          legend="right")
 ggsave(filename = "L2_MAG_00052.png", limitsize=F, width=16, height=18)
 
 #for L3_MAG_00058
@@ -205,18 +220,22 @@ L3_MAG_00058_heat <- ggplot(L3_MAG_00058_median, aes(x = name, y = groups, fill=
 ggsave(filename="L3_MAG_00058_SNV_95_heatmap.png", dpi = 500)
 
 L3_MAG_00058$simple_class<-L3_MAG_00058$class%>%str_sub(-3,-1)
+L3_MAG_00058_SNSsum <- L3_MAG_00058 %>% group_by(name) %>% summarize_at(c('number_SNSs', 'number_SNVs', 'number_divergent'), sum, na.rm=T)
 
-L3_MAG_00058_snv <- ggplot(L3_MAG_00058, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L3_MAG_00058_snv <- ggplot(L3_MAG_00058_SNSsum, aes(x = name, y=(number_SNSs/number_divergent)))+
   geom_bar(stat="identity")+ 
-  scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
   theme(legend.title=element_blank(),text=element_text(size=15))+
-  labs(x="Pond",  y= "SNVs / Mbp")
+  ylim(0, 1)+
+  labs(x="Pond",  y= "fraction of SNVs dominated by a single allele")
 ggsave("L3_MAG_00058_#SNV.png", limitsize = F, dpi = 500)
 
 ggarrange(L3_MAG_00058_heat, L3_MAG_00058_snv,
           ncol=1, nrow=2,
-          align="hv", label.x="Pond")
+          align="hv", 
+          label.x="Pond",           
+          common.legend = T,           
+          legend="right")
 ggsave(filename = "L3_MAG_00058.png", limitsize=F, width=16, height=18)
 
 #for L4_MAG_00099
@@ -245,18 +264,22 @@ L4_MAG_00099_heat <- ggplot(L4_MAG_00099_median, aes(x = name, y = groups, fill=
 ggsave(filename="L4_MAG_00099_SNV_95_heatmap.png", dpi = 500)
 
 L4_MAG_00099$simple_class<-L4_MAG_00099$class%>%str_sub(-3,-1)
+L4_MAG_00099_SNSsum <- L4_MAG_00099 %>% group_by(name) %>% summarize_at(c('number_SNSs', 'number_SNVs', 'number_divergent'), sum, na.rm=T)
 
-L4_MAG_00099_snv <- ggplot(L4_MAG_00099, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L4_MAG_00099_snv <- ggplot(L4_MAG_00099_SNSsum, aes(x = name, y=(number_SNSs/number_divergent)))+
   geom_bar(stat="identity")+ 
-  scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
   theme(legend.title=element_blank(),text=element_text(size=15))+
-  labs(x="Pond",  y= "SNVs / Mbp")
+  ylim(0, 1)+
+  labs(x="Pond",  y= "fraction of SNVs dominated by a single allele")
 ggsave("L4_MAG_00099_#SNV.png", limitsize = F, dpi = 500)
 
 ggarrange(L4_MAG_00099_heat, L4_MAG_00099_snv,
           ncol=1, nrow=2,
-          align="hv", label.x="Pond")
+          align="hv", 
+          label.x="Pond",           
+          common.legend = T,           
+          legend="right")
 ggsave(filename = "L4_MAG_00099.png", limitsize=F, width=16, height=18)
 
 #for L7_MAG_00020
@@ -284,18 +307,22 @@ L7_MAG_00020_heat <- ggplot(L7_MAG_00020_median, aes(x = name, y = groups, fill=
 ggsave(filename="L7_MAG_00020_SNV_95_heatmap.png", dpi = 500)
 
 L7_MAG_00020$simple_class<-L7_MAG_00020$class%>%str_sub(-3,-1)
+L7_MAG_00020_SNSsum <- L7_MAG_00020 %>% group_by(name) %>% summarize_at(c('number_SNSs', 'number_SNVs', 'number_divergent'), sum, na.rm=T)
 
-L7_MAG_00020_snv <- ggplot(L7_MAG_00020, aes(x=name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L7_MAG_00020_snv <- ggplot(L7_MAG_00020_SNSsum, aes(x=name, y=(number_SNSs/number_divergent)))+
   geom_bar(stat="identity")+ 
-  scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
   theme(legend.title=element_blank(),text=element_text(size=15))+
-  labs(x="Pond",  y= "SNVs / Mbp")
+  ylim(0, 1)+
+  labs(x="Pond",  y= "fraction of SNVs dominated by a single allele")
 ggsave("L7_MAG_00020_#SNV.png", limitsize = F, dpi = 500)
 
 ggarrange(L7_MAG_00020_heat, L7_MAG_00020_snv,
           ncol=1, nrow=2,
-          align="hv", label.x="Pond")
+          align="hv", 
+          label.x="Pond",           
+          common.legend = T,           
+          legend="right")
 ggsave(filename = "L7_MAG_00020.png", limitsize=F, width=16, height=18)
 
 #for L7_MAG_00028
@@ -324,18 +351,22 @@ L7_MAG_00028_heat <- ggplot(L7_MAG_00028_median, aes(x = name, y = groups, fill=
 ggsave(filename="L7_MAG_00028_SNV_95_heatmap.png", dpi = 500)
 
 L7_MAG_00028$simple_class<-L7_MAG_00028$class%>%str_sub(-3,-1)
+L7_MAG_00028_SNSsum <- L7_MAG_00028 %>% group_by(name) %>% summarize_at(c('number_SNSs', 'number_SNVs', 'number_divergent'), sum, na.rm=T)
 
-L7_MAG_00028_snv <- ggplot(L7_MAG_00028, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L7_MAG_00028_snv <- ggplot(L7_MAG_00028_SNSsum, aes(x = name, y=(number_SNSs/number_divergent)))+
   geom_bar(stat="identity")+ 
-  scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
   theme(legend.title=element_blank(),text=element_text(size=15))+
-  labs(x="Pond",  y= "SNVs / Mbp")
+  ylim(0, 1)+
+  labs(x="Pond",  y= "fraction of SNVs dominated by a single allele")
 ggsave("L7_MAG_00028_#SNV.png", limitsize = F, dpi = 500)
 
 ggarrange(L7_MAG_00028_heat, L7_MAG_00028_snv,
           ncol=1, nrow=2,
-          align="hv", label.x="Pond")
+          align="hv", 
+          label.x="Pond",           
+          common.legend = T,           
+          legend="right")
 ggsave(filename = "L7_MAG_00028.png", limitsize=F, width=16, height=18)
 
 #for L7_MAG_00043
@@ -364,18 +395,22 @@ L7_MAG_00043_heat <- ggplot(L7_MAG_00043_median, aes(x = name, y = groups, fill=
 ggsave(filename="L7_MAG_00043_SNV_95_heatmap.png", dpi = 500)
 
 L7_MAG_00043$simple_class<-L7_MAG_00043$class%>%str_sub(-3,-1)
+L7_MAG_00043_SNSsum <- L7_MAG_00043 %>% group_by(name) %>% summarize_at(c('number_SNSs', 'number_SNVs', 'number_divergent'), sum, na.rm=T)
 
-L7_MAG_00043_snv <- ggplot(L7_MAG_00043, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L7_MAG_00043_snv <- ggplot(L7_MAG_00043_SNSsum, aes(x = name, y=(number_SNSs/number_divergent)))+
   geom_bar(stat="identity")+ 
-  scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
   theme(legend.title=element_blank(),text=element_text(size=15))+
-  labs(x="Pond",  y= "SNVs / Mbp")
+  ylim(0, 1)+
+  labs(x="Pond",  y= "fraction of SNVs dominated by a single allele")
 ggsave("L7_MAG_00043_#SNV.png", limitsize = F, dpi = 500)
 
 ggarrange(L7_MAG_00043_heat, L7_MAG_00043_snv,
           ncol=1, nrow=2,
-          align="hv", label.x="Pond")
+          align="hv", 
+          label.x="Pond",           
+          common.legend = T,           
+          legend="right")
 ggsave(filename = "L7_MAG_00043.png", limitsize=F, width=16, height=18)
 
 #for L8_MAG_00011
@@ -404,18 +439,22 @@ L8_MAG_00011_heat <- ggplot(L8_MAG_00011_median, aes(x = name, y = groups, fill=
 ggsave(filename="L8_MAG_00011_SNV_95_heatmap.png", dpi = 500)
 
 L8_MAG_00011$simple_class<-L8_MAG_00011$class%>%str_sub(-3,-1)
+L8_MAG_00011_SNSsum <- L8_MAG_00011 %>% group_by(name) %>% summarize_at(c('number_SNSs', 'number_SNVs', 'number_divergent'), sum, na.rm=T)
 
-L8_MAG_00011_snv <- ggplot(L8_MAG_00011, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L8_MAG_00011_snv <- ggplot(L8_MAG_00011_SNSsum, aes(x = name, y=(number_SNSs/number_divergent)))+
   geom_bar(stat="identity")+ 
-  scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
   theme(legend.title=element_blank(),text=element_text(size=15))+
-  labs(x="Pond",  y= "SNVs / Mbp")
+  ylim(0, 1)+
+  labs(x="Pond",  y= "fraction of SNVs dominated by a single allele")
 ggsave("L8_MAG_00011_#SNV.png", limitsize = F, dpi = 500)
 
 ggarrange(L8_MAG_00011_heat, L8_MAG_00011_snv,
           ncol=1, nrow=2,
-          align="hv", label.x="Pond")
+          align="hv", 
+          label.x="Pond",           
+          common.legend = T,           
+          legend="right")
 ggsave(filename = "L8_MAG_00011.png", limitsize=F, width=16, height=18)
 
 #for L8_MAG_00019
@@ -444,18 +483,22 @@ L8_MAG_00019_heat <- ggplot(L8_MAG_00019_median, aes(x = name, y = groups, fill=
 ggsave(filename="L8_MAG_00019_SNV_95_heatmap.png", dpi = 500)
 
 L8_MAG_00019$simple_class<-L8_MAG_00019$class%>%str_sub(-3,-1)
+L8_MAG_00019_SNSsum <- L8_MAG_00019 %>% group_by(name) %>% summarize_at(c('number_SNSs', 'number_SNVs', 'number_divergent'), sum, na.rm=T)
 
-L8_MAG_00019_snv <- ggplot(L8_MAG_00019, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L8_MAG_00019_snv <- ggplot(L8_MAG_00019_SNSsum, aes(x = name, y=(number_SNSs/number_divergent)))+
   geom_bar(stat="identity")+ 
-  scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
   theme(legend.title=element_blank(),text=element_text(size=15))+
-  labs(x="Pond",  y= "SNVs / Mbp")
+  ylim(0, 1)+
+  labs(x="Pond",  y= "fraction of SNVs dominated by a single allele")
 ggsave("L8_MAG_00019_#SNV.png", limitsize = F, dpi = 500)
 
 ggarrange(L8_MAG_00019_heat, L8_MAG_00019_snv,
           ncol=1, nrow=2,
-          align="hv", label.x="Pond")
+          align="hv", 
+          label.x="Pond",           
+          common.legend = T,           
+          legend="right")
 ggsave(filename = "L8_MAG_00019.png", limitsize=F, width=16, height=18)
 
 #for L8_MAG_00042
@@ -484,16 +527,20 @@ L8_MAG_00042_heat <- ggplot(L8_MAG_00042_median, aes(x = name, y = groups, fill=
 ggsave(filename="L8_MAG_00042_SNV_95_heatmap.png", dpi = 500)
 
 L8_MAG_00042$simple_class<-L8_MAG_00042$class%>%str_sub(-3,-1)
+L8_MAG_00042_SNSsum <- L8_MAG_00042 %>% group_by(name) %>% summarize_at(c('number_SNSs', 'number_SNVs', 'number_divergent'), sum, na.rm=T)
 
-L8_MAG_00042_snv <- ggplot(L8_MAG_00042, aes(x = name, y=(((number_divergent/mag_length)*10^6)), fill=simple_class))+
+L8_MAG_00042_snv <- ggplot(L8_MAG_00042_SNSsum, aes(x = name, y=(number_SNSs/number_divergent)))+
   geom_bar(stat="identity")+ 
-  scale_fill_manual(values=c("#E0E0E0","#424242"))+
   theme_classic()+
   theme(legend.title=element_blank(),text=element_text(size=15))+
-  labs(x="Pond",  y= "SNVs / Mbp")
+  ylim(0, 1)+
+  labs(x="Pond",  y= "fraction of SNVs dominated by a single allele")
 ggsave("L8_MAG_00042_#SNV.png", limitsize = F, dpi = 500)
 
 ggarrange(L8_MAG_00042_heat, L8_MAG_00042_snv,
           ncol=1, nrow=2,
-          align="hv", label.x="Pond")
+          align="hv", 
+          label.x="Pond",           
+          common.legend = T,           
+          legend="right")
 ggsave(filename = "L8_MAG_00042.png", limitsize=F, width=16, height=18)
