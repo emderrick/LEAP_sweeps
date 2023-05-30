@@ -2,33 +2,41 @@
 
 #### Target Genes
 
-After some processing of SNV and samtools files in R I have a list of positions and genes that may be targets of selection. I imported a list of just those genes into narval.
+After some processing of SNV and samtools files in R I have a list of positions and genes that may be targets of selection from R in a file called gene_locations.tsv 
+I made a new file with just the first columnn
 
-I extracted only the genes I'm interested in. 4th command took awhile so I submitted it in a compute node.
 ```bash
-cat only_genes.csv | tr -d '"' > only_genes.txt
-uniq -i only_genes.txt > unique_genes.txt
-sed  '/>/i--' mag_genes.fna > mag_genes.fasta
-cat unique_genes.txt | xargs -i sed -n '/{}/,/--/p' mag_genes.fasta > genes.fa
-sed -i '/--/d' genes.fa 
+cut -f 1 gene_locations.tsv | sed 's/$/ /' > unique_genes.txt
 ```
-I'm going to use eggNOG to annotate my genes because prokka can't use just genes it needs to be contigs
-I installed eggNOG in a virtual environment
+
+Then I extracted the genes listed in that file from from the mag protein sequences previously called by prodigal. 
+
 ```bash
-python3 -m venv eggnog
-source eggnog/bin/activate
-python3 -m pip install eggnog-mapper
+#!/usr/bin/bash
+#SBATCH --time=2:00:00
+#SBATCH --account=
+#SBATCH --cpus-per-task=1
+cat unique_genes.txt | xargs -i sed -n '/{}/,/--/p' mag_proteins.fa > gene_prot_seq.fa
+sed -i 's/*//g' gene_prot_seq.fa 
+sed -i '/--/d' gene_prot_seq.fa 
 ```
-then I'll install the required databases in the eggnog folder
+Then I clustered the protein sequecnes with cd-hit to see if any are related
+
 ```bash
-download_eggnog_data.py --data_dir /home/ederrick/eggnog/
+#!/usr/bin/bash
+#SBATCH --time=00:05:00
+#SBATCH --account=
+#SBATCH --cpus-per-task=1
+
+module load cd-hit/4.8.1
+cd-hit -i gene_prot_seq.fa -o clustered_mag_prot_0.7 -c 0.7 -sc 1 -n 5 -d 30
 ```
-to run eggNOG on my gene that are nucleotide sequences
 ```bash
-salloc --time=01:00:00 --account= --cpus-per-task=4 --mem-per-cpu=6G
-source /home/ederrick/eggnog/bin/activate
-export EGGNOG_DATA_DIR=/home/ederrick/eggnog
-mkdir eggNOG_genes_output
-emapper.py -m diamond --itype CDS -i genes.fa --output_dir eggNOG_genes_output --cpu 4 -o eggNOG_genes
-deactivate
+#!/usr/bin/bash
+#SBATCH --time=00:05:00
+#SBATCH --account=
+#SBATCH --cpus-per-task=1
+
+module load cd-hit/4.8.1
+cd-hit -i gene_prot_seq.fa -o clustered_mag_prot_0.5 -c 0.5 -sc 1 -n 2 -d 30
 ```
