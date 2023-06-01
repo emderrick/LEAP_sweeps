@@ -40,3 +40,41 @@ cd-hit -i gene_prot_seq.fa -o clustered_mag_prot_0.7 -c 0.7 -sc 1 -n 5 -d 30
 module load cd-hit/4.8.1
 cd-hit -i gene_prot_seq.fa -o clustered_mag_prot_0.5 -c 0.5 -sc 1 -n 2 -d 30
 ```
+
+I'm going to reannotate my candidate MAGs with bakta since I had previously done it with prokka. First I installed bakta with apptainer. This is bakta version 1.8.1.
+
+```bash
+module load apptainer/1.1.8
+apptainer build bakta.sif docker://oschwengers/bakta:latest
+```
+
+Then I downloaded the database with
+
+```bash
+wget https://zenodo.org/record/7669534
+tar -xzf db.tar.gz
+rm db.tar.gz
+```
+
+Then I updated the database to include the amrfinder db with bakta's internal command. I couldn't do this to download the main db it didn't work.
+```bash
+apptainer shell -B /lustre07/scratch/ederrick bakta.sif
+amrfinder_update --force_update --database db/amrfinderplus-db
+```
+
+Then I ran bakta on each MAG.
+
+```bash
+#!/usr/bin/bash
+#SBATCH --time=00:30:00
+#SBATCH --account=
+#SBATCH --cpus-per-task=4
+#SBATCH --mem-per-cpu=4G
+
+module load apptainer/1.1.8
+for file in candididate_mags/*.fa
+do
+out="${f//.fa/_bakta_output}"
+apptainer run -B /lustre07/scratch/ederrick bakta.sif $file --db /home/ederrick/scratch/db --output $out --threads 4 
+done
+```
