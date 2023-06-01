@@ -34,7 +34,7 @@ I4_MAG_00006_index_df<-data.frame(groups=names(I4_MAG_00006_index),median=I4_MAG
 I4_MAG_00006_median<- right_join(I4_MAG_00006_index_df, I4_MAG_00006, by=c("groups"))
 
 I4_MAG_00006_heat <- ggplot(I4_MAG_00006_median, aes(x = name, y = groups, fill= final_ref_freq)) +
-  geom_tile() +
+  geom_tile()+
   scale_fill_viridis(direction=-1, na.value = "white") +
   theme_classic() +
   scale_y_discrete(limits=(I4_MAG_00006_median$groups)[order(I4_MAG_00006_median$median)]) +
