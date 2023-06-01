@@ -66,15 +66,15 @@ Then I ran bakta on each MAG.
 
 ```bash
 #!/usr/bin/bash
-#SBATCH --time=00:30:00
+#SBATCH --time=04:00:00
 #SBATCH --account=
 #SBATCH --cpus-per-task=4
 #SBATCH --mem-per-cpu=4G
 
 module load apptainer/1.1.8
-for file in candididate_mags/*.fa
+for file in candidate_mags/*.fa
 do
-out="${f//.fa/_bakta_output}"
+out="${file//.fa/_bakta_output}"
 apptainer run -B /lustre07/scratch/ederrick bakta.sif $file --db /home/ederrick/scratch/db --output $out --threads 4 
 done
 ```
