@@ -37,8 +37,8 @@ small_MAG_SNVs_hor <- read_csv("small_MAG_SNVs_hor.csv")
 small_MAG_SNVs_hor<- small_MAG_SNVs_hor %>% rowwise %>% mutate(all_mean = mean(c_across(where(is.numeric)), na.rm=TRUE))
 small_MAG_SNVs_hor<- small_MAG_SNVs_hor %>% rowwise %>% mutate(control_mean = mean(c_across((starts_with("Control"))), na.rm=TRUE))
 small_MAG_SNVs_hor<- small_MAG_SNVs_hor %>% rowwise %>% mutate(GBH_mean = mean(c_across((starts_with("GBH"))), na.rm=TRUE))
-small_MAG_SNVs_hor$abs_val<- abs(small_MAG_SNVs_hor$control_mean - small_MAG_SNVs_hor$GBH_mean)
 write.csv(small_MAG_SNVs_hor, "small_MAG_SNVs_hor_means.csv", row.names = F)
+small_MAG_SNVs_hor$abs_val<- abs(small_MAG_SNVs_hor$control_mean - small_MAG_SNVs_hor$GBH_mean)
 threshold_snvs<- subset(small_MAG_SNVs_hor, abs_val >= 0.5)
 
 #get all gene coordinates
@@ -65,5 +65,7 @@ only_genes <- subset(threshold_snvs, gene!="NA", select=c(gene))
 unique_genes <- distinct(only_genes)
 gene_locations<- left_join(unique_genes, all_gene_coord, by=c("gene"))
 
-write_tsv(genes, file="all_genes.tsv")
+write_tsv(unique_genes, file="all_genes.tsv")
 write_tsv(gene_locations, file="gene_locations.tsv")
+
+#graphing
