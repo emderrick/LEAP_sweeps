@@ -1,7 +1,7 @@
 ## LEAP 2021
 This is a place for all analyses of the 2021 LEAP experiement. In this experiment we collected samples for metagenomic and whole-genome sequencing.
 
-### Metagenomic pipeline
+### what each file does for analysis for metagenomic data
 1. Anvio_to_MAGs.md
       + starts with processing raw metagenomic sequencing reads
       + ends with dereplicating refined MAGs
@@ -23,17 +23,23 @@ This is a place for all analyses of the 2021 LEAP experiement. In this experimen
       + plots scaffold coverage for each mag of interest
 8. combine_depth.R
       + combines the samtools depth output with the inStrain output to get depth at all positions
-9. graphing_heatmaps.R
+9. SNVs.R
+      + makes snv data horizontal and adds means to snv data to find significant snvs
+      + creates a new snv file for each mag to use for graphing
+10. graphing_heatmaps.R
       + plots heatmaps of the reference frequency at each position there is an SNV 
-10. find_snvs.R
+11. grouped_heatmaps.R
+      + easier way to plot heatmaps in panels and adds plots of snv sums
+12. find_snvs.R
       + finds positions where ref is above 0.5 in all ctl and above 0.5 in all gly
       + saves list of genes these positions are in
-11. SNVs_genes.md
+13. sum_snvs.R
+      + makes simple tables of all SNV and SNS sums for each MAG
+14. SNVs_genes.md
       + starts with extracting genes of interest in list from all MAG genes
       + ends with ..?
-12. getEPSPS.sh
+15. getEPSPS.sh
       + extracts EPSPS from prokka annotation 
       + need to add this part to another section
-### not included in pipeline
-* RGI.md
-* wgs.md
+16. get_genes.R
+      + takes list of genes with snv counts and matches them to bakta output
