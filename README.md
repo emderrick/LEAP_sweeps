@@ -14,9 +14,8 @@ This is a place for all analyses of the 2021 LEAP experiement. In this experimen
       + makes big plot of all MAGs in each pond at each timepint
 4. graphing_presence.R
       + plots summary of what ponds my MAGs of interest are in
-5. combine_mag_files.R
+5. combine_filter_mag_files.R
       + combines SNV file, scaffold file, and genome file from instrain output together for downstream analysis
-6. filter_mag_SNVs_95.R
       + filters SNVs based on position from ends and coverage
       + filters out timepoints I won't use downstream
 7. graphing_coverage.R
