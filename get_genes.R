@@ -13,7 +13,7 @@ for(i in 1:length(gene_files)){
 #add in the direction
 colnames(all_genes)[1]="Sequence_ID"
 all_genes$contig <- all_genes$Sequence_ID %>% substr(8,10)
-gene_locations<- read_tsv("gene_locations.tsv")
+gene_locations<- read_csv("gene_locations.csv")
 gene_locations$contig <- gene_locations$gene %>% substr(23,25) %>% str_remove("^0+")
 gene_locations$mag <- gene_locations$gene %>% substr(1,12)
 gene_matches<- left_join(gene_locations,all_genes, by=c("mag", "contig", "new_start"="Start", "new_end"="Stop"))
@@ -21,10 +21,7 @@ gene_matches<- left_join(gene_locations,all_genes, by=c("mag", "contig", "new_st
 gene_no_NA <- gene_matches %>% drop_na(Gene)
 
 parallel_genes <- gene_no_NA %>% count(Gene, mag)
-parallel_gene_only <- parallel_genes %>% count(Gene)
-colnames(parallel_genes)[1]="gene"
-colnames(parallel_genes)[3]="gene_count"
-parallel_all <- inner_join(parallel_genes, gene_matches, by="gene", "mag")
+parallel_gene_mag <- parallel_genes %>% count(Gene)
 
 I4_MAG_00006_top_genes <- subset(gene_no_NA, mag=="I4_MAG_00006")
 I4_MAG_00006_top_genes <- I4_MAG_00006_top_genes[c(2, 8, 13, 14)]
