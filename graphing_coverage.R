@@ -14,7 +14,7 @@ mag_list<-list("L3_MAG_00058", "I8_MAG_00005", "L4_MAG_00099", "L8_MAG_00019", "
 mags <- read_csv("filtered_ANI_95_mag_SNVs.csv")
 
 #sum up number of SNVs by scaffold
-mag_cov <- aggregate(mags$number_SNVs, by=list(mag=mags$mag, scaffold=mags$scaffold, length=mags$length, group=mags$group, coverage=mags$coverage), FUN=sum) 
+mag_cov <- aggregate(mags$number_SNVs, by=list(mag=mags$mag, time=mags$new_time, scaffold=mags$scaffold, length=mags$length, group=mags$new_name, coverage=mags$coverage), FUN=sum) 
 mag_cov <- mag_cov %>% rename("SNVs"="x")
 mag_cov$snvbylength <- mag_cov$SNVs/mag_cov$length
 
@@ -88,7 +88,7 @@ I8_MAG_00005_cov <-  ggplot(subset(mag_cov, mag == "I8_MAG_00005"), aes(x = cove
   theme(legend.title=element_blank())
 ggsave(filename="I8_MAG_00005_cov.png", limitsize = FALSE)
 
-L4_MAG_00099_cov <- ggplot(subset(mag_cov, mag == "L4_MAG_00099"), aes(x = coverage, y=snvbylength*10^6)) + 
+L4_MAG_00099_cov <- ggplot(subset(mag_cov, mag == "L4_MAG_00099", time="2"), aes(x = coverage, y=snvbylength*10^6)) + 
   geom_point(aes(colour=group))+
   scale_colour_viridis(discrete = T, option= "magma")+
   labs(y="SNVs / MBp", x="Coverage (x)") +
@@ -98,7 +98,7 @@ L4_MAG_00099_cov <- ggplot(subset(mag_cov, mag == "L4_MAG_00099"), aes(x = cover
   theme(legend.title=element_blank())
 ggsave(filename="L4_MAG_00099_cov.png", limitsize = FALSE)
 
-I4_MAG_00006_cov <-  ggplot(subset(mag_cov, mag == "I4_MAG_00006"), aes(x = coverage, y=snvbylength*10^6)) + 
+I4_MAG_00006_cov <-  ggplot(subset(mag_cov, mag == "I4_MAG_00006", time), aes(x = coverage, y=snvbylength*10^6)) + 
   geom_point(aes(colour=group))+
   scale_colour_viridis(discrete = T, option= "magma")+
   labs(y="SNVs / MBp", x="Coverage (x)") +
@@ -138,7 +138,7 @@ L7_MAG_00020_cov <-  ggplot(subset(mag_cov, mag == "L7_MAG_00020"), aes(x = cove
   theme(legend.title=element_blank())
 ggsave(filename="L7_MAG_00020_cov.png", limitsize = FALSE)
 
-L8_MAG_00042_cov <-  ggplot(subset(mag_cov, mag == "L8_MAG_00042"), aes(x = coverage, y=snvbylength*10^6)) + 
+L8_MAG_00042_cov <-  ggplot(subset(mag_cov, mag == "L8_MAG_00042", time="2"), aes(x = coverage, y=snvbylength*10^6)) + 
   geom_point(aes(colour=group))+
   scale_colour_viridis(discrete = T, option= "magma")+
   labs(y="SNVs / MBp", x="Coverage (x)") +

@@ -31,8 +31,8 @@ mags <- mags %>% filter(!(mag=="L7_MAG_00028" & new_time=="3"))
 mags <- mags %>% filter(!(mag=="I4_MAG_00065" & new_time=="1"))
 mags <- mags %>% filter(!(mag=="I4_MAG_00065" & new_time=="3"))
 mags <- mags %>% filter(!(mag=="L8_MAG_00042" & new_time=="3"))
-mags <- mags %>% filter(!(mag=="L2_MAG_00048" & new_time=="2" & pond=="L7"))
 mags <- mags %>% filter(!(mag=="L2_MAG_00052" & new_time=="1"))
+mags <- mags %>% filter(!(mag=="L7_MAG_00020" & new_time=="1" & pond=="L7"))
 filtered_mags <- mags
 
 write.csv(filtered_mags, "filtered_TP_SNVs.csv", row.names=F)
