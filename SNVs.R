@@ -24,7 +24,6 @@ all_MAG_SNVs$time2<-as.numeric(all_MAG_SNVs$timepoint%>%substr(9,9))+1
 all_MAG_SNVs$name<-paste(all_MAG_SNVs$new_name, sep=" at T", all_MAG_SNVs$time2)
 all_MAG_SNVs$mag<-all_MAG_SNVs$groups%>%substr(1,12)
 write.csv(all_MAG_SNVs, "all_MAG_SNVs.csv", row.names=F)
-all_MAG_SNVs <- read_csv("all_MAG_SNVs.csv")
 
 small_MAG_SNVs<- all_MAG_SNVs %>% select(c('groups', 'gene', 'mag', 'mag_length', 'name', 'final_ref_freq'))
 small_MAG_SNVs <- small_MAG_SNVs %>% group_by(groups) %>% fill(gene, mag_length, .direction="updown")
@@ -35,7 +34,6 @@ small_MAG_SNVs_hor$GBH_mean <-rowMeans(small_MAG_SNVs_hor[c(14,15,16,17)], na.rm
 small_MAG_SNVs_hor$abs_val<- abs(small_MAG_SNVs_hor$control_mean - small_MAG_SNVs_hor$GBH_mean)
 write.csv(small_MAG_SNVs_hor, "small_MAG_SNVs_hor_means.csv", row.names = F)
 
-small_MAG_SNVs_hor <- read_csv("small_MAG_SNVs_hor_means.csv")
 threshold_snvs<- subset(small_MAG_SNVs_hor, abs_val >= 0.5)
 strict <- threshold_snvs
 strict$control <- with(strict, ifelse(control_mean <= 0.5, 'low', 'high'))
@@ -67,8 +65,8 @@ only_genes <- subset(only_strict, gene!="NA", select=c(gene))
 only_genes_sum <- only_genes %>% count(gene, name="snvs_in_gene")
 gene_locations<- left_join(only_genes_sum, all_gene_coord, by=c("gene"))
 #save file of gene list and position
-write_tsv(unique_genes, file="all_genes.tsv")
-write_tsv(gene_locations, file="gene_locations.tsv")
+write.csv(all_gene_coord, file="all_genes.csv", row.names = F)
+write.csv(gene_locations, file="gene_locations.csv", row.names = F)
 
 #SAVE NEW FILES WITH MEANS
 class_MAG_SNVs<-all_MAG_SNVs %>% select(c('groups','name','class'))
@@ -141,3 +139,6 @@ L2_MAG_00052_SNVs <- subset(small_MAG_SNVs_hor, mag=="L2_MAG_00052") %>%
   left_join(class_MAG_SNVs, by=c("groups", "name"))
 write.csv(L2_MAG_00052_SNVs, "L2_MAG_00052_SNVs.csv", row.names = F)
 
+all_finished_SNVs<-rbind(L3_MAG_00058_SNVs, L4_MAG_00099_SNVs, L8_MAG_00019_SNVs, L8_MAG_00011_SNVs, L7_MAG_00043_SNVs,
+                         L7_MAG_00028_SNVs, I4_MAG_00006_SNVs, I4_MAG_00065_SNVs, L7_MAG_00020_SNVs, L8_MAG_00042_SNVs, L2_MAG_00052_SNVs) 
+write.csv(all_finished_SNVs, "all_MAG_SNVs_med_July6.csv", row.names=F)

@@ -6,7 +6,7 @@ library(ggpubr)
 library(stringr)
 library(patchwork)
 
-all_snv <- read_csv("all_snv_Jun_5.csv")
+all_snv <- read_csv("all_MAG_SNVs_med_July6.csv")
 all_snv$graph_name <- with(all_snv, ifelse(mag=="L7_MAG_00020", name, str_sub(all_snv$name, end = -6)))
 all_snv$graph_name <- with(all_snv, ifelse(mag=="L7_MAG_00020", gsub('Control', 'Ctrl', graph_name), graph_name))
 all_snv$graph_name <- with(all_snv, ifelse(mag=="L7_MAG_00020", gsub('at ', '', graph_name), graph_name))

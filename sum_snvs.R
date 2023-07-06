@@ -2,24 +2,12 @@ library(tidyverse)
 library(dplyr)
 
 #read in all the SNV files
-I4_MAG_00006 <- read_csv("I4_MAG_00006_SNVs.csv")
-I4_MAG_00065 <- read_csv("I4_MAG_00065_SNVs.csv")
-L2_MAG_00052 <- read_csv("L2_MAG_00052_SNVs.csv")
-L3_MAG_00058 <- read_csv("L3_MAG_00058_SNVs.csv")
-L4_MAG_00099 <- read_csv("L4_MAG_00099_SNVs.csv")
-L7_MAG_00020 <- read_csv("L7_MAG_00020_SNVs.csv")
-L7_MAG_00028 <- read_csv("L7_MAG_00028_SNVs.csv")
-L7_MAG_00043 <- read_csv("L7_MAG_00043_SNVs.csv")
-L8_MAG_00011 <- read_csv("L8_MAG_00011_SNVs.csv")
-L8_MAG_00019 <- read_csv("L8_MAG_00019_SNVs.csv")
-L8_MAG_00042 <- read_csv("L8_MAG_00042_SNVs.csv")
-all_SNV<- rbind(I4_MAG_00006,I4_MAG_00065, L2_MAG_00052, L3_MAG_00058, L4_MAG_00099, L7_MAG_00020,
-                L7_MAG_00028, L7_MAG_00043, L8_MAG_00011, L8_MAG_00019, L8_MAG_00042)
-write.csv(all_SNV, "all_snv_Jun_5.csv", row.names = F)
+all_snv <- read_csv("all_MAG_SNVs_med_July6.csv")
 
-all_SNV_sum <- all_SNV %>% group_by(mag, mag_length, name) %>% summarize(SNVs=sum(class %in% "SNV"), SNSs=sum(class %in% "SNS"))
+all_SNV_sum <- all_snv %>% group_by(mag, mag_length, name) %>% summarize(SNVs=sum(class %in% "SNV"), SNSs=sum(class %in% "SNS"))
 write.csv(all_SNV_sum, "all_SNV_sum.csv", row.names = F)
 all_SNV_wide<- pivot_wider(all_SNV_sum, names_from="name", values_from=c(SNVs,SNSs))
+all_SNV_wide <- all_SNV_wide[c(1:11, 16:24)]
 all_SNV_wide<- all_SNV_wide %>% rowwise %>% mutate(control_SNV_mean = mean(c_across(contains("SNVs_Control")), na.rm = T))
 all_SNV_wide<- all_SNV_wide %>% rowwise %>% mutate(GBH_SNV_mean = mean(c_across(contains("SNVs_GBH")), na.rm = T))
 all_SNV_wide<- all_SNV_wide %>% rowwise %>% mutate(control_SNS_mean = mean(c_across(contains("SNSs_Control")), na.rm = T))
