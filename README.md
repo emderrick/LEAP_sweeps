@@ -25,20 +25,17 @@ This is a place for all analyses of the 2021 LEAP experiement. In this experimen
 9. SNVs.R
       + makes snv data horizontal and adds means to snv data to find significant snvs
       + creates a new snv file for each mag to use for graphing
-10. graphing_heatmaps.R
+10. sum_snvs.R
+      + makes simple tables of all SNV and SNS sums for each MAG
+11. graphing_heatmaps.R
       + plots individual heatmaps of the reference frequency at each position there is an SNV 
-11. grouped_heatmaps.R
+12. grouped_heatmaps.R
       + easier way to plot heatmaps grouped in panels and adds plots of snv sums
-12. find_snvs.R
+13. find_snvs.R
       + finds positions where ref has avergae abs difference of at least 0.5 ctl vs gly
       + saves list of genes these positions are in
-13. sum_snvs.R
-      + makes simple tables of all SNV and SNS sums for each MAG
 14. SNVs_genes.md
       + starts with extracting genes of interest in list from all MAG genes
       + ends with annotating MAGs with bakta
-15. getEPSPS.sh
-      + extracts EPSPS from prokka annotation 
-      + need to add this part to another section
-16. get_genes.R
+15. get_genes.R
       + takes list of genes with snv counts and matches them to bakta output
