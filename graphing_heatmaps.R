@@ -5,7 +5,7 @@ library(viridis)
 library(ggpubr)
 library(forcats)
 
-all_snv <- read_csv("all_snv_Jun_5.csv")
+all_snv <- read_csv("all_MAG_SNVs_med_July6.csv")
 all_sum <- read_csv("all_snv_sum.csv")
 all_sum_long <- pivot_longer(all_sum, cols=contains("S"), names_to="class", values_to="divergent_sites", values_drop_na = F)
 
