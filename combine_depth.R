@@ -45,10 +45,10 @@ all_I4_MAG_00065 = all_I4_MAG_00065[,c(1:14, 88, 15:87)]
 write.csv(all_I4_MAG_00065, "all_I4_MAG_00065_SNVs.csv", row.names=F)
 
 #for sweep plot
-small_I4_MAG_00065 = I4_MAG_00065[,c(1:6, 10, 17, 22, 77)]
+small_I4_MAG_00065 = I4_MAG_00065[,c(1:4, 10, 17, 22, 77)] #removed two more columns I don't think I'll need because I was running out of memory with them
 merged_I4_MAG_00065 <- full_join(I4_MAG_00065_depth, small_I4_MAG_00065, by=c("timepoint", "groups"))
 merged_I4_MAG_00065 <- mutate(merged_I4_MAG_00065, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-merged_I4_MAG_00065 = merged_I4_MAG_00065[,c(1:5, 12:15)]
+merged_I4_MAG_00065 = merged_I4_MAG_00065[,c(1:5, 10:13)]
 write.csv(merged_I4_MAG_00065, "merged_I4_MAG_00065_SNVs.csv", row.names=F)
 
 #L2_MAG_00052
