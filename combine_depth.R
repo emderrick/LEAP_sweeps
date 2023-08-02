@@ -3,257 +3,53 @@ library(dplyr)
 
 filtered_SNVs <- read_csv("filtered_ANI_95_mag_SNVs.csv")
 
-#have to do each MAG individually or I run out of memory
+mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099", "L7_MAG_00020", 
+                 "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
 
-#I4_MAG_00006
-I4_MAG_00006 <- filter(filtered_SNVs, mag=="I4_MAG_00006")
-I4_MAG_00006$groups<- paste(I4_MAG_00006$scaffold, str_pad(I4_MAG_00006$position, 7, pad = "0"))
-I4_MAG_00006 <- complete(I4_MAG_00006, timepoint, groups)
+ponds_list <- list(I4_MAG_00006 = list("Control B at T2", "Control E at T2", "GBH A at T2", "GBH D at T2"), 
+                   I4_MAG_00065 = list("Control A at T2", "Control B at T2", "Control C at T2", "Control D at T2", "Control E at T2", "GBH B at T2"), 
+                   L2_MAG_00052 = list("Control A at T2", "Control B at T2", "Control D at T2", "Control E at T2", "GBH A at T2"), 
+                   L3_MAG_00058 = list("Control C at T2", "Control D at T2", "GBH C at T2", "GBH D at T2"), 
+                   L4_MAG_00099 = list("Control D at T2", "GBH A at T2", "GBH B at T2", "GBH C at T2", "GBH D at T2"), 
+                   L7_MAG_00020 = list("Control A at T1", "Control A at T2", "Control C at T1", "Control C at T2", "Control D at T1", "Control D at T2", "GBH A at T1", "GBH A at T2"), 
+                   L7_MAG_00028 = list("Control E at T2", "GBH A at T2", "GBH B at T2", "GBH C at T2"), 
+                   L7_MAG_00043 = list("Control D at T2", "GBH B at T2", "GBH C at T2"), 
+                   L8_MAG_00011 = list("Control E at T2", "GBH A at T2", "GBH D at T2"), 
+                   L8_MAG_00019 = list("Control E at T2", "GBH A at T2", "GBH B at T2", "GBH D at T2"), 
+                   L8_MAG_00042 = list("Control A at T2", "Control C at T2", "Control D at T2", "Control E at T2", "GBH D at T2"))
 
-I4_MAG_00006_depth <- read.table("~/Documents/I4_MAG_00006_depth.txt", sep="\t", header=F)
-I4_MAG_00006_depth <- I4_MAG_00006_depth %>% rename("scaffold"="V1", "position"="V2", "samtools_depth"="V3", "timepoint"="V4")
-I4_MAG_00006_depth$groups<- paste(I4_MAG_00006_depth$scaffold, str_pad(I4_MAG_00006_depth$position, 7, pad = "0"))
-I4_MAG_00006_depth <- mutate(I4_MAG_00006_depth, new_ref_freq = ifelse(samtools_depth >= 5, 1, NA))
+merge_depth <- function(filtered_SNVs, MAG, ponds_list) {
+  MAG_snv <- filter(filtered_SNVs, mag==MAG)
+  MAG_snv$groups <- paste(MAG_snv$scaffold, str_pad(MAG_snv$position, 7, pad = "0"))
+  MAG_snv <-  MAG_snv[,c(1:17, 19:22, 41, 45, 72, 74:76, 78:83)]
+  full_MAG_snv <- complete(MAG_snv, timepoint, groups)
+  
+  MAG_depth <- read.table(paste(MAG,"_depth.txt", sep=""), sep="\t", header=F)
+  MAG_depth <- MAG_depth %>% rename("scaffold"="V1", "position"="V2", "samtools_depth"="V3", "timepoint"="V4")
+  MAG_depth$groups <- paste(MAG_depth$scaffold, str_pad(MAG_depth$position, 7, pad = "0"))
+  MAG_depth <- left_join(MAG_depth, MAG_snv[,c(19,27,33)], by= c("timepoint", "groups"))
+  MAG_depth <- MAG_depth %>% group_by(timepoint) %>% fill(new_name, .direction = "updown")
+  MAG_index<-which(names(ponds_list)==MAG)
+  MAG_depth <- subset(MAG_depth, new_name %in% ponds_list[[MAG_index]])
+  MAG_depth$new_ref_freq <- with(MAG_depth, ifelse(samtools_depth >= 5, 1, NA))
 
-#for heatmaps
-all_I4_MAG_00006 <- right_join(I4_MAG_00006_depth, I4_MAG_00006, by=c("timepoint", "groups"))
-all_I4_MAG_00006 <- mutate(all_I4_MAG_00006, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-all_I4_MAG_00006 = all_I4_MAG_00006[,c(1:14, 88, 15:87)]
-write.csv(all_I4_MAG_00006, "all_I4_MAG_00006_SNVs.csv", row.names=F)
+  all_MAG <- left_join(MAG_depth, MAG_snv, by=c("timepoint", "groups", "scaffold", "position", "new_name"))
+  all_MAG$final_ref_freq <- with(all_MAG, ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
+  all_MAG <- all_MAG %>% group_by(groups) %>% fill(scaffold, position, gene, mag, mag_length, length, .direction="updown")
+  all_MAG <- all_MAG %>% group_by(timepoint) %>% fill(new_time, treatment, name, new_name, full_group, .direction="updown")
+  all_MAG <- all_MAG[,c(1:6, 8:12, 36, 14:35)]
+  #save files for sweep plots
+  write.csv(all_MAG, paste(MAG, "_sweep_snvs.csv", sep=""), row.names=F)
+  MAG_sweep_wide <- all_MAG[,c(1, 23, 19, 5, 6, 12)] %>% pivot_wider(names_from = new_name, values_from = final_ref_freq)
+  write.csv(MAG_sweep_wide, paste(MAG, "_sweep_wide.csv", sep=""), row.names=F)
+  print(paste("done", MAG, "sweep files"))
+  #save heatmap file
+  MAG_heat <- subset(all_MAG, groups %in% full_MAG_snv$groups)
+  write.csv(MAG_heat, paste("all_", MAG, "_SNVs.csv", sep=""), row.names=F)
+  print(paste("done", MAG, "heatmap file"))
 
-#for sweep plot
-small_I4_MAG_00006 = I4_MAG_00006[,c(1:6, 10, 17, 22, 77)]
-merged_I4_MAG_00006 <- full_join(I4_MAG_00006_depth, small_I4_MAG_00006, by=c("timepoint", "groups"))
-merged_I4_MAG_00006 <- mutate(merged_I4_MAG_00006, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-merged_I4_MAG_00006 = merged_I4_MAG_00006[,c(1:5, 12:15)]
-write.csv(merged_I4_MAG_00006, "merged_I4_MAG_00006_SNVs.csv", row.names=F)
+}
 
-#I4_MAG_00065
-I4_MAG_00065 <- filter(filtered_SNVs, mag=="I4_MAG_00065")
-I4_MAG_00065$groups<- paste(I4_MAG_00065$scaffold, str_pad(I4_MAG_00065$position, 7, pad = "0"))
-I4_MAG_00065 <- complete(I4_MAG_00065, timepoint, groups)
-
-I4_MAG_00065_depth <- read.table("~/Documents/I4_MAG_00065_depth.txt", sep="\t", header=F)
-I4_MAG_00065_depth <- I4_MAG_00065_depth %>% rename("scaffold"="V1", "position"="V2", "samtools_depth"="V3", "timepoint"="V4")
-I4_MAG_00065_depth$groups<- paste(I4_MAG_00065_depth$scaffold, str_pad(I4_MAG_00065_depth$position, 7, pad = "0"))
-I4_MAG_00065_depth <- mutate(I4_MAG_00065_depth, new_ref_freq = ifelse(samtools_depth >= 5, 1, NA))
-
-#for heatmaps
-all_I4_MAG_00065 <- right_join(I4_MAG_00065_depth, I4_MAG_00065, by=c("timepoint", "groups"))
-all_I4_MAG_00065 <- mutate(all_I4_MAG_00065, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-all_I4_MAG_00065 = all_I4_MAG_00065[,c(1:14, 88, 15:87)]
-write.csv(all_I4_MAG_00065, "all_I4_MAG_00065_SNVs.csv", row.names=F)
-
-#for sweep plot
-small_I4_MAG_00065 = I4_MAG_00065[,c(1:4, 10, 17, 22, 77)] #removed two more columns I don't think I'll need because I was running out of memory with them
-merged_I4_MAG_00065 <- full_join(I4_MAG_00065_depth, small_I4_MAG_00065, by=c("timepoint", "groups"))
-merged_I4_MAG_00065 <- mutate(merged_I4_MAG_00065, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-merged_I4_MAG_00065 = merged_I4_MAG_00065[,c(1:5, 10:13)]
-write.csv(merged_I4_MAG_00065, "merged_I4_MAG_00065_SNVs.csv", row.names=F)
-
-#L2_MAG_00052
-L2_MAG_00052 <- filter(filtered_SNVs, mag=="L2_MAG_00052")
-L2_MAG_00052$groups<- paste(L2_MAG_00052$scaffold, str_pad(L2_MAG_00052$position, 7, pad = "0"))
-L2_MAG_00052 <- complete(L2_MAG_00052, timepoint, groups)
-
-L2_MAG_00052_depth <- read.table("~/Documents/L2_MAG_00052_depth.txt", sep="\t", header=F)
-L2_MAG_00052_depth <- L2_MAG_00052_depth %>% rename("scaffold"="V1", "position"="V2", "samtools_depth"="V3", "timepoint"="V4")
-L2_MAG_00052_depth$groups<- paste(L2_MAG_00052_depth$scaffold, str_pad(L2_MAG_00052_depth$position, 7, pad = "0"))
-L2_MAG_00052_depth <- mutate(L2_MAG_00052_depth, new_ref_freq = ifelse(samtools_depth >= 5, 1, NA))
-
-#for heatmaps
-all_L2_MAG_00052 <- right_join(L2_MAG_00052_depth, L2_MAG_00052, by=c("timepoint", "groups"))
-all_L2_MAG_00052 <- mutate(all_L2_MAG_00052, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-all_L2_MAG_00052 = all_L2_MAG_00052[,c(1:14, 88, 15:87)]
-write.csv(all_L2_MAG_00052, "all_L2_MAG_00052_SNVs.csv", row.names=F)
-
-#for sweep plot
-small_L2_MAG_00052 = L2_MAG_00052[,c(1:6, 10, 17, 22, 77)]
-merged_L2_MAG_00052 <- full_join(L2_MAG_00052_depth, small_L2_MAG_00052, by=c("timepoint", "groups"))
-merged_L2_MAG_00052 <- mutate(merged_L2_MAG_00052, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-merged_L2_MAG_00052 = merged_L2_MAG_00052[,c(1:5, 12:15)]
-write.csv(merged_L2_MAG_00052, "merged_L2_MAG_00052_SNVs.csv", row.names=F)
-
-#L3_MAG_00058
-L3_MAG_00058 <- filter(filtered_SNVs, mag=="L3_MAG_00058")
-L3_MAG_00058$groups<- paste(L3_MAG_00058$scaffold, str_pad(L3_MAG_00058$position, 7, pad = "0"))
-L3_MAG_00058 <- complete(L3_MAG_00058, timepoint, groups)
-
-L3_MAG_00058_depth <- read.table("~/Documents/L3_MAG_00058_depth.txt", sep="\t", header=F)
-L3_MAG_00058_depth <- L3_MAG_00058_depth %>% rename("scaffold"="V1", "position"="V2", "samtools_depth"="V3", "timepoint"="V4")
-L3_MAG_00058_depth$groups<- paste(L3_MAG_00058_depth$scaffold, str_pad(L3_MAG_00058_depth$position, 7, pad = "0"))
-L3_MAG_00058_depth <- mutate(L3_MAG_00058_depth, new_ref_freq = ifelse(samtools_depth >= 5, 1, NA))
-
-#for heatmaps
-all_L3_MAG_00058 <- right_join(L3_MAG_00058_depth, L3_MAG_00058, by=c("timepoint", "groups"))
-all_L3_MAG_00058 <- mutate(all_L3_MAG_00058, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-all_L3_MAG_00058 = all_L3_MAG_00058[,c(1:14, 88, 15:87)]
-write.csv(all_L3_MAG_00058, "all_L3_MAG_00058_SNVs.csv", row.names=F)
-
-#for sweep plot
-small_L3_MAG_00058 = L3_MAG_00058[,c(1:6, 10, 17, 22, 77)]
-merged_L3_MAG_00058 <- full_join(L3_MAG_00058_depth, small_L3_MAG_00058, by=c("timepoint", "groups"))
-merged_L3_MAG_00058 <- mutate(merged_L3_MAG_00058, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-merged_L3_MAG_00058 = merged_L3_MAG_00058[,c(1:5, 12:15)]
-write.csv(merged_L3_MAG_00058, "merged_L3_MAG_00058_SNVs.csv", row.names=F)
-
-#L4_MAG_00099
-L4_MAG_00099 <- filter(filtered_SNVs, mag=="L4_MAG_00099")
-L4_MAG_00099$groups<- paste(L4_MAG_00099$scaffold, str_pad(L4_MAG_00099$position, 7, pad = "0"))
-L4_MAG_00099 <- complete(L4_MAG_00099, timepoint, groups)
-
-L4_MAG_00099_depth <- read.table("~/Documents/L4_MAG_00099_depth.txt", sep="\t", header=F)
-L4_MAG_00099_depth <- L4_MAG_00099_depth %>% rename("scaffold"="V1", "position"="V2", "samtools_depth"="V3", "timepoint"="V4")
-L4_MAG_00099_depth$groups<- paste(L4_MAG_00099_depth$scaffold, str_pad(L4_MAG_00099_depth$position, 7, pad = "0"))
-L4_MAG_00099_depth <- mutate(L4_MAG_00099_depth, new_ref_freq = ifelse(samtools_depth >= 5, 1, NA))
-
-#for heatmaps
-all_L4_MAG_00099 <- right_join(L4_MAG_00099_depth, L4_MAG_00099, by=c("timepoint", "groups"))
-all_L4_MAG_00099 <- mutate(all_L4_MAG_00099, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-all_L4_MAG_00099 = all_L4_MAG_00099[,c(1:14, 88, 15:87)]
-write.csv(all_L4_MAG_00099, "all_L4_MAG_00099_SNVs.csv", row.names=F)
-
-#for sweep plot
-small_L4_MAG_00099 = L4_MAG_00099[,c(1:6, 10, 17, 22, 77)]
-merged_L4_MAG_00099 <- full_join(L4_MAG_00099_depth, small_L4_MAG_00099, by=c("timepoint", "groups"))
-merged_L4_MAG_00099 <- mutate(merged_L4_MAG_00099, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-merged_L4_MAG_00099 = merged_L4_MAG_00099[,c(1:5, 12:15)]
-write.csv(merged_L4_MAG_00099, "merged_L4_MAG_00099_SNVs.csv", row.names=F)
-
-#L7_MAG_00020
-L7_MAG_00020 <- filter(filtered_SNVs, mag=="L7_MAG_00020")
-L7_MAG_00020$groups<- paste(L7_MAG_00020$scaffold, str_pad(L7_MAG_00020$position, 7, pad = "0"))
-L7_MAG_00020 <- complete(L7_MAG_00020, timepoint, groups)
-
-L7_MAG_00020_depth <- read.table("~/Documents/L7_MAG_00020_depth.txt", sep="\t", header=F)
-L7_MAG_00020_depth <- L7_MAG_00020_depth %>% rename("scaffold"="V1", "position"="V2", "samtools_depth"="V3", "timepoint"="V4")
-L7_MAG_00020_depth$groups<- paste(L7_MAG_00020_depth$scaffold, str_pad(L7_MAG_00020_depth$position, 7, pad = "0"))
-L7_MAG_00020_depth <- mutate(L7_MAG_00020_depth, new_ref_freq = ifelse(samtools_depth >= 5, 1, NA))
-
-#for heatmaps
-all_L7_MAG_00020 <- right_join(L7_MAG_00020_depth, L7_MAG_00020, by=c("timepoint", "groups"))
-all_L7_MAG_00020 <- mutate(all_L7_MAG_00020, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-all_L7_MAG_00020 = all_L7_MAG_00020[,c(1:14, 88, 15:87)]
-write.csv(all_L7_MAG_00020, "all_L7_MAG_00020_SNVs.csv", row.names=F)
-
-#for sweep plot
-small_L7_MAG_00020 = L7_MAG_00020[,c(1:6, 10, 17, 22, 77)]
-merged_L7_MAG_00020 <- full_join(L7_MAG_00020_depth, small_L7_MAG_00020, by=c("timepoint", "groups"))
-merged_L7_MAG_00020 <- mutate(merged_L7_MAG_00020, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-merged_L7_MAG_00020 = merged_L7_MAG_00020[,c(1:5, 12:15)]
-write.csv(merged_L7_MAG_00020, "merged_L7_MAG_00020_SNVs.csv", row.names=F)
-
-#L7_MAG_00028
-L7_MAG_00028 <- filter(filtered_SNVs, mag=="L7_MAG_00028")
-L7_MAG_00028$groups<- paste(L7_MAG_00028$scaffold, str_pad(L7_MAG_00028$position, 7, pad = "0"))
-L7_MAG_00028 <- complete(L7_MAG_00028, timepoint, groups)
-
-L7_MAG_00028_depth <- read.table("~/Documents/L7_MAG_00028_depth.txt", sep="\t", header=F)
-L7_MAG_00028_depth <- L7_MAG_00028_depth %>% rename("scaffold"="V1", "position"="V2", "samtools_depth"="V3", "timepoint"="V4")
-L7_MAG_00028_depth$groups<- paste(L7_MAG_00028_depth$scaffold, str_pad(L7_MAG_00028_depth$position, 7, pad = "0"))
-L7_MAG_00028_depth <- mutate(L7_MAG_00028_depth, new_ref_freq = ifelse(samtools_depth >= 5, 1, NA))
-
-#for heatmaps
-all_L7_MAG_00028 <- right_join(L7_MAG_00028_depth, L7_MAG_00028, by=c("timepoint", "groups"))
-all_L7_MAG_00028 <- mutate(all_L7_MAG_00028, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-all_L7_MAG_00028 = all_L7_MAG_00028[,c(1:14, 88, 15:87)]
-write.csv(all_L7_MAG_00028, "all_L7_MAG_00028_SNVs.csv", row.names=F)
-
-#for sweep plot
-small_L7_MAG_00028 = L7_MAG_00028[,c(1:6, 10, 17, 22, 77)]
-merged_L7_MAG_00028 <- full_join(L7_MAG_00028_depth, small_L7_MAG_00028, by=c("timepoint", "groups"))
-merged_L7_MAG_00028 <- mutate(merged_L7_MAG_00028, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-merged_L7_MAG_00028 = merged_L7_MAG_00028[,c(1:5, 12:15)]
-write.csv(merged_L7_MAG_00028, "merged_L7_MAG_00028_SNVs.csv", row.names=F)
-
-#L7_MAG_00043
-L7_MAG_00043 <- filter(filtered_SNVs, mag=="L7_MAG_00043")
-L7_MAG_00043$groups<- paste(L7_MAG_00043$scaffold, str_pad(L7_MAG_00043$position, 7, pad = "0"))
-L7_MAG_00043 <- complete(L7_MAG_00043, timepoint, groups)
-
-L7_MAG_00043_depth <- read.table("~/Documents/L7_MAG_00043_depth.txt", sep="\t", header=F)
-L7_MAG_00043_depth <- L7_MAG_00043_depth %>% rename("scaffold"="V1", "position"="V2", "samtools_depth"="V3", "timepoint"="V4")
-L7_MAG_00043_depth$groups<- paste(L7_MAG_00043_depth$scaffold, str_pad(L7_MAG_00043_depth$position, 7, pad = "0"))
-L7_MAG_00043_depth <- mutate(L7_MAG_00043_depth, new_ref_freq = ifelse(samtools_depth >= 5, 1, NA))
-
-#for heatmaps
-all_L7_MAG_00043 <- right_join(L7_MAG_00043_depth, L7_MAG_00043, by=c("timepoint", "groups"))
-all_L7_MAG_00043 <- mutate(all_L7_MAG_00043, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-all_L7_MAG_00043 = all_L7_MAG_00043[,c(1:14, 88, 15:87)]
-write.csv(all_L7_MAG_00043, "all_L7_MAG_00043_SNVs.csv", row.names=F)
-
-#for sweep plot
-small_L7_MAG_00043 = L7_MAG_00043[,c(1:6, 10, 17, 22, 77)]
-merged_L7_MAG_00043 <- full_join(L7_MAG_00043_depth, small_L7_MAG_00043, by=c("timepoint", "groups"))
-merged_L7_MAG_00043 <- mutate(merged_L7_MAG_00043, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-merged_L7_MAG_00043 = merged_L7_MAG_00043[,c(1:5, 12:15)]
-write.csv(merged_L7_MAG_00043, "merged_L7_MAG_00043_SNVs.csv", row.names=F)
-
-#L8_MAG_00011
-L8_MAG_00011 <- filter(filtered_SNVs, mag=="L8_MAG_00011")
-L8_MAG_00011$groups<- paste(L8_MAG_00011$scaffold, str_pad(L8_MAG_00011$position, 7, pad = "0"))
-L8_MAG_00011 <- complete(L8_MAG_00011, timepoint, groups)
-
-L8_MAG_00011_depth <- read.table("~/Documents/L8_MAG_00011_depth.txt", sep="\t", header=F)
-L8_MAG_00011_depth <- L8_MAG_00011_depth %>% rename("scaffold"="V1", "position"="V2", "samtools_depth"="V3", "timepoint"="V4")
-L8_MAG_00011_depth$groups<- paste(L8_MAG_00011_depth$scaffold, str_pad(L8_MAG_00011_depth$position, 7, pad = "0"))
-L8_MAG_00011_depth <- mutate(L8_MAG_00011_depth, new_ref_freq = ifelse(samtools_depth >= 5, 1, NA))
-
-#for heatmaps
-all_L8_MAG_00011 <- right_join(L8_MAG_00011_depth, L8_MAG_00011, by=c("timepoint", "groups"))
-all_L8_MAG_00011 <- mutate(all_L8_MAG_00011, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-all_L8_MAG_00011 = all_L8_MAG_00011[,c(1:14, 88, 15:87)]
-write.csv(all_L8_MAG_00011, "all_L8_MAG_00011_SNVs.csv", row.names=F)
-
-#for sweep plot
-small_L8_MAG_00011 = L8_MAG_00011[,c(1:6, 10, 17, 22, 77)]
-merged_L8_MAG_00011 <- full_join(L8_MAG_00011_depth, small_L8_MAG_00011, by=c("timepoint", "groups"))
-merged_L8_MAG_00011 <- mutate(merged_L8_MAG_00011, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-merged_L8_MAG_00011 = merged_L8_MAG_00011[,c(1:5, 12:15)]
-write.csv(merged_L8_MAG_00011, "merged_L8_MAG_00011_SNVs.csv", row.names=F)
-
-#L8_MAG_00019
-L8_MAG_00019 <- filter(filtered_SNVs, mag=="L8_MAG_00019")
-L8_MAG_00019$groups<- paste(L8_MAG_00019$scaffold, str_pad(L8_MAG_00019$position, 7, pad = "0"))
-L8_MAG_00019 <- complete(L8_MAG_00019, timepoint, groups)
-
-L8_MAG_00019_depth <- read.table("~/Documents/L8_MAG_00019_depth.txt", sep="\t", header=F)
-L8_MAG_00019_depth <- L8_MAG_00019_depth %>% rename("scaffold"="V1", "position"="V2", "samtools_depth"="V3", "timepoint"="V4")
-L8_MAG_00019_depth$groups<- paste(L8_MAG_00019_depth$scaffold, str_pad(L8_MAG_00019_depth$position, 7, pad = "0"))
-L8_MAG_00019_depth <- mutate(L8_MAG_00019_depth, new_ref_freq = ifelse(samtools_depth >= 5, 1, NA))
-
-#for heatmaps
-all_L8_MAG_00019 <- right_join(L8_MAG_00019_depth, L8_MAG_00019, by=c("timepoint", "groups"))
-all_L8_MAG_00019 <- mutate(all_L8_MAG_00019, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-all_L8_MAG_00019 = all_L8_MAG_00019[,c(1:14, 88, 15:87)]
-write.csv(all_L8_MAG_00019, "all_L8_MAG_00019_SNVs.csv", row.names=F)
-
-#for sweep plot
-small_L8_MAG_00019 = L8_MAG_00019[,c(1:6, 10, 17, 22, 77)]
-merged_L8_MAG_00019 <- full_join(L8_MAG_00019_depth, small_L8_MAG_00019, by=c("timepoint", "groups"))
-merged_L8_MAG_00019 <- mutate(merged_L8_MAG_00019, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-merged_L8_MAG_00019 = merged_L8_MAG_00019[,c(1:5, 12:15)]
-write.csv(merged_L8_MAG_00019, "merged_L8_MAG_00019_SNVs.csv", row.names=F)
-
-#L8_MAG_00042
-L8_MAG_00042 <- filter(filtered_SNVs, mag=="L8_MAG_00042")
-L8_MAG_00042$groups<- paste(L8_MAG_00042$scaffold, str_pad(L8_MAG_00042$position, 7, pad = "0"))
-L8_MAG_00042 <- complete(L8_MAG_00042, timepoint, groups)
-
-L8_MAG_00042_depth <- read.table("~/Documents/L8_MAG_00042_depth.txt", sep="\t", header=F)
-L8_MAG_00042_depth <- L8_MAG_00042_depth %>% rename("scaffold"="V1", "position"="V2", "samtools_depth"="V3", "timepoint"="V4")
-L8_MAG_00042_depth$groups<- paste(L8_MAG_00042_depth$scaffold, str_pad(L8_MAG_00042_depth$position, 7, pad = "0"))
-L8_MAG_00042_depth <- mutate(L8_MAG_00042_depth, new_ref_freq = ifelse(samtools_depth >= 5, 1, NA))
-
-#for heatmaps
-all_L8_MAG_00042 <- right_join(L8_MAG_00042_depth, L8_MAG_00042, by=c("timepoint", "groups"))
-all_L8_MAG_00042 <- mutate(all_L8_MAG_00042, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-all_L8_MAG_00042 = all_L8_MAG_00042[,c(1:14, 88, 15:87)]
-write.csv(all_L8_MAG_00042, "all_L8_MAG_00042_SNVs.csv", row.names=F)
-
-#for sweep plot
-small_L8_MAG_00042 = L8_MAG_00042[,c(1:6, 10, 17, 22, 77)]
-merged_L8_MAG_00042 <- full_join(L8_MAG_00042_depth, small_L8_MAG_00042, by=c("timepoint", "groups"))
-merged_L8_MAG_00042 <- mutate(merged_L8_MAG_00042, final_ref_freq= ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-merged_L8_MAG_00042 = merged_L8_MAG_00042[,c(1:5, 12:15)]
-write.csv(merged_L8_MAG_00042, "merged_L8_MAG_00042_SNVs.csv", row.names=F)
+for(MAG in mag_list){
+  merge_depth(filtered_SNVs, MAG, ponds_list)
+}

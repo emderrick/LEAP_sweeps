@@ -4,8 +4,6 @@ library(dplyr)
 library(viridis)
 library(stringr)
 
-setwd("/Users/Emma/OneDrive - McGill University/Documents/phd docs/Chapter 1/Aim 1A")
-
 mag_list<-list("L3_MAG_00058", "L4_MAG_00099", "L8_MAG_00019", "L8_MAG_00011", "L7_MAG_00043", "L7_MAG_00028",
                "I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L7_MAG_00020", "L8_MAG_00042")
 
@@ -38,7 +36,7 @@ all_mags <- all_mags %>% mutate(name = case_when(timepoint%>%substr(1,2) == "K1"
                                 timepoint%>%substr(1,2) == "I8" ~ "Control E", timepoint%>%substr(1,2) == "L2" ~ "GBH A",
                                 timepoint%>%substr(1,2)== "L6" ~ "GBH B", timepoint%>%substr(1,2) == "L7" ~ "GBH C",
                                 timepoint%>%substr(1,2) == "L8" ~ "GBH D"))
-all_mags$new_name <- paste(all_mags$name, "at time", all_mags$new_time)
+all_mags$new_name <- paste(paste(all_mags$name, "at T"), all_mags$new_time, sep="")
 
 write.csv(all_mags, "ANI_95_all_mags.csv", row.names = F)
 
@@ -87,7 +85,7 @@ for(i in 1:length(SNV_files)){
 }  
 
 #merge SNV file with scaffold file 
-mag_scaf_SNV<- right_join(all_SNVs, mag_scaffolds, by=c("timepoint","scaffold"))
+mag_scaf_SNV<- left_join(all_SNVs, mag_scaffolds, by=c("timepoint","scaffold"))
 write.csv(mag_scaf_SNV, "ANI_95_all_SNVs.csv", row.names = F)
 
 #filter to only include candidate mags and times I'm interested in
@@ -104,8 +102,6 @@ mags <- mags %>% filter(!(mag=="I4_MAG_00065" & new_time=="3"))
 mags <- mags %>% filter(!(mag=="L8_MAG_00042" & new_time=="3"))
 mags <- mags %>% filter(!(mag=="L2_MAG_00052" & new_time=="1"))
 mags <- mags %>% filter(!(mag=="L7_MAG_00020" & new_time=="1" & pond=="L7"))
-
-mags<-filter(mags, coverage >=4)
 
 #filter SNVs within 100bp of beginning and end of scaffold
 mags$pos_from_end<-mags$length-mags$position

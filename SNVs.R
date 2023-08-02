@@ -15,14 +15,6 @@ L8_MAG_00042 <- read_csv("all_L8_MAG_00042_SNVs.csv")
 L2_MAG_00052 <- read_csv("all_L2_MAG_00052_SNVs.csv")
 
 all_MAG_SNVs<-rbind(L3_MAG_00058, L4_MAG_00099, L8_MAG_00019, L8_MAG_00011, L7_MAG_00043, L7_MAG_00028, I4_MAG_00006, I4_MAG_00065, L7_MAG_00020, L8_MAG_00042, L2_MAG_00052) 
-all_MAG_SNVs <- all_MAG_SNVs %>% mutate(new_name = case_when(timepoint%>%substr(1,2) == "K1" ~ "Control A", timepoint%>%substr(1,2) == "I4" ~ "Control B",
-                                                             timepoint%>%substr(1,2) == "L3" ~ "Control C", timepoint%>%substr(1,2) == "L4" ~ "Control D",
-                                                             timepoint%>%substr(1,2) == "I8" ~ "Control E", timepoint%>%substr(1,2) == "L2" ~ "GBH A",
-                                                             timepoint%>%substr(1,2)== "L6" ~ "GBH B", timepoint%>%substr(1,2) == "L7" ~ "GBH C",
-                                                             timepoint%>%substr(1,2) == "L8" ~ "GBH D"))
-all_MAG_SNVs$time2<-as.numeric(all_MAG_SNVs$timepoint%>%substr(9,9))+1
-all_MAG_SNVs$name<-paste(all_MAG_SNVs$new_name, sep=" at T", all_MAG_SNVs$time2)
-all_MAG_SNVs$mag<-all_MAG_SNVs$groups%>%substr(1,12)
 write.csv(all_MAG_SNVs, "all_MAG_SNVs.csv", row.names=F)
 
 small_MAG_SNVs<- all_MAG_SNVs %>% select(c('scaffold.x', 'position.x', 'length', 'groups', 'gene', 'mag', 'mag_length', 'name', 'final_ref_freq'))
@@ -41,9 +33,14 @@ threshold_snvs$control_ref<- with(threshold_snvs, ifelse(control=="high", apply(
 threshold_snvs$control_ref<- with(threshold_snvs, ifelse(control==0.5, ifelse(GBH_mean >= 0.5, apply(threshold_snvs[c(9,10,12,14,15)], 1, max, na.rm=T), apply(threshold_snvs[c(9,10,12,14,15)], 1, min, na.rm=T)), control_ref))
 threshold_snvs$GBH_ref <- with(threshold_snvs, ifelse(control=="high", apply(threshold_snvs[c(17,18,19,20)], 1, max, na.rm=T), apply(threshold_snvs[c(17,18,19,20)], 1, min, na.rm=T)))
 threshold_snvs$GBH_ref<- with(threshold_snvs, ifelse(control==0.5, ifelse(GBH_mean >= 0.5, apply(threshold_snvs[c(17,18,19,20)], 1, min, na.rm=T), apply(threshold_snvs[c(17,18,19,20)], 1, max, na.rm=T)), GBH_ref))
+threshold_snvs$pass <- with(threshold_snvs, ifelse(((control=="high" & GBH_ref < control_ref) | (control=="low" & GBH_ref > control_ref) | (control== 0.5 & GBH_mean >= 0.5 & GBH_ref > control_ref) | (control== 0.5 & GBH_mean < 0.5 & GBH_ref < control_ref)), "yes", "no"))
 
-strict <- threshold_snvs %>% subset((control=="high" & GBH_ref < control_ref) | (control=="low" & GBH_ref > control_ref) | (control== 0.5 & GBH_mean >= 0.5 & GBH_ref > control_ref) | (control== 0.5 & GBH_mean < 0.5 & GBH_ref < control_ref))
-not_strict <- threshold_snvs %>% subset(!((control=="high" & GBH_ref < control_ref) | (control=="low" & GBH_ref > control_ref) | (control== 0.5 & GBH_mean >= 0.5 & GBH_ref > control_ref) | (control== 0.5 & GBH_mean < 0.5 & GBH_ref < control_ref)))
+strict <- threshold_snvs %>% subset(pass =="yes")
+not_strict <- threshold_snvs %>% subset(pass=="no")
+write.csv(threshold_snvs, "threshold_snvs.csv", row.names = F)
+
+small_mag_hor_pass <- small_MAG_SNVs_hor %>% left_join(threshold_snvs[c(4,28)], by=c('groups'))
+write.csv(small_mag_hor_pass, "small_mag_hor_pass.csv", row.names = F)
 
 #EXTRACT GENE POSITIONS I'M INTERESTED IN
 #list genome files from instrain output in directory
@@ -64,12 +61,14 @@ all_gene_coord <- all_gene_coord %>% distinct(gene, .keep_all = T)
 all_gene_coord$new_start<-all_gene_coord$start+1
 all_gene_coord$new_end<-all_gene_coord$end+1
 #get gene positions that pass threshold
-only_genes <- subset(strict, gene!="NA", select=c(gene))
-only_genes_sum <- only_genes %>% count(gene, name="snvs_in_gene")
-gene_locations<- left_join(only_genes_sum, all_gene_coord, by=c("gene"))
-#save file of gene list and position
+genes_sum <- strict %>% group_by(scaffold.x) %>% count(gene, name="snvs_in_gene")
+gene_locations<- left_join(genes_sum, all_gene_coord, by=c("gene"))
+#get list of snvs in non-gene positons
+no_gene <- subset(strict, is.na(gene))
+
 write.csv(all_gene_coord, file="all_genes.csv", row.names = F)
 write.csv(gene_locations, file="gene_locations.csv", row.names = F)
+write.csv(no_gene, file="snvs_no_gene.csv", row.names= F)
 
 #SAVE NEW FILES WITH MEANS
 class_MAG_SNVs<-all_MAG_SNVs %>% select(c('groups','name', 10:13, 15:21, 23:24, 26 ))
@@ -154,4 +153,7 @@ write.csv(L2_MAG_00052_SNVs, "L2_MAG_00052_SNVs.csv", row.names = F)
 
 all_finished_SNVs<-rbind(L3_MAG_00058_SNVs, L4_MAG_00099_SNVs, L8_MAG_00019_SNVs, L8_MAG_00011_SNVs, L7_MAG_00043_SNVs,
                          L7_MAG_00028_SNVs, I4_MAG_00006_SNVs, I4_MAG_00065_SNVs, L7_MAG_00020_SNVs, L8_MAG_00042_SNVs, L2_MAG_00052_SNVs) 
-write.csv(all_finished_SNVs, "all_MAG_SNVs_med_July24.csv", row.names=F)
+
+all_finished_SNVs <- all_finished_SNVs %>% left_join(threshold_snvs[c(1:5, 28)], by=c("scaffold.x", "position.x", "length", "groups", "gene"))
+
+write.csv(all_finished_SNVs, "all_MAG_SNVs_med_July25.csv", row.names=F)

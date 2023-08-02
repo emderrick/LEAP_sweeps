@@ -2,7 +2,7 @@ library(tidyverse)
 library(dplyr)
 
 #read in all the SNV files
-all_snv <- read_csv("all_MAG_SNVs_med_July6.csv")
+all_snv <- read_csv("all_MAG_SNVs_med_July25.csv")
 
 all_SNV_sum <- all_snv %>% group_by(mag, mag_length, name) %>% summarize(SNVs=sum(class %in% "SNV"), SNSs=sum(class %in% "SNS"))
 write.csv(all_SNV_sum, "all_SNV_sum.csv", row.names = F)
