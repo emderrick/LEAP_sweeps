@@ -3,8 +3,8 @@ library(dplyr)
 
 filtered_SNVs <- read_csv("filtered_ANI_95_mag_SNVs.csv")
 
-mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099", "L7_MAG_00020", 
-                 "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
+mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099",
+                 "L7_MAG_00020", "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
 
 ponds_list <- list(I4_MAG_00006 = list("Control B at T2", "Control E at T2", "GBH A at T2", "GBH D at T2"), 
                    I4_MAG_00065 = list("Control A at T2", "Control B at T2", "Control C at T2", "Control D at T2", "Control E at T2", "GBH B at T2"), 
@@ -40,6 +40,8 @@ merge_depth <- function(filtered_SNVs, MAG, ponds_list) {
   all_MAG <- all_MAG[,c(1:6, 8:12, 36, 14:35)]
   #save files for sweep plots
   write.csv(all_MAG, paste(MAG, "_sweep_snvs.csv", sep=""), row.names=F)
+  small_sweep <- all_MAG %>% select(c('scaffold', 'position', 'length', 'groups', 'gene', 'mag', 'mag_length', 'new_name', 'final_ref_freq'))
+  write.csv(small_sweep, paste("small_", MAG, "_sweep.csv", sep=""), row.names=F)
   MAG_sweep_wide <- all_MAG[,c(1, 23, 19, 5, 6, 12)] %>% pivot_wider(names_from = new_name, values_from = final_ref_freq)
   write.csv(MAG_sweep_wide, paste(MAG, "_sweep_wide.csv", sep=""), row.names=F)
   print(paste("done", MAG, "sweep files"))
@@ -47,9 +49,23 @@ merge_depth <- function(filtered_SNVs, MAG, ponds_list) {
   MAG_heat <- subset(all_MAG, groups %in% full_MAG_snv$groups)
   write.csv(MAG_heat, paste("all_", MAG, "_SNVs.csv", sep=""), row.names=F)
   print(paste("done", MAG, "heatmap file"))
-
 }
 
 for(MAG in mag_list){
   merge_depth(filtered_SNVs, MAG, ponds_list)
 }
+
+L3_MAG_00058 <- read_csv("all_L3_MAG_00058_SNVs.csv")
+L4_MAG_00099 <- read_csv("all_L4_MAG_00099_SNVs.csv")
+L8_MAG_00019 <- read_csv("all_L8_MAG_00019_SNVs.csv")
+L8_MAG_00011 <- read_csv("all_L8_MAG_00011_SNVs.csv")
+L7_MAG_00043 <- read_csv("all_L7_MAG_00043_SNVs.csv")
+L7_MAG_00028 <- read_csv("all_L7_MAG_00028_SNVs.csv")
+I4_MAG_00006 <- read_csv("all_I4_MAG_00006_SNVs.csv")
+I4_MAG_00065 <- read_csv("all_I4_MAG_00065_SNVs.csv")
+L7_MAG_00020 <- read_csv("all_L7_MAG_00020_SNVs.csv")
+L8_MAG_00042 <- read_csv("all_L8_MAG_00042_SNVs.csv")
+L2_MAG_00052 <- read_csv("all_L2_MAG_00052_SNVs.csv")
+
+all_MAG_SNVs<-rbind(L3_MAG_00058, L4_MAG_00099, L8_MAG_00019, L8_MAG_00011, L7_MAG_00043, L7_MAG_00028, I4_MAG_00006, I4_MAG_00065, L7_MAG_00020, L8_MAG_00042, L2_MAG_00052) 
+write.csv(all_MAG_SNVs, "all_MAG_SNVs.csv", row.names=F)
