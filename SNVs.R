@@ -35,9 +35,6 @@ threshold_snvs$control_ref<- with(threshold_snvs, ifelse(control==0.5, ifelse(GB
 threshold_snvs$GBH_ref <- with(threshold_snvs, ifelse(control=="high", apply(threshold_snvs[c(17,18,19,20)], 1, max, na.rm=T), apply(threshold_snvs[c(17,18,19,20)], 1, min, na.rm=T)))
 threshold_snvs$GBH_ref<- with(threshold_snvs, ifelse(control==0.5, ifelse(GBH_mean >= 0.5, apply(threshold_snvs[c(17,18,19,20)], 1, min, na.rm=T), apply(threshold_snvs[c(17,18,19,20)], 1, max, na.rm=T)), GBH_ref))
 threshold_snvs$pass <- with(threshold_snvs, ifelse(((control=="high" & GBH_ref < control_ref) | (control=="low" & GBH_ref > control_ref) | (control== 0.5 & GBH_mean >= 0.5 & GBH_ref > control_ref) | (control== 0.5 & GBH_mean < 0.5 & GBH_ref < control_ref)), "yes", "no"))
-
-strict <- threshold_snvs %>% subset(pass =="yes")
-not_strict <- threshold_snvs %>% subset(pass=="no")
 write.csv(threshold_snvs, "threshold_snvs.csv", row.names = F)
 
 small_mag_hor_pass <- left_join(small_MAG_SNVs_hor, threshold_snvs[,c(4,28)], by=c('groups'))
@@ -60,41 +57,4 @@ for(MAG in mag_list){
   print(paste("done", MAG))
 }
 
-write.csv(all_finished_SNVs, "all_MAG_SNVs_med_July25.csv", row.names=F)
-
-
-#EXTRACT GENE POSITIONS I'M INTERESTED IN
-#list genome files from instrain output in directory
-gene_files<-list.files("95_profiles/",recursive = T, pattern=".*gene_info.tsv",full.names = T)
-#create an empty dataframe
-all_genes<-data.frame()
-#add genome files into dataframe and add column that is the name of the file
-for(i in 1:length(gene_files)){
-  pond_time_genes<-read.table(gene_files[i],sep="\t",header=T)
-  timepoint<-gsub(".*profile_output/", "", gene_files[i]) %>% substr(1,9)
-  pond_time_genes<-cbind(pond_time_genes,timepoint=rep(timepoint,nrow(pond_time_genes)))
-  all_genes<-rbind(all_genes,pond_time_genes)
-}
-
-#get all gene coordinates
-all_gene_coord <- all_genes[c('gene', 'start', 'end')]
-all_gene_coord <- all_gene_coord %>% distinct(gene, .keep_all = T)
-all_gene_coord$new_start<-all_gene_coord$start+1
-all_gene_coord$new_end<-all_gene_coord$end+1
-#get gene positions that pass threshold
-genes_sum <- strict %>% count(scaffold, gene, name="snvs_in_gene")
-gene_locations<- left_join(genes_sum, all_gene_coord, by=c("gene"))
-#get list of snvs in non-gene positons
-no_gene <- subset(strict, is.na(gene))
-
-write.csv(all_gene_coord, file="all_genes.csv", row.names = F)
-write.csv(gene_locations, file="gene_locations.csv", row.names = F)
-write.csv(no_gene, file="snvs_no_gene.csv", row.names= F)
-
-
-# for sweeps
-sweep_hor <- spread(sweep, key=new_name, value=final_ref_freq)
-sweep_hor$all_mean <-rowMeans(sweep_hor[,c(8:20)], na.rm=T)
-sweep_hor$control_mean <-rowMeans(sweep_hor[,c(9,10,12,14,15)], na.rm=T)
-sweep_hor$GBH_mean <-rowMeans(sweep_hor[,c(17,18,19,20)], na.rm=T)
-sweep_hor$abs_val<- abs(sweep_hor$control_mean - sweep_hor$GBH_mean)
+write.csv(all_finished_SNVs, "all_MAG_SNVs_med_Aug8.csv", row.names=F)
