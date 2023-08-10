@@ -18,7 +18,7 @@ ponds_list <- list(I4_MAG_00006 = list("Control B at T2", "Control E at T2", "GB
                    L8_MAG_00019 = list("Control E at T2", "GBH A at T2", "GBH B at T2", "GBH D at T2"), 
                    L8_MAG_00042 = list("Control A at T2", "Control C at T2", "Control D at T2", "Control E at T2", "GBH D at T2"))
 
-merge_depth <- function(filtered_SNVs, MAG, ponds_list) {
+merge_depth <- function(filtered_SNVs, MAG, ponds_list){
   MAG_snv <- filter(filtered_SNVs, mag==MAG)
   MAG_snv$groups <- paste(MAG_snv$scaffold, str_pad(MAG_snv$position, 7, pad = "0"))
   MAG_snv <-  MAG_snv[,c(1:17, 19:22, 41, 45, 72, 74:76, 78:82)]
@@ -55,17 +55,11 @@ for(MAG in mag_list){
   merge_depth(filtered_SNVs, MAG, ponds_list)
 }
 
-L3_MAG_00058 <- read_csv("all_L3_MAG_00058_SNVs.csv")
-L4_MAG_00099 <- read_csv("all_L4_MAG_00099_SNVs.csv")
-L8_MAG_00019 <- read_csv("all_L8_MAG_00019_SNVs.csv")
-L8_MAG_00011 <- read_csv("all_L8_MAG_00011_SNVs.csv")
-L7_MAG_00043 <- read_csv("all_L7_MAG_00043_SNVs.csv")
-L7_MAG_00028 <- read_csv("all_L7_MAG_00028_SNVs.csv")
-I4_MAG_00006 <- read_csv("all_I4_MAG_00006_SNVs.csv")
-I4_MAG_00065 <- read_csv("all_I4_MAG_00065_SNVs.csv")
-L7_MAG_00020 <- read_csv("all_L7_MAG_00020_SNVs.csv")
-L8_MAG_00042 <- read_csv("all_L8_MAG_00042_SNVs.csv")
-L2_MAG_00052 <- read_csv("all_L2_MAG_00052_SNVs.csv")
+all_MAG_SNVs <- data.frame()
+for(MAG in mag_list){
+  MAG_SNVs  <- read_csv(paste("all_", MAG, "_SNVs.csv", sep=""))
+  all_MAG_SNVs <- rbind(all_MAG_SNVs, MAG_SNVs)
+  print(paste("done", MAG))
+}
 
-all_MAG_SNVs<-rbind(L3_MAG_00058, L4_MAG_00099, L8_MAG_00019, L8_MAG_00011, L7_MAG_00043, L7_MAG_00028, I4_MAG_00006, I4_MAG_00065, L7_MAG_00020, L8_MAG_00042, L2_MAG_00052) 
 write.csv(all_MAG_SNVs, "all_MAG_SNVs.csv", row.names=F)
