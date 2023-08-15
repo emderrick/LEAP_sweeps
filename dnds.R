@@ -5,7 +5,7 @@ library(ggpubr)
 library(stringr)
 library(cowplot)
 
-all_MAG_snvs <- read_csv("all_MAG_SNVs_med_Aug8.csv")
+all_MAG_snvs <- read_csv("all_MAG_SNVs_med_Aug15.csv")
 all_MAG_snvs <- subset(all_MAG_snvs, str_detect(new_name, "T2"))
 
 MAG_snvs <- all_MAG_snvs[, c('mag', 'gene', 'mutation_type', 'new_name')] %>% subset(is.na(mutation_type) == F)

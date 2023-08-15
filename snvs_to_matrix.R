@@ -1,7 +1,7 @@
 library(tidyverse)
 library(dplyr)
 
-all_MAG_snvs <- read_csv("all_MAG_SNVs_med_Aug8.csv")
+all_MAG_snvs <- read_csv("all_MAG_SNVs_med_Aug15.csv")
 
 mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099",
                  "L7_MAG_00020", "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
