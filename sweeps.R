@@ -2,8 +2,6 @@ library(tidyverse)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
-library(ggpubr)
-library(stringr)
 library(patchwork)
 
 mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099",
@@ -11,7 +9,7 @@ mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058",
 
 MAG_sweep_wide <- data.frame()
 for(MAG in mag_list){
-  MAG_sweep  <- read_csv(paste(MAG, "_sweep_wide.csv", sep = ""))
+  MAG_sweep  <- read.csv(paste(MAG, "_sweep_wide.csv", sep = ""))
   MAG_sweep_wide <- bind_rows(MAG_sweep_wide, MAG_sweep)
 }
 
