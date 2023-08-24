@@ -36,13 +36,13 @@ once I have a coassembly for each pond I will follow the anvio pipeline.
 
 **Anvio**
 
-First reformat fasta deflines and remove short contigs (<2500bp)
+First reformat fasta deflines and remove short contigs (<1000bp)
 
 ```bash
 #!/usr/bin/bash
 module load scipy-stack/2021a
 module load python/3.7
-anvi-script-reformat-fasta I4_contigs.fa -o I4_contigs_fixed.fa -l 2500 --simplify-names
+anvi-script-reformat-fasta I4_contigs.fa -o I4_contigs_fixed.fa -l 1000 --simplify-names
 ```
 Then rename it to get rid of fixed in title
 Then make a contigs database of each. This uses prodigal for gene calling.
