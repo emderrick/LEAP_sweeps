@@ -9,7 +9,7 @@ mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058",
 
 MAG_sweep_wide <- data.frame()
 for(MAG in mag_list){
-  MAG_sweep  <- read.csv(paste(MAG, "_sweep_wide.csv", sep = ""))
+  MAG_sweep  <- read.csv(paste("sweep files wide/", MAG, "_sweep_wide.csv", sep = ""), check.names = F)
   MAG_sweep_wide <- bind_rows(MAG_sweep_wide, MAG_sweep)
 }
 
@@ -24,7 +24,7 @@ MAG_sweep_wide$abs_val <- with(MAG_sweep_wide, ifelse(is.nan(abs_val), NA, abs_v
 
 threshold_snvs <- read_csv("threshold_snvs.csv")
 
-MAG_sweep_wide <- left_join(MAG_sweep_wide, threshold_snvs[,c(4,28)])
+MAG_sweep_wide <- left_join(MAG_sweep_wide, threshold_snvs[,c('groups', 'pass')])
 MAG_sweep_wide$pass <- with(MAG_sweep_wide, ifelse(is.na(pass), 'no', pass))
 
 scaffold_info <- read.csv("ANI_95_all_scaffolds.csv") #some scaffolds are missing the length (ones that weren't in SNV file)
@@ -43,33 +43,19 @@ for(MAG in mag_list){
   unique_sweep_new_pos <- bind_rows(unique_sweep_new_pos, unique_MAG)
 }
 
-
 MAG_sweep_plot <- left_join(MAG_sweep_wide[,c('mag', 'scaffold', 'position', 'groups', 'abs_val', 'pass')], unique_sweep_new_pos[,c('scaffold', 'scaffold_position')], by = 'scaffold')
+MAG_sweep_plot$abs_val_pass <- with(MAG_sweep_plot, ifelse(pass=="yes", abs_val, NA))
 write.csv(MAG_sweep_plot, "MAG_sweep_plot.csv")
+
+test <- MAG_sweep_plot %>% group_by(scaffold) %>% colMeans(abs_val, nrow=1000)
 
 L8_MAG_00011_sweep <- ggplot(subset(MAG_sweep_plot, mag == "L8_MAG_00011"), aes(x = reorder(groups, scaffold_position), y = abs_val, group = mag))+
   geom_line()+
-  geom_point(data = filter(MAG_sweep, pass == "yes"), colour = "red", size = 5)+
+  geom_point(data = filter(MAG_sweep, pass == "yes"), colour = "red", size = 3)+
   geom_vline(xintercept = unique(MAG_sweep$scaffold_position), colour = "blue")+
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())+
   theme_classic()
 
 ggsave("L8_MAG_00011_sweep.png", limitsize = F, width = 64, height = 12)
 
-
-
-
-test <- subset(MAG_sweep, scaffold == "L4_MAG_00099_000000000001" | scaffold == "L4_MAG_00099_000000000002" | scaffold == "L4_MAG_00099_000000000003") %>% fill(mag, .direction = "updown") 
-test <- test[,c(1:16)]
-unique_test <- test[,c('scaffold', 'length')]  %>% group_by(scaffold) %>% fill(length, .direction = "updown") %>% distinct() 
-unique_test <- unique_test[order(unique_test$length, decreasing = T),]
-
-scaffold_position = 0
-for(contig in 1: nrow(unique_test)){
-  scaffold_position = scaffold_position + unique_test$length[contig]
-  unique_test$scaffold_position[contig] <- scaffold_position
-}
-
-test_sweep <- left_join(test, unique_test[,c(1,3)], by = 'scaffold')
-unique_sweep$length[unique_sweep$scaffold == "L4_MAG_00099_000000000214"] <- 3661 #this was missing because there was not an SNV in this scaffold -- got value from ANI_95_all_scaffolds.csv
 

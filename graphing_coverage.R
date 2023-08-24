@@ -7,21 +7,35 @@ library(cowplot)
 
 mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099",
                  "L7_MAG_00020", "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
-              
+mag_labs <- c(I4_MAG_00006 = "SJAQ100 sp016735685 assembled from Control B", I4_MAG_00065 = "Roseomonas sp. assembled from Control B", L2_MAG_00052 = "Erythrobacter sp. assembled from GBH A", 
+              L3_MAG_00058 = "Prosthecobacter sp. assembled from Control C", L4_MAG_00099 = "Bosea sp001713455 assembled from Control D", L7_MAG_00020 = "Sphingorhabdus_B sp. assembled from GBH C",
+              L7_MAG_00028 = "SYFN01 sp. assembled from GBH C", L7_MAG_00043 = "Luteolibacter sp. assembled from GBH C", L8_MAG_00011 = "UBA953 sp. assembled from GBH D", 
+              L8_MAG_00019 = "UA16 family assembled from GBH D", L8_MAG_00042 = "UBA4660 sp. assembled from GBH D")
+
 #load mag snv info
 all_snv <- read_csv("filtered_ANI_95_mag_SNVs.csv")
-scaffold_info <- all_snv[, c('length', 'scaffold', 'coverage', 'new_name', 'mag')] %>% distinct()
-mag_cov<- all_snv %>% group_by(scaffold, new_name) %>% summarize(SNV_SNS_tot = sum(number_divergent))
-mag_cov <- left_join(mag_cov, scaffold_info, by = c("scaffold", "new_name"))
 
-all_MAG_cov <-  ggplot(mag_cov, aes(x = coverage, y=(SNV_SNS_tot/length)*10^6, colour=new_name)) + 
+mag_scaf_cov <- all_snv %>% group_by(scaffold, new_name, length, coverage, mag) %>% summarize(SNV_SNS_tot = sum(number_divergent))
+
+all_MAG_scaf_cov <-  ggplot(mag_scaf_cov, aes(x = coverage, y = log10((SNV_SNS_tot/length)*10^6), colour = new_name)) + 
   geom_point()+
-  scale_colour_viridis(discrete = T, option= "magma")+
-  labs(y="SNVs / MBp", x="Coverage (x)") +
+  scale_colour_viridis(discrete = T)+
+  labs(y ="log10 SNVs / MBp", x="Coverage (x)", colour= "Pond") +
   theme_classic()+
   theme(plot.title = element_text(hjust = 0.5))+
-  theme(legend.title=element_blank())+
-  facet_wrap(~mag, nrow = 4, ncol = 4, scales="free")
+  facet_wrap(~mag, nrow = 4, ncol = 4, scales = "free_x", labeller = labeller(mag = mag_labs))
+
+save_plot("MAG_scaf_cov_SNV.jpeg", all_MAG_scaf_cov, ncol = 4, nrow = 4, dpi = 300)
+
+
+mag_cov <- all_snv %>% group_by(mag, new_name, mag_coverage, mag_length) %>% summarize(SNV_SNS_tot = sum(number_divergent))
+
+all_MAG_cov <-  ggplot(mag_cov, aes(x = mag_coverage, y = log10((SNV_SNS_tot/mag_length)*10^6), colour = new_name)) + 
+  geom_point()+
+  scale_colour_viridis(discrete = T)+
+  labs(y = "log10 SNVs / MBp", x = "Coverage (x)", colour = "Pond") +
+  theme_classic()+
+  theme(plot.title = element_text(hjust = 0.5))+
+  facet_wrap(~mag, nrow = 4, ncol = 4, scales = "free_x", labeller = labeller(mag = mag_labs))
 
 save_plot("MAG_cov_SNV.jpeg", all_MAG_cov, ncol = 4, nrow = 4, dpi = 300)
-
