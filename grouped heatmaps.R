@@ -2,9 +2,8 @@ library(tidyverse)
 library(dplyr)
 library(ggplot2)
 library(viridis)
-library(ggpubr)
 library(stringr)
-library(patchwork)
+library(cowplot)
 
 select_mags <- list("I4_MAG_00006", "I4_MAG_00065", "L3_MAG_00058", "L7_MAG_00020", "L8_MAG_00011", "L8_MAG_00019")
 other_mags <- list ("L2_MAG_00052", "L4_MAG_00099", "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00042")
@@ -20,9 +19,9 @@ all_sum <- read_csv("all_snv_sum.csv")
 all_sum$graph_name <- with(all_sum, ifelse(mag == "L7_MAG_00020", new_name, str_sub(all_sum$new_name, end = -6)))
 all_sum$graph_name <- with(all_sum, ifelse(mag == "L7_MAG_00020", gsub('Control', 'Ctrl', graph_name), graph_name))
 all_sum$graph_name <- with(all_sum, ifelse(mag == "L7_MAG_00020", gsub('at ', '', graph_name), graph_name))
-all_sum$treatment <- with(all_sum, ifelse(graph_name == "GBH A T1", "Control", (str_sub(all_sum$new_name, end = -8))))
-select_sum <- subset(all_sum, mag == "I4_MAG_00006" | mag == "I4_MAG_00065" | mag == "L3_MAG_00058" | mag == "L7_MAG_00020" | mag == "L8_MAG_00011" | mag == "L8_MAG_00019")
-other_sum <- subset(all_sum, mag == "L2_MAG_00052" | mag == "L4_MAG_00099" | mag == "L7_MAG_00028" | mag == "L7_MAG_00043" | mag == "L8_MAG_00042")
+all_sum$treatment <- with(all_sum, ifelse(graph_name == "GBH A T1" | str_detect(new_name, "Control"), "Control", "GBH"))
+select_sum <- subset(all_sum, mag %in% select_mags)
+other_sum <- subset(all_sum, mag %in% other_mags)
 
 all_sum_long <- pivot_longer(all_sum, cols = contains("S"), names_to = "class", values_to = "divergent_sites", values_drop_na = F)
 select_sum_long <- subset(all_sum_long, mag %in% select_mags)
@@ -43,15 +42,18 @@ select_snv_heat <- ggplot(select_snv, aes(x = graph_name, y = reorder(groups, al
         text = element_text(size = 17), strip.text.x.top = element_text(size = 20), panel.spacing = unit(1, "cm"))+
   labs(legend = "Reference Frequency")+
   guides(fill = guide_legend(reverse = TRUE))+
+  scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, ncol = 6, scales = "free", labeller = labeller(mag = select_mag_labs))
 ggsave("select_snv_heat.png", limitsize = F, dpi = 100, width = 48, height = 8)
 
 select_snv_sum <- ggplot(subset(select_sum_long, class == "SNVs"), aes(x = graph_name, y=((divergent_sites/mag_length)*10^6), fill = treatment))+
   geom_bar(stat = "identity")+ 
   theme_classic()+
-  scale_fill_manual(values = c("#CfD8DC", "#CfD8DC", "#D32F2F"))+
+  scale_fill_manual(values = c("#CfD8DC", "#D32F2F"))+
   theme(legend.title = element_blank(), axis.title.x = element_blank(), strip.background = element_blank(), strip.text.x = element_blank(), text = element_text(size = 17), panel.spacing = unit(0.05, "cm"))+
   labs(y = "SNVs / Mbp")+
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
+  scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, scales = "free")
 ggsave("select_snv_sum.png", limitsize = F, width = 48, height = 8)
 
@@ -59,13 +61,14 @@ select_snv_frac <- ggplot(select_sum, aes(x = graph_name, y=SNSs/(SNSs+SNVs)))+
   geom_bar(stat="identity", fill= "#424242")+ 
   theme_classic()+
   theme(legend.title = element_blank(), strip.background = element_blank(), strip.text.x.top = element_blank(), text = element_text(size = 17), panel.spacing = unit(0.4, "cm"))+
-  ylim(0, 1)+
   labs(y = "fraction of SNVs dominated by a single allele", x = "Pond")+
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0,1))+
+  scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, scales = "free")
 ggsave("select_snv_frac.png", limitsize = F, width = 48, height = 8)
 
 select_all <- select_snv_heat / select_snv_sum / select_snv_frac
-ggsave("select_all.png", limitsize = F, width = 48, height = 24) 
+save_plot("select_all.jpeg", select_all, base_height = 5, base_width = 20, ncol = 3, nrow = 6, dpi = 300, limitsize = F)
 
 #no sweep
 other_snv_heat <- ggplot(other_snv, aes(x = graph_name, y = reorder(groups, all_mean), fill = final_ref_freq)) +
@@ -76,6 +79,7 @@ other_snv_heat <- ggplot(other_snv, aes(x = graph_name, y = reorder(groups, all_
         text = element_text(size = 17), strip.text.x.top = element_text(size = 20), panel.spacing = unit(1, "cm"))+
   labs(legend = "Reference Frequency")+
   guides(fill = guide_legend(reverse = TRUE))+
+  scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, ncol = 6, scales = "free", labeller = labeller(mag = other_mag_labs))
 ggsave("other_snv_heat.png", limitsize = F, dpi = 400, width = 40, height = 8)
 
@@ -85,6 +89,8 @@ other_snv_sum <- ggplot(subset(other_sum_long, class == "SNVs"), aes(x = graph_n
   scale_fill_manual(values = c("#CfD8DC", "#D32F2F"))+
   theme(legend.title = element_blank(), axis.title.x = element_blank(), strip.background = element_blank(), strip.text.x = element_blank(), text = element_text(size = 17), panel.spacing = unit(0.05, "cm"))+
   labs(y = "SNVs / Mbp")+
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
+  scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, scales = "free")
 ggsave("other_snv_sum.png", limitsize = F, width = 40, height = 8)
 
@@ -92,29 +98,11 @@ other_snv_frac <- ggplot(other_sum, aes(x = graph_name, y=SNSs/(SNSs+SNVs)))+
   geom_bar(stat = "identity", fill = "#424242")+ 
   theme_classic()+
   theme(legend.title = element_blank(), strip.background = element_blank(), strip.text.x.top = element_blank(), text = element_text(size=17), panel.spacing = unit(0.4, "cm"))+
-  ylim(0, 1)+
   labs(y = "fraction of SNVs dominated by a single allele", x="Pond")+
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0,1))+
+  scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, scales = "free")
 ggsave("other_snv_frac.png", limitsize = F, width = 40, height = 8)
 
 other_all <- other_snv_heat / other_snv_sum / other_snv_frac
-ggsave("other_all.png", limitsize = F, width = 40, height = 24) 
-
-#not using these plots currently
-#select_snv_sns_sum <- ggplot(select_sum_long, aes(x = graph_name, y=(((divergent_sites)/mag_length)*10^6), fill = class))+
-  #geom_bar(stat = "identity")+ 
-  #theme_classic()+
-  #scale_fill_manual(values = c("#E0E0E0", "#424242"))+
-  #theme(legend.title = element_blank(),text = element_text(size=15), panel.spacing = unit(1, "cm"))+
-  #labs(y = "SNVs / Mbp")+
-  #facet_wrap(~mag, nrow = 1, scales = "free", labeller = labeller(mag = select_mag_labs))
-#ggsave("select_snv_sum.png", limitsize = F, width = 48, height = 8)
-
-#other_snv_sns_sum <- ggplot(other_sum_long, aes(x = graph_name, y=(((divergent_sites)/mag_length)*10^6), fill = class))+
-  #geom_bar(stat = "identity")+ 
-  #theme_classic()+
-  #scale_fill_manual(values = c("#E0E0E0", "#424242"))+
-  #theme(legend.title = element_blank(), text = element_text(size = 15), panel.spacing = unit(1, "cm"))+
-  #labs(y = "SNVs / Mbp")+
-  #facet_wrap(~mag, nrow = 1, scales = "free", labeller = labeller(mag = other_mag_labs))
-#ggsave("other_snv_sum.png", limitsize = F, width = 48, height = 8)
+save_plot("other_all.jpeg", other_all, base_height = 5, base_width = 15, ncol = 3, nrow = 5, dpi = 300, limitsize = F)
