@@ -48,7 +48,7 @@ threshold_snvs$pass <- with(threshold_snvs, ifelse(((control == "high" & GBH_ref
 
 write.csv(threshold_snvs, "threshold_snvs.csv", row.names = F)
 
-small_mag_hor_pass <- left_join(small_MAG_SNVs_hor, threshold_snvs[,c('groups', 'pass')], by=c('groups'))
+small_mag_hor_pass <- left_join(small_MAG_SNVs_hor, threshold_snvs[,c('groups', 'pass', 'control')], by=c('groups'))
 write.csv(small_mag_hor_pass, "small_mag_hor_pass.csv", row.names = F)
 
 #create a new snv files with means
@@ -60,7 +60,7 @@ all_finished_SNVs <- data.frame()
 for(MAG in mag_list){
   MAG_index <- which(names(ponds_list) == MAG)
   MAG_SNVs <- subset(small_mag_hor_pass, mag == MAG)
-  MAG_SNVs <- MAG_SNVs[, c(1:7, which((names(MAG_SNVs) %in% ponds_list[[MAG]]) == T), 21:25)] %>%
+  MAG_SNVs <- MAG_SNVs[, c(1:7, which((names(MAG_SNVs) %in% ponds_list[[MAG]]) == T), 21:26)] %>%
   pivot_longer(cols = contains("at"),  names_to = "new_name", values_to = "final_ref_freq", values_drop_na = F) %>%
   left_join(class_MAG_SNVs, by = join_by(length, groups, mag, mag_length, new_name, final_ref_freq))
   write.csv(MAG_SNVs, paste(MAG, "_SNVs.csv", sep = ""), row.names = F)

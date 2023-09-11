@@ -17,6 +17,7 @@ all_snv <- read_csv("filtered_ANI_95_mag_SNVs.csv")
 
 mag_scaf_cov <- all_snv %>% group_by(scaffold, new_name, length, coverage, mag) %>% summarize(SNV_SNS_tot = sum(number_divergent))
 
+
 all_MAG_scaf_cov <-  ggplot(mag_scaf_cov, aes(x = coverage, y = log10((SNV_SNS_tot/length)*10^6), colour = new_name)) + 
   geom_point()+
   scale_colour_viridis(discrete = T)+
@@ -28,7 +29,11 @@ all_MAG_scaf_cov <-  ggplot(mag_scaf_cov, aes(x = coverage, y = log10((SNV_SNS_t
 save_plot("MAG_scaf_cov_SNV.jpeg", all_MAG_scaf_cov, ncol = 4, nrow = 4, dpi = 300)
 
 
-mag_cov <- all_snv %>% group_by(mag, new_name, mag_coverage, mag_length) %>% summarize(SNV_SNS_tot = sum(number_divergent))
+mag_cov <- all_snv %>% group_by(full_group, mag, new_name, mag_coverage, breadth.y, mag_length) %>% summarize(SNV_SNS_tot = sum(number_divergent))
+mag_cov <- mag_cov %>% rename(mag_breadth = breadth.y)
+mag_cov$snvs_per_mbp <- (mag_cov$SNV_SNS_tot / mag_cov$mag_length) *10^6
+mag_cov$percent_id_to_ref <- (1 - mag_cov$SNV_SNS_tot / mag_cov$mag_length) *100
+write.csv(mag_cov, "mag_cov_summary_info.csv")
 
 all_MAG_cov <-  ggplot(mag_cov, aes(x = mag_coverage, y = log10((SNV_SNS_tot/mag_length)*10^6), colour = new_name)) + 
   geom_point()+

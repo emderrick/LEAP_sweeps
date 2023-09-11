@@ -1,5 +1,7 @@
 library(tidyverse)
 library(dplyr)
+library(ggplot2)
+library(cowplot)
 
 #read in the SNV file with means
 all_snv <- read_csv("all_MAG_SNVs_med_Aug15.csv")
@@ -15,3 +17,17 @@ all_SNV_wide <- all_SNV_wide %>% rowwise %>% mutate(GBH_SNS_mean = mean(c_across
 write.csv(all_SNV_wide, "SNV_MAG_sums_table.csv", row.names = F)
 small_SNV_wide <- select(all_SNV_wide, c('mag','control_SNV_mean', 'GBH_SNV_mean', 'control_SNS_mean', 'GBH_SNS_mean'))
 write.csv(small_SNV_wide, "SNV_summary_table.csv", row.names = F)
+
+snv_long <- pivot_longer(snv_sum, cols = c('control_SNV_mean', 'GBH_SNV_mean', 'control_SNS_mean', 'GBH_SNS_mean'),
+                         names_to = "treatment_mean", values_to = "total")
+snv_long$treatment <- str_sub(snv_long$treatment_mean, end = -10)
+snv_long$type <- with(snv_long, ifelse(str_detect(treatment_mean, "SNV"), "SNV", "SNS"))
+
+ggplot(snv_long, aes(x = treatment_mean, y = total, colour = mag))+
+  geom_point(size=2.5)+
+  scale_x_discrete(limits = c("control_SNV_mean", "GBH_SNV_mean", "control_SNS_mean", "GBH_SNS_mean"))+
+  labs(y = "SNVs / MBp")+
+  theme_classic()+
+  theme(axis.title = element_text(face = "bold"), axis.text = element_text(face = "bold"), legend.text = element_blank())
+
+save_plot("SNV_average_plot.jpeg", SNV_plot)
