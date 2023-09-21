@@ -1,13 +1,17 @@
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
-library(patchwork)
+library(cowplot)
 
 mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099",
                  "L7_MAG_00020", "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
 
-MAG_sweep_wide <- tibble()
+mag_labs <- (c(I4_MAG_00006 = "SJAQ100 sp016735685 assembled from Control B", I4_MAG_00065 = "Roseomonas sp. assembled from Control B", L2_MAG_00052 = "Erythrobacter sp. assembled from GBH A",
+               L3_MAG_00058 = "Prosthecobacter sp. assembled from Control C", L4_MAG_00099 = "Bosea sp001713455 assembled from Control D", L7_MAG_00020 = "Sphingorhabdus_B sp. assembled from GBH C",
+               L7_MAG_00028 = "SYFN01 sp. assembled from GBH C", L7_MAG_00043 = "Luteolibacter sp. assembled from GBH C",L8_MAG_00011 = "UBA953 sp. assembled from GBH D",
+               L8_MAG_00019 = "UA16 family assembled from GBH D", L8_MAG_00042 = "UBA4660 sp. assembled from GBH D"))
 
+MAG_sweep_wide <- tibble()
 for(MAG in mag_list){
   MAG_sweep  <- read_csv(paste("sweep files wide/", MAG, "_sweep_wide.csv", sep = ""))
   MAG_sweep_wide <- bind_rows(MAG_sweep_wide, MAG_sweep)
@@ -22,7 +26,6 @@ MAG_sweep_wide$abs_val <- with(MAG_sweep_wide, ifelse(is.nan(abs_val), NA, abs_v
 write.csv(MAG_sweep_wide, "MAG_sweep_wide.csv", row.names = F)
 
 threshold_snvs <- read_csv("threshold_snvs.csv")
-
 MAG_sweep_wide <- left_join(MAG_sweep_wide, threshold_snvs[, c('groups', 'pass')])
 MAG_sweep_wide$pass <- with(MAG_sweep_wide, ifelse(is.na(pass), 'no', pass))
 
@@ -48,14 +51,48 @@ MAG_sweep_plot <- left_join(MAG_sweep_wide[, c('mag', 'scaffold', 'position', 'g
 MAG_sweep_plot$abs_val_pass <- with(MAG_sweep_plot, ifelse(pass == "yes", abs_val, NA))
 write.csv(MAG_sweep_plot, "MAG_sweep_pass_plot.csv", row.names = F)
 
+MAG_sweep_plot <- read_csv("MAG_sweep_pass_plot.csv")
+
+
 for(MAG in mag_list){
   MAG_sweep <- subset(MAG_sweep_plot, mag == MAG)
-  sweep_plot <- ggplot(MAG_sweep, aes(x = group, y = abs_val_pass, group = 1))+
-  geom_line()+
-  geom_vline(xintercept = MAG_sweep$scaffold_position, colour = "blue")+
-  theme_classic()+
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-  ggsave(paste(MAG, "_big_sweep.png", sep = ""), limitsize = F, width = 150, height = 12)
+  sweep_plot <- ggplot(MAG_sweep, aes(x = groups, y = abs_val_pass))+
+    geom_point()+
+    geom_vline(xintercept = unique(MAG_sweep$scaffold_position), colour = "blue")+
+    scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0,1))+
+    theme_classic()+
+    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())+
+    labs(y = "Absolute Value Difference", x = "Scaffold")
+  save_plot(paste(MAG, "_pass_sweep.png", sep = ""), sweep_plot, base_asp = 6)
+
+}
+
+all_MAG_snvs <- read_csv("all_MAG_SNVs_med_Aug15.csv")
+all_MAG_snvs$snv_count <- with(all_MAG_snvs, ifelse(is.na(number_divergent) == T, 0, number_divergent))
+MAG_snvs_scaffold_sum <- all_MAG_snvs %>% group_by(mag, scaffold, length, new_name) %>% summarize(total = sum(snv_count))
+MAG_snvs_scaffold_sum$snv_per_kb <- (MAG_snvs_scaffold_sum$total/MAG_snvs_scaffold_sum$length) * 1000
+
+for(MAG in mag_list){
+  scaffold_hist <- ggplot(subset(MAG_snvs_scaffold_sum, mag == MAG), aes(x = snv_per_kb), group = mag)+
+    geom_histogram(bins = 25, fill = "grey", colour = "black", linewidth = 0.5)+
+    theme_classic()+
+    theme(text = element_text(size = 10), axis.text = element_text(colour = 'black'))+
+    labs(y = "Frequency", x = "SNVs per kb of scaffold")+
+    facet_wrap(~new_name, nrow = 4, ncol = 3, scales = "free")
+  
+  save_plot(paste(MAG, "_scaffold_hist.jpeg", sep = ""), scaffold_hist)
+}
+
+for(MAG in mag_list){
+  MAG_SNVs <- subset(MAG_snvs_scaffold_sum, mag == MAG)
+  scaffold_snv <- ggplot(MAG_SNVs, aes(y = snv_per_kb, x = reorder(scaffold, snv_per_kb)))+
+    geom_bar(stat = "identity", fill = "grey", colour = "black", linewidth = 0.5)+
+    theme_classic()+
+    theme(text = element_text(size = 10), axis.text = element_text(colour = 'black'), axis.text.x = element_blank())+
+    labs(y = "SNVs / KBp", x = "Scaffold")+
+    facet_wrap(~new_name, ncol = 1, scales = "free")
+  
+  save_plot(paste(MAG, "_scaffold_snv_kbp.jpeg", sep = ""), scaffold_snv, nrow = 4, ncol = 3)
 }
 
 

@@ -14,21 +14,13 @@ for(i in 1:length(gene_files)){
   all_genes <- rbind(all_genes,pond_time_genes)
 }
 
+all_genes$mag <- all_genes$gene %>% substr(1,12)
+test <- subset(all_genes, mag == "L8_MAG_00011")
 #get all gene coordinates
 all_gene_coord <- all_genes[c('gene', 'start', 'end')]
 all_gene_coord <- all_gene_coord %>% distinct(gene, .keep_all = T)
-all_gene_coord$start <- all_gene_coord$start+1
-all_gene_coord$end <- all_gene_coord$end+1
-
-#get gene positions that pass threshold
-genes_sum <- threshold_snvs %>% count(scaffold, gene, name="snvs_in_gene")
-gene_locations <- left_join(genes_sum, all_gene_coord, by=c("gene"))
-#get list of snvs in non-gene positons
-no_gene <- subset(threshold_snvs, is.na(gene))
-
-write.csv(all_gene_coord, "all_genes.csv", row.names = F)
-write.csv(gene_locations, "gene_locations.csv", row.names = F)
-write.csv(no_gene, "snvs_no_gene.csv", row.names= F)
+all_gene_coord$new_start <- all_gene_coord$start+1
+all_gene_coord$new_end <- all_gene_coord$end+1
 
 bakta_files <- list.files("full_bakta_output",recursive = T, pattern=".tsv",full.names = T)
 all_bakta <- data.frame()
@@ -40,13 +32,29 @@ for(i in 1:length(bakta_files)){
   all_bakta <- rbind(all_bakta,genes)
 }
 
+parevol_genes <- read_csv("not_strict_MAG_significant_genes.csv")
+parevol_genes <- left_join(parevol_genes, all_gene_coord)
+parevol_gene_match <- inner_join(parevol_genes, all_bakta, by = c("mag", "contig", "new_start"="Start", "new_end"="Stop"))
+
 colnames(all_bakta)[1]="Sequence_ID"
 all_bakta$contig <- all_bakta$Sequence_ID %>% substr(8,10) 
-gene_locations$contig <- gene_locations$gene %>% substr(23,25) %>% str_remove("^0+")
-gene_locations$mag <- gene_locations$gene %>% substr(1,12)
-gene_matches <- left_join(gene_locations, all_bakta, by=c("mag", "contig", "start"="Start", "end"="Stop"))
+all_gene_coord$contig <- all_gene_coord$gene %>% substr(23,25) %>% str_remove("^0+")
+all_gene_coord$mag <- all_gene_coord$gene %>% substr(1,12)
+gene_matches <- inner_join(all_gene_coord, all_bakta, by = c("mag", "contig", "new_start"="Start", "new_end"="Stop"))
 
-gene_no_NA <- gene_matches %>% drop_na(Gene)
+
+
+
+
+#get gene positions that pass threshold
+genes_sum <- threshold_snvs %>% count(scaffold, gene, name="snvs_in_gene")
+gene_locations <- left_join(genes_sum, all_gene_coord, by=c("gene"))
+#get list of snvs in non-gene positons
+no_gene <- subset(threshold_snvs, is.na(gene))
+
+write.csv(all_gene_coord, "all_genes.csv", row.names = F)
+write.csv(gene_locations, "gene_locations.csv", row.names = F)
+write.csv(no_gene, "snvs_no_gene.csv", row.names= F)
 
 parallel_genes <- gene_no_NA %>% count(Gene, mag) %>% count(Gene)
 
@@ -82,5 +90,3 @@ L8_MAG_00019_top_genes <- L8_MAG_00019_top_genes[c(2, 8, 13, 14)]
 
 L8_MAG_00042_top_genes <- subset(gene_no_NA, mag=="L8_MAG_00042")
 L8_MAG_00042_top_genes <- L8_MAG_00042_top_genes[c(2, 8, 13, 14)]
-
-
