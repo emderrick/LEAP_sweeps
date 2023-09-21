@@ -1,0 +1,109 @@
+rm(list = ls(all.names = TRUE))
+
+identify_enriched_categories <- function(genes,
+                                         background,
+                                         gene_to_category_map,
+                                         min_category_count = 0,
+                                         to_ignore = character()) {
+  
+  enrichments_out <- data.frame(matrix(NA, nrow = length(gene_to_category_map), ncol = 8))
+  rownames(enrichments_out) <- names(gene_to_category_map)
+  colnames(enrichments_out) <- c("category", "genes_num_category", "genes_num_other",
+                                 "background_num_category", "background_num_other", "OR", "p", "fdr")
+  
+  enrichments_out[names(gene_to_category_map), "category"] <- names(gene_to_category_map)
+  
+  for (category in rownames(enrichments_out)) {
+    
+    if (category %in% to_ignore) { next }
+    
+    genes_num_category <- length(which(genes %in% gene_to_category_map[[category]]))
+    genes_num_other <- length(genes) - genes_num_category
+    
+    background_num_category <- length(which(background %in% gene_to_category_map[[category]]))
+    background_num_other <- length(background) - background_num_category
+    
+    count_table <- matrix(c(genes_num_category, genes_num_other, background_num_category, background_num_other), nrow = 2, ncol = 2)
+    
+    if (min(c(genes_num_category + background_num_category, genes_num_other + background_num_other)) < min_category_count) {
+      next
+    }
+    
+    fisher_out <- fisher.test(count_table)
+    
+    enrichments_out[category, c("genes_num_category",
+                                "genes_num_other",
+                                "background_num_category",
+                                "background_num_other", "p")] <- c(genes_num_category,
+                                                                   genes_num_other,
+                                                                   background_num_category,
+                                                                   background_num_other,
+                                                                   fisher_out$p.value)
+    if (genes_num_other > 0) {
+      ratio_numer <- genes_num_category / genes_num_other
+    } else {
+      ratio_numer <- genes_num_category / 1 
+    }
+    
+    if (background_num_other == 0) {
+      ratio_denom <- 1
+    } else if(background_num_category == 0) {
+      ratio_denom <- 1 / background_num_other
+    } else {
+      ratio_denom <- background_num_category / background_num_other
+    }
+    
+    enrichments_out[category, "OR"] <- ratio_numer / ratio_denom
+  }
+  
+  if (length(which(rowSums(is.na(enrichments_out)) > 1)) > 0) {
+    enrichments_out <- enrichments_out[-which(rowSums(is.na(enrichments_out)) > 1), ]
+  }
+  
+  enrichments_out$fdr <- p.adjust(enrichments_out$p, "fdr")
+  
+  rownames(enrichments_out) <- NULL
+  
+  return(enrichments_out)
+  
+}
+
+
+COG_categories <- read.table('COG_category_descrip.tsv', header = FALSE, row.names = 1, stringsAsFactors = FALSE, sep = '\t')
+
+# Read in mapping of which COGs are in which COG category (and convert this to list of COG category mappings to COG gene families).
+COG_gene_to_category <- read.table("cog-20.to_category.tsv", header = FALSE, sep = "\t")
+COG_category_to_COG <- list()
+for (category in unique(COG_gene_to_category$V2)) {
+  COG_category_to_COG[[category]] <- COG_gene_to_category[which(COG_gene_to_category$V2 == category), "V1"]
+}
+
+# Note that some of these COG categories only have a few members, so you should set them to be ignored (in addition to any others you are not interested in).
+# Also, I tend to ignore eukaryotic-specific COG categories for my analyses.
+categories_to_ignore <- c('A', 'B', 'Y', 'Z')
+
+background_genes <- unique(combined_MAG_genes)
+background_genes <- subset(!(background_genes, gene %in% significant_genes))
+
+
+
+
+
+# First, the set of 'background' COGs. This should be the set of COGs that *could* have been significant.
+example_background <- unique(COG_gene_to_category[which(! COG_gene_to_category$V2 %in% categories_to_ignore), 'V1'])
+
+# Then a subset of these genes that were identified as significant.
+example_sig_genes <- c("COG1920","COG1970","COG5352","COG5491","COG4784","COG3481","COG3908","COG1429","COG1950",
+                       "COG5836","COG0048","COG3707","COG1359","COG3160","COG3762","COG5814","COG3775","COG1872","COG3824","COG0061")
+
+# Then you can run a Fisher's exact test for each COG category individually based on this format of contingency table:
+# Sig genes in category, sig genes not in category, non-sig genes in category, non-sig genes not in category.
+
+# Note that the sig. genes are removed from the background and that categories without at least 10 COG gene families in the sig set and background are ignored.
+# (although these should all be removed anyway by specifying them directly in 'to_ignore').
+example_output <- identify_enriched_categories(genes = example_sig_genes,
+                                               background = example_background[-which(example_background %in% example_sig_genes)],
+                                               gene_to_category_map = COG_category_to_COG,
+                                               min_category_count = 10,
+                                               to_ignore = categories_to_ignore)
+  

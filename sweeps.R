@@ -73,26 +73,78 @@ MAG_snvs_scaffold_sum <- all_MAG_snvs %>% group_by(mag, scaffold, length, new_na
 MAG_snvs_scaffold_sum$snv_per_kb <- (MAG_snvs_scaffold_sum$total/MAG_snvs_scaffold_sum$length) * 1000
 
 for(MAG in mag_list){
-  scaffold_hist <- ggplot(subset(MAG_snvs_scaffold_sum, mag == MAG), aes(x = snv_per_kb), group = mag)+
+  MAG_SNVs <- subset(MAG_snvs_scaffold_sum, mag == MAG)
+  rows <- length(unique(MAG_SNVs$new_name))/2
+  scaffold_hist <- ggplot(MAG_SNVs, aes(x = snv_per_kb), group = mag)+
     geom_histogram(bins = 25, fill = "grey", colour = "black", linewidth = 0.5)+
     theme_classic()+
     theme(text = element_text(size = 10), axis.text = element_text(colour = 'black'))+
     labs(y = "Frequency", x = "SNVs per kb of scaffold")+
-    facet_wrap(~new_name, nrow = 4, ncol = 3, scales = "free")
+    scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
+    scale_x_continuous(expand = c(0, 0))+
+    facet_wrap(~new_name, ncol = 1)
   
-  save_plot(paste(MAG, "_scaffold_hist.jpeg", sep = ""), scaffold_hist)
+  save_plot(paste(MAG, "_scaffold_hist.jpeg", sep = ""), ncol = 1, nrow = rows, scaffold_hist)
 }
 
 for(MAG in mag_list){
   MAG_SNVs <- subset(MAG_snvs_scaffold_sum, mag == MAG)
+  rows <- length(unique(MAG_SNVs$new_name))/2
   scaffold_snv <- ggplot(MAG_SNVs, aes(y = snv_per_kb, x = reorder(scaffold, snv_per_kb)))+
-    geom_bar(stat = "identity", fill = "grey", colour = "black", linewidth = 0.5)+
+    geom_bar(stat = "identity", fill = "black", linewidth = 0.5)+
     theme_classic()+
-    theme(text = element_text(size = 10), axis.text = element_text(colour = 'black'), axis.text.x = element_blank())+
+    theme(text = element_text(size = 10), axis.text = element_text(colour = 'black'), axis.text.x = element_blank(), axis.ticks.x = element_blank())+
     labs(y = "SNVs / KBp", x = "Scaffold")+
-    facet_wrap(~new_name, ncol = 1, scales = "free")
+    scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
+    scale_x_discrete(expand = c(0, 0))+
+    facet_wrap(~new_name, ncol = 1)
   
-  save_plot(paste(MAG, "_scaffold_snv_kbp.jpeg", sep = ""), scaffold_snv, nrow = 4, ncol = 3)
+  save_plot(paste(MAG, "_all_scaffold_snv_kbp.jpeg", sep = ""), ncol = 1, nrow = rows, scaffold_snv)
+}
+
+threshold_snvs$snv_count <- with(threshold_snvs, ifelse(pass == "yes", 1, 0))
+threshold_snvs_sum <- threshold_snvs %>% group_by(mag, scaffold, length) %>% summarize(total = sum(snv_count))
+threshold_snvs_sum$snv_per_kb <- (threshold_snvs_sum$total/threshold_snvs_sum$length) * 1000
+threshold_snvs_gene_sum <- threshold_snvs %>% group_by(mag, gene, length) %>% summarize(total = sum(snv_count))
+threshold_snvs_gene_sum$snv_per_kb <- (threshold_snvs_gene_sum$total/threshold_snvs_gene_sum$length) * 1000
+
+for(MAG in mag_list){
+  MAG_SNVs <- subset(threshold_snvs_sum, mag == MAG)
+  scaffold_hist <- ggplot(MAG_SNVs, aes(x = snv_per_kb))+
+    geom_histogram(bins = 25, fill = "grey", colour = "black", linewidth = 0.5)+
+    theme_classic()+
+    theme(text = element_text(size = 10), axis.text = element_text(colour = 'black'))+
+    labs(y = "Frequency", x = "SNVs per kb of scaffold")+
+    scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
+    scale_x_continuous(expand = c(0, 0))
+  
+  save_plot(paste(MAG, "_threshold_scaffold_hist.jpeg", sep = ""), scaffold_hist)
+}
+
+for(MAG in mag_list){
+  MAG_SNVs <- subset(threshold_snvs_sum, mag == MAG)
+  scaffold_snv <- ggplot(MAG_SNVs, aes(y = snv_per_kb, x = reorder(scaffold, snv_per_kb)))+
+    geom_bar(stat = "identity", fill = "black", linewidth = 0.5)+
+    theme_classic()+
+    theme(text = element_text(size = 10), axis.text = element_text(colour = 'black'), axis.text.x = element_blank(), axis.ticks.x = element_blank())+
+    labs(y = "SNVs / KBp", x = "Scaffold")+
+    scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
+    scale_x_discrete(expand = c(0, 0))
+  
+  save_plot(paste(MAG, "_threshold_all_scaffold_snv_kbp.jpeg", sep = ""), scaffold_snv)
+}
+
+for(MAG in mag_list){
+  MAG_SNVs <- subset(threshold_snvs_sum, mag == MAG)
+  gene_snv <- ggplot(MAG_SNVs, aes(y = snv_per_kb, x = reorder(scaffold, snv_per_kb)))+
+    geom_bar(stat = "identity", fill = "black", linewidth = 0.5)+
+    theme_classic()+
+    theme(text = element_text(size = 10), axis.text = element_text(colour = 'black'), axis.text.x = element_blank(), axis.ticks.x = element_blank())+
+    labs(y = "SNVs / KBp", x = "Scaffold")+
+    scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
+    scale_x_discrete(expand = c(0, 0))
+  
+  save_plot(paste(MAG, "_threshold_gene_snv_kbp.jpeg", sep = ""), gene_snv)
 }
 
 
