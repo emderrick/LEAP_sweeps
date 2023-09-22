@@ -1,9 +1,12 @@
+library(tidyverse)
+#Fisher's exact test for each COG category (Sig genes in category, sig genes not in category, non-sig genes in category, non-sig genes not in category)
+
 rm(list = ls(all.names = TRUE))
 
 identify_enriched_categories <- function(genes,
                                          background,
                                          gene_to_category_map,
-                                         min_category_count = 0,
+                                         min_category_count = min_category_count,
                                          to_ignore = character()) {
   
   enrichments_out <- data.frame(matrix(NA, nrow = length(gene_to_category_map), ncol = 8))
@@ -82,28 +85,21 @@ for (category in unique(COG_gene_to_category$V2)) {
 # Also, I tend to ignore eukaryotic-specific COG categories for my analyses.
 categories_to_ignore <- c('A', 'B', 'Y', 'Z')
 
-background_genes <- unique(combined_MAG_genes)
-background_genes <- subset(!(background_genes, gene %in% significant_genes))
-
-
-
-
-
 # First, the set of 'background' COGs. This should be the set of COGs that *could* have been significant.
-example_background <- unique(COG_gene_to_category[which(! COG_gene_to_category$V2 %in% categories_to_ignore), 'V1'])
-
+background_genes_df <- read_csv("threshold_background_genes_strict.csv")
+background_genes_df <- background_genes_df[, c("COG")] %>% na.omit()
+background_genes <- background_genes_df[['COG']] 
 # Then a subset of these genes that were identified as significant.
-example_sig_genes <- c("COG1920","COG1970","COG5352","COG5491","COG4784","COG3481","COG3908","COG1429","COG1950",
-                       "COG5836","COG0048","COG3707","COG1359","COG3160","COG3762","COG5814","COG3775","COG1872","COG3824","COG0061")
+significant_genes_df <- read_csv("threshold_significant_genes_strict.csv")
+significant_genes_df <- significant_genes_df[, c("COG")] %>% na.omit()
 
-# Then you can run a Fisher's exact test for each COG category individually based on this format of contingency table:
-# Sig genes in category, sig genes not in category, non-sig genes in category, non-sig genes not in category.
+significant_genes <- significant_genes_df[['COG']]
 
-# Note that the sig. genes are removed from the background and that categories without at least 10 COG gene families in the sig set and background are ignored.
-# (although these should all be removed anyway by specifying them directly in 'to_ignore').
-example_output <- identify_enriched_categories(genes = example_sig_genes,
-                                               background = example_background[-which(example_background %in% example_sig_genes)],
+COG_strict_output <- identify_enriched_categories(genes = significant_genes,
+                                               background = background_genes,
                                                gene_to_category_map = COG_category_to_COG,
-                                               min_category_count = 10,
+                                               min_category_count = 5, #categories without at least 10 COG gene families in the sig set and background are ignored
                                                to_ignore = categories_to_ignore)
+
+write.csv(COG_strict_output, "COG_enrichment_parevol_strict.csv")
   

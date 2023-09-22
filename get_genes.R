@@ -53,24 +53,24 @@ prokka_gene_COG <- distinct(prokka_gene_COG) %>% na.omit()
 bakta_with_COG <- left_join(bakta_gene_coord, prokka_gene_COG, by = c("Gene" = "gene"))
 
 all_background_genes <- bakta_with_COG[, c("mag", "scaffold", "gene", "Gene", "Product", "COG_bakta", "COG")] %>% subset(is.na(gene) == F)
+write.csv(all_background_genes, "all_background_genes.csv")
 
 parevol_genes <- read_csv("not_strict_MAG_significant_genes.csv")
-significant_genes <- left_join(parevol_genes, all_background_genes)
-write.csv(significant_genes, "significant_genes_not_strict.csv", row.names = F)
-background_genes <- all_background_genes %>% subset(!(gene %in% significant_genes$gene))
-write.csv(background_genes, "background_genes_not_strict.csv", row.names = F)
+not_strict_significant_genes <- left_join(parevol_genes, all_background_genes)
+write.csv(not_strict_significant_genes, "significant_genes_not_strict.csv", row.names = F)
 
 strict_parevol_genes <- read_csv("MAG_significant_genes.csv")
 strict_significant_genes <- left_join(strict_parevol_genes, all_background_genes)
-write.csv(significant_genes, "significant_genes_strict.csv", row.names = F)
-strict_background_genes <- all_background_genes %>% subset(!(gene %in% strict_significant_genes$gene))
-write.csv(strict_background_genes, "background_genes_not_strict.csv", row.names = F)
+write.csv(strict_significant_genes, "significant_genes_strict.csv", row.names = F)
 
+threshold_snvs <- read_csv("threshold_snvs.csv")
+threshold_snvs <- subset(threshold_snvs, pass=="yes")
+threshold_snvs$snv_count <- 1
+threshold_snvs_sum <- threshold_snvs %>% group_by(mag, scaffold, gene) %>% summarize(snvs_in_gene = sum(snv_count))
+threshold_significant_genes <- left_join(threshold_snvs_sum, all_background_genes)
+write.csv(threshold_significant_genes, "threshold_significant_genes.csv", row.names = F)
 
-
-#threshold_snvs <- read_csv("threshold_snvs.csv")
-#threshold_snvs <- subset(threshold_snvs, pass=="yes")
-
+# threshold_multiple_matches <- as.data.frame(threshold_significant_genes$gene[duplicated(threshold_significant_genes$gene)]) %>% na.omit()
 # #get gene positions that pass threshold
 # genes_sum <- threshold_snvs %>% count(scaffold, gene, name="snvs_in_gene")
 # gene_locations <- left_join(genes_sum, all_gene_coord, by=c("gene"))
@@ -82,36 +82,4 @@ write.csv(strict_background_genes, "background_genes_not_strict.csv", row.names 
 # write.csv(no_gene, "snvs_no_gene.csv", row.names= F)
 # 
 # parallel_genes <- gene_no_NA %>% count(Gene, mag) %>% count(Gene)
-# 
-# I4_MAG_00006_top_genes <- subset(gene_no_NA, mag=="I4_MAG_00006")
-# I4_MAG_00006_top_genes <- I4_MAG_00006_top_genes[c(2, 8, 13, 14)]
-# 
-# I4_MAG_00065_top_genes <- subset(gene_no_NA, mag=="I4_MAG_00065")
-# I4_MAG_00065_top_genes <- I4_MAG_00065_top_genes[c(2, 8, 13, 14)]
-# 
-# L2_MAG_00052_top_genes <- subset(gene_no_NA, mag=="L2_MAG_00052")
-# L2_MAG_00052_top_genes <- L2_MAG_00052_top_genes[c(2, 8, 13, 14)]
-# 
-# L3_MAG_00058_top_genes <- subset(gene_no_NA, mag=="L3_MAG_00058")
-# L3_MAG_00058_top_genes <- L3_MAG_00058_top_genes[c(2, 8, 13, 14)]
-# 
-# L4_MAG_00099_top_genes <- subset(gene_no_NA, mag=="L4_MAG_00099")
-# L4_MAG_00099_top_genes <- L4_MAG_00099_top_genes[c(2, 8, 13, 14)]
-# 
-# L7_MAG_00020_top_genes <- subset(gene_no_NA, mag=="L7_MAG_00020")
-# L7_MAG_00020_top_genes <- L7_MAG_00020_top_genes[c(2, 8, 13, 14)]
-# 
-# L7_MAG_00028_top_genes <- subset(gene_no_NA, mag=="L7_MAG_00028")
-# L7_MAG_00028_top_genes <- L7_MAG_00028_top_genes[c(2, 8, 13, 14)]
-# 
-# L7_MAG_00043_top_genes <- subset(gene_no_NA, mag=="L7_MAG_00043")
-# L7_MAG_00043_top_genes <- L7_MAG_00043_top_genes[c(2, 8, 13, 14)]
-# 
-# L8_MAG_00011_top_genes <- subset(gene_no_NA, mag=="L8_MAG_00011")
-# L8_MAG_00011_top_genes <- L8_MAG_00011_top_genes[c(2, 8, 13, 14)]
-# 
-# L8_MAG_00019_top_genes <- subset(gene_no_NA, mag=="L8_MAG_00019")
-# L8_MAG_00019_top_genes <- L8_MAG_00019_top_genes[c(2, 8, 13, 14)]
-# 
-# L8_MAG_00042_top_genes <- subset(gene_no_NA, mag=="L8_MAG_00042")
-# L8_MAG_00042_top_genes <- L8_MAG_00042_top_genes[c(2, 8, 13, 14)]
+
