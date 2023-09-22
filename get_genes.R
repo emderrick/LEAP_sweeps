@@ -53,7 +53,7 @@ prokka_gene_COG <- distinct(prokka_gene_COG) %>% na.omit()
 bakta_with_COG <- left_join(bakta_gene_coord, prokka_gene_COG, by = c("Gene" = "gene"))
 
 all_background_genes <- bakta_with_COG[, c("mag", "scaffold", "gene", "Gene", "Product", "COG_bakta", "COG")] %>% subset(is.na(gene) == F)
-write.csv(all_background_genes, "all_background_genes.csv")
+write.csv(all_background_genes, "all_background_genes.csv", row.names = F)
 
 parevol_genes <- read_csv("not_strict_MAG_significant_genes.csv")
 not_strict_significant_genes <- left_join(parevol_genes, all_background_genes)
