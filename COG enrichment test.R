@@ -1,8 +1,6 @@
 library(tidyverse)
 #Fisher's exact test for each COG category (Sig genes in category, sig genes not in category, non-sig genes in category, non-sig genes not in category)
 
-rm(list = ls(all.names = TRUE))
-
 identify_enriched_categories <- function(genes,
                                          background,
                                          gene_to_category_map,
@@ -102,3 +100,18 @@ for(gene_file in sig_gene_files){
 
   write.csv(COG_enrichment_output, paste("COG_enrichment_", gene_file, sep = ""))
 }
+
+threshold_genes <- read_csv("threshold_significant_genes.csv")
+threshold_genes <- threshold_genes[, c("mag", "gene", "COG")] %>% na.omit()
+MAG_genes_COG <- left_join(threshold_genes, COG_gene_to_category, by = c("COG" = "V1"))
+MAG_genes_COG$count <- 1
+MAG_genes_COG_sum <- MAG_genes_COG %>% group_by(mag, V2) %>% summarize(class_count = sum(count))
+
+ggplot(MAG_genes_COG, aes(x = mag, y = count, fill = V2))+
+  geom_bar(stat="identity")+
+  theme_classic()+
+  labs(fill = "COG Class")+
+  scale_x_discrete(expand = c(0, 0))+
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0,300))
+
+ggsave("COG_class.png", limitsize = F, width = 24, height = 16)

@@ -49,7 +49,7 @@ save_plot("NS_SNV_max_plot.jpeg", NS_SNV_max_plot)
 NS_SNV_max_plot_EPSPS <- ggplot(MAG_NS_all_max, aes(x = NS_ratio, y = SNVs_MBp, colour = EPSPS_class))+
   geom_point(aes(shape=sweep), size=2.5)+
   scale_color_manual(values = c("#4c117a", "#cc3f71", "darkorange"))+
-  labs(y = "SNVs / MBp", x = "N:S ratio", colour = "Diversity", shape = "Potential Sweep?")+
+  labs(y = "SNVs / MBp", x = "N:S ratio", colour = "EPSPS Class", shape = "Potential Sweep?")+
   theme_classic()+
   theme(text = element_text(family = "helvetica"), axis.title = element_text(face = "bold"), axis.text = element_text(face = "bold"), 
         legend.title = element_text(size=8, family="helvetica", face="bold"), legend.text = element_text(size=7, family="helvetica"))

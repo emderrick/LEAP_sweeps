@@ -26,17 +26,18 @@ small_SNV_wide$SNS_to_control <- with(small_SNV_wide, ifelse(control_SNS_mean > 
 small_SNV_wide$Sweep <- with(small_SNV_wide, ifelse(SNV_to_control == "Decrease" & SNS_to_control == "Increase", "Yes", "No"))
 write.csv(small_SNV_wide, "SNV_summary_table.csv", row.names = F)
 
+small_SNV_wide <- read_csv("SNV_summary_table.csv")
 fishers_snv <- small_SNV_wide %>% group_by(EPSPS_class_fisher) %>% summarise(Increase = sum(SNV_to_control == "Increase"), Decrease = sum(SNV_to_control == "Decrease"))
 mosaicplot(fishers_snv[2:3], color = TRUE)  
-fishers_snv_test <- fisher.test(fishers_snv[2:3])
+fishers_snv_test <- fisher.test(fishers_snv[2:3], alternative = "less")
 
 fishers_sns <- small_SNV_wide %>% group_by(EPSPS_class_fisher) %>% summarise(Increase = sum(SNS_to_control == "Increase"), Decrease = sum(SNS_to_control == "Decrease"))
 mosaicplot(fishers_sns[2:3], color = TRUE)  
-fishers_sns_test <-fisher.test(fishers_sns[2:3])
+fishers_sns_test <-fisher.test(fishers_sns[2:3], alternative = "greater")
 
 fishers_sweep <- small_SNV_wide %>% group_by(EPSPS_class_fisher) %>% summarise(Yes = sum(Sweep == "Yes"), No = sum(Sweep == "No"))
 mosaicplot(fishers_sweep[2:3], color = TRUE)  
-fishers_sweep_test <- fisher.test(fishers_sweep[2:3])
+fishers_sweep_test <- fisher.test(fishers_sweep[2:3], alternative = "greater")
 
 # snv_long <- pivot_longer(snv_sum, cols = c('control_SNV_mean', 'GBH_SNV_mean', 'control_SNS_mean', 'GBH_SNS_mean'),
 #                          names_to = "treatment_mean", values_to = "total")
