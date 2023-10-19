@@ -81,16 +81,16 @@ for (category in unique(COG_gene_to_category$V2)) {
 
 categories_to_ignore <- c('A', 'B', 'Y', 'Z')# Note that some of these COG categories only have a few members, so you should set them to be ignored (in addition to any others you are not interested in).Also, I tend to ignore eukaryotic-specific COG categories for my analyses.
 
-all_background_genes <- read_csv("all_background_genes.csv")
+all_background_genes <- read_csv("cog_background_genes.csv")
 sig_gene_files = c("significant_genes_not_strict.csv", "significant_genes_strict.csv", "threshold_significant_genes.csv")
 
 for(gene_file in sig_gene_files){
   significant_genes_df <- read_csv(gene_file)
-  significant_genes <- significant_genes_df[, c("COG")] %>% na.omit()
-  significant_genes <- significant_genes[['COG']]
+  significant_genes <- significant_genes_df[, c("COG_ID")] %>% na.omit()
+  significant_genes <- significant_genes[['COG_ID']]
   background_genes_df <- all_background_genes %>% subset(!(gene %in% significant_genes_df$gene))
-  background_genes <- background_genes_df[, c("COG")] %>% na.omit()
-  background_genes <- background_genes[['COG']] 
+  background_genes <- background_genes_df[, c("COG_ID")] %>% na.omit()
+  background_genes <- background_genes[['COG_ID']] 
 
   COG_enrichment_output <- identify_enriched_categories(genes = significant_genes,
                                                         background = background_genes,
@@ -98,7 +98,7 @@ for(gene_file in sig_gene_files){
                                                         min_category_count = 10, #categories without at least 10 COG gene families in the sig set and background are ignored
                                                         to_ignore = categories_to_ignore)
 
-  write.csv(COG_enrichment_output, paste("COG_enrichment_", gene_file, sep = ""))
+  write.csv(COG_enrichment_output, paste("COG_enrichment_eggnog_", gene_file, sep = ""))
 }
 
 threshold_genes <- read_csv("threshold_significant_genes.csv")
