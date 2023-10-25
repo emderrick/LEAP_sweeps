@@ -70,3 +70,8 @@ gene_changes$GBH_ref <- with(gene_changes, ifelse(control == "high",
 
 gene_changes$pass <- with(gene_changes, ifelse(((control == "high" & GBH_ref < control_ref) | (control == "low" & GBH_ref > control_ref)), "yes", "no"))
 gene_changes_pass <- subset(gene_changes, pass == "yes")
+write.csv(gene_changes_pass, "gene_coverage_sig_genes.csv", row.names = F)
+
+background_cog <- read_csv("cog_background_genes.csv")
+gene_cov_significant <- left_join(gene_changes_pass[, c("gene", "abs_val")], background_cog)
+write.csv(gene_cov_significant, "gene_cov_significant.csv", row.names = F)

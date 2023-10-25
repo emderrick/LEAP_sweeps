@@ -82,7 +82,7 @@ for (category in unique(COG_gene_to_category$V2)) {
 categories_to_ignore <- c('A', 'B', 'Y', 'Z')# Note that some of these COG categories only have a few members, so you should set them to be ignored (in addition to any others you are not interested in).Also, I tend to ignore eukaryotic-specific COG categories for my analyses.
 
 all_background_genes <- read_csv("cog_background_genes.csv")
-sig_gene_files = c("significant_genes_not_strict.csv", "significant_genes_strict.csv", "threshold_significant_genes.csv")
+sig_gene_files = c("significant_genes_not_strict.csv", "significant_genes_strict.csv", "threshold_significant_genes.csv", "gene_cov_significant.csv")
 
 for(gene_file in sig_gene_files){
   significant_genes_df <- read_csv(gene_file)
@@ -100,18 +100,3 @@ for(gene_file in sig_gene_files){
 
   write.csv(COG_enrichment_output, paste("COG_enrichment_eggnog_", gene_file, sep = ""))
 }
-
-threshold_genes <- read_csv("threshold_significant_genes.csv")
-threshold_genes <- threshold_genes[, c("mag", "gene", "COG")] %>% na.omit()
-MAG_genes_COG <- left_join(threshold_genes, COG_gene_to_category, by = c("COG" = "V1"))
-MAG_genes_COG$count <- 1
-MAG_genes_COG_sum <- MAG_genes_COG %>% group_by(mag, V2) %>% summarize(class_count = sum(count))
-
-ggplot(MAG_genes_COG, aes(x = mag, y = count, fill = V2))+
-  geom_bar(stat="identity")+
-  theme_classic()+
-  labs(fill = "COG Class")+
-  scale_x_discrete(expand = c(0, 0))+
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0,300))
-
-ggsave("COG_class.png", limitsize = F, width = 24, height = 16)

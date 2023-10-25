@@ -1,8 +1,6 @@
 library(tidyverse)
 library(ggplot2)
-library(dplyr)
 library(viridis)
-library(stringr)
 library(cowplot)
 
 mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099",
@@ -18,13 +16,15 @@ all_snv <- read_csv("filtered_ANI_95_mag_SNVs.csv")
 mag_scaf_cov <- all_snv %>% group_by(scaffold, new_name, length, coverage, mag) %>% summarize(SNV_SNS_tot = sum(number_divergent))
 
 
-all_MAG_scaf_cov <-  ggplot(mag_scaf_cov, aes(x = coverage, y = log10((SNV_SNS_tot/length)*10^6), colour = new_name)) + 
+all_MAG_scaf_cov <- ggplot(mag_scaf_cov, aes(x = coverage, y = log10((SNV_SNS_tot/length)*10^6), colour = new_name)) + 
   geom_point()+
   scale_colour_viridis(discrete = T)+
   labs(y ="log10 SNVs / MBp", x="Coverage (x)", colour= "Pond") +
   theme_classic()+
-  theme(plot.title = element_text(hjust = 0.5))+
-  facet_wrap(~mag, nrow = 4, ncol = 4, scales = "free_x", labeller = labeller(mag = mag_labs))
+  theme(plot.title = element_text(hjust = 0.5), axis.text = element_text(color = "black"), axis.title = element_text(face = "bold"),
+        strip.text.x.top = element_text(size = 14, face = "bold"), text = element_text(size = 20), legend.title = element_text(face = "bold"))+
+  facet_wrap(~mag, nrow = 4, ncol = 4, scales = "free", labeller = labeller(mag = mag_labs))+
+  scale_y_continuous(limits=c(0,5))
 
 save_plot("MAG_scaf_cov_SNV.jpeg", all_MAG_scaf_cov, ncol = 4, nrow = 4, dpi = 300)
 

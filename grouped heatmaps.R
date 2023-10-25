@@ -47,115 +47,116 @@ select_snv_heat <- ggplot(select_snv, aes(x = graph_name, y = reorder(groups, al
   geom_tile()+
   scale_fill_viridis(direction = -1, na.value = "white") +
   theme_classic() +
-  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.y = element_blank(), axis.title.x = element_blank(), axis.ticks.x = element_blank(), 
-        text = element_text(size = 17, face = "bold"), strip.text.x.top = element_text(size = 20), panel.spacing = unit(1, "cm"))+
-  labs(legend = "Reference Frequency")+
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.x = element_blank(), text = element_text(size = 30), axis.title.y = element_text(face = "bold"),
+        strip.text.x.top = element_text(size = 25, face = "bold"), panel.spacing = unit(1, "cm"), axis.text.x = element_text(angle = 45, hjust = 1, colour = "black"), legend.title = element_text(face = "bold"))+
+  labs(fill = "Ref. Freq.", y = "Genome Position")+
   guides(fill = guide_legend(reverse = TRUE))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, ncol = 6, scales = "free", labeller = labeller(mag = select_mag_labs))
-ggsave("select_snv_heat.png", limitsize = F, dpi = 100, width = 48, height = 8)
+ggsave("select_snv_heat.png", limitsize = F, dpi = 100, width = 48, height = 10)
 
 select_snv_sum <- ggplot(subset(select_sum_long, class == "SNVs"), aes(x = graph_name, y=((divergent_sites/mag_length)*10^6), fill = treatment))+
   geom_bar(stat = "identity")+ 
   theme_classic()+
-  scale_fill_manual(values= c("grey", "tomato3", "palegreen4"))+
-  theme(legend.title = element_blank(), axis.title.x = element_blank(), strip.background = element_blank(),
-        strip.text.x = element_blank(), text = element_text(size = 17, face = "bold"), panel.spacing = unit(0.05, "cm"))+
-  labs(y = "SNVs / Mbp")+
+  scale_fill_manual(values= c("grey", "darkred", "#FFB500"))+
+  theme(axis.title.x = element_blank(), strip.text.x = element_blank(), axis.text = element_text(color = "black"), axis.title.y = element_text(face = "bold"),
+        text = element_text(size = 30), panel.spacing = unit(0.05, "cm"), axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_text(face = "bold"))+
+  labs(y = "SNVs / Mbp", fill = "Treatment")+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, scales = "free")
-ggsave("select_snv_sum.png", limitsize = F, width = 48, height = 8)
+ggsave("select_snv_sum.png", limitsize = F, width = 48, height = 10)
 
 select_snv_frac <- ggplot(select_sum, aes(x = graph_name, y=SNSs/(SNSs+SNVs)))+
   geom_bar(stat="identity", fill= "#424242")+ 
   theme_classic()+
-  theme(legend.title = element_blank(), strip.background = element_blank(), strip.text.x.top = element_blank(),
-        text = element_text(size = 17, face = "bold"), panel.spacing = unit(0.4, "cm"))+
-  labs(y = "fraction of SNVs dominated by a single allele", x = "Pond")+
+  theme(strip.text.x = element_blank(), axis.text = element_text(color = "black"), axis.title.y = element_text(face = "bold"), axis.title.x = element_text(face = "bold"),
+        text = element_text(size = 30), panel.spacing = unit(0.4, "cm"), axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_blank())+
+  labs(y = "Fraction of SNVs dominated by a single allele", x = "Pond")+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0,1))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, scales = "free")
-ggsave("select_snv_frac.png", limitsize = F, width = 48, height = 8)
+ggsave("select_snv_frac.png", limitsize = F, width = 48, height = 10)
 
 select_all <- select_snv_heat / select_snv_sum / select_snv_frac
-save_plot("select_all.jpeg", select_all, base_height = 5, base_width = 20, ncol = 3, nrow = 6, dpi = 300, limitsize = F)
+save_plot("select_all.jpeg", select_all, base_height = 5.5, base_width = 20, ncol = 3, nrow = 6, dpi = 300, limitsize = F)
 
 #no sweep
 other_snv_heat <- ggplot(other_snv, aes(x = graph_name, y = reorder(groups, all_mean), fill = final_ref_freq)) +
   geom_tile()+
   scale_fill_viridis(direction = -1, na.value = "white") +
   theme_classic() +
-  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.y = element_blank(), axis.title.x = element_blank(), axis.ticks.x = element_blank(), 
-        text = element_text(size = 17, face = "bold"), strip.text.x.top = element_text(size = 20), panel.spacing = unit(1, "cm"))+
-  labs(legend = "Reference Frequency")+
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.x = element_blank(), text = element_text(size = 25), axis.title.y = element_text(face = "bold"),
+        strip.text.x.top = element_text(size = 25, face = "bold"), panel.spacing = unit(1.5, "cm"), axis.text.x = element_text(angle = 45, hjust = 1, colour = "black"), legend.title = element_text(face = "bold"))+
+  labs(fill = "Ref. Freq.", y = "Genome Position")+
   guides(fill = guide_legend(reverse = TRUE))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, ncol = 6, scales = "free", labeller = labeller(mag = other_mag_labs))
-ggsave("other_snv_heat.png", limitsize = F, dpi = 400, width = 40, height = 8)
+ggsave("other_snv_heat.png", limitsize = F, dpi = 100, width = 48, height = 10)
 
-other_snv_sum <- ggplot(subset(other_sum_long, class == "SNVs"), aes(x = graph_name, y= ((divergent_sites/mag_length)*10^6), fill = treatment))+
+other_snv_sum <- ggplot(subset(other_sum_long, class == "SNVs"), aes(x = graph_name, y=((divergent_sites/mag_length)*10^6), fill = treatment))+
   geom_bar(stat = "identity")+ 
   theme_classic()+
-  scale_fill_manual(values= c("grey", "tomato3", "palegreen4"))+
-  theme(legend.title = element_blank(), axis.title.x = element_blank(), strip.background = element_blank(), strip.text.x = element_blank(),
-        text = element_text(size = 17, face = "bold"), panel.spacing = unit(0.05, "cm"), axis.text.x = element_text(face = "bold"))+
-  labs(y = "SNVs / Mbp")+
+  scale_fill_manual(values= c("grey", "darkred", "#FFB500"))+
+  theme(axis.title.x = element_blank(), strip.text.x = element_blank(), axis.text = element_text(color = "black"), axis.title.y = element_text(face = "bold"),
+        text = element_text(size = 25), panel.spacing = unit(0.5, "cm"), axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_text(face = "bold"))+
+  labs(y = "SNVs / Mbp", fill = "Treatment")+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, scales = "free")
-ggsave("other_snv_sum.png", limitsize = F, width = 40, height = 8)
+ggsave("other_snv_sum.png", limitsize = F, width = 48, height = 10)
 
 other_snv_frac <- ggplot(other_sum, aes(x = graph_name, y=SNSs/(SNSs+SNVs)))+
-  geom_bar(stat = "identity", fill = "#424242")+ 
+  geom_bar(stat="identity", fill= "#424242")+ 
   theme_classic()+
-  theme(legend.title = element_blank(), strip.background = element_blank(), strip.text.x.top = element_blank(),
-        text = element_text(size=17, face = "bold"), panel.spacing = unit(0.4, "cm"))+
-  labs(y = "fraction of SNVs dominated by a single allele", x="Pond")+
+  theme(strip.text.x = element_blank(), axis.text = element_text(color = "black"), axis.title.y = element_text(face = "bold"), axis.title.x = element_text(face = "bold"),
+        text = element_text(size = 25), panel.spacing = unit(0.4, "cm"), axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_blank())+
+  labs(y = "Fraction of SNVs dominated by a single allele", x = "Pond")+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0,1))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, scales = "free")
-ggsave("other_snv_frac.png", limitsize = F, width = 40, height = 8)
+ggsave("other_snv_frac.png", limitsize = F, width = 48, height = 10)
 
 other_all <- other_snv_heat / other_snv_sum / other_snv_frac
-save_plot("other_all.jpeg", other_all, base_height = 5, base_width = 15, ncol = 3, nrow = 5, dpi = 300, limitsize = F)
+save_plot("other_all.jpeg", other_all, base_height = 5, base_width = 15, ncol = 3, nrow = 5, dpi = 300)
 
 
 #best example
-best_heat <- ggplot(best_snv, aes(x = graph_name, y = reorder(groups, all_mean), fill = final_ref_freq)) +
-  geom_tile()+
-  scale_fill_viridis(direction = -1, na.value = "white") +
-  theme_classic() +
-  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.y = element_blank(), axis.title.x = element_blank(), axis.ticks.x = element_blank(), 
-        text = element_text(size = 17, face = "bold"), strip.text.x.top = element_text(size = 20), panel.spacing = unit(1, "cm"))+
-  labs(legend = "Reference Frequency")+
-  guides(fill = guide_legend(reverse = TRUE))+
-  scale_x_discrete(expand = c(0, 0))+
-  facet_wrap(~mag, nrow = 1, ncol = 6, scales = "free", labeller = labeller(mag = best_mag_labs))
-ggsave("best_snv_heat.png", limitsize = F, dpi = 100, width = 48, height = 8)
+# best_heat <- ggplot(best_snv, aes(x = graph_name, y = reorder(groups, all_mean), fill = final_ref_freq)) +
+#   geom_tile()+
+#   scale_fill_viridis(direction = -1, na.value = "white") +
+#   theme_classic() +
+#   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.y = element_blank(), axis.title.x = element_blank(), axis.ticks.x = element_blank(), 
+#         text = element_text(size = 17, face = "bold"), strip.text.x.top = element_text(size = 20), panel.spacing = unit(1, "cm"))+
+#   labs(legend = "Reference Frequency")+
+#   guides(fill = guide_legend(reverse = TRUE))+
+#   scale_x_discrete(expand = c(0, 0))+
+#   facet_wrap(~mag, nrow = 1, ncol = 6, scales = "free", labeller = labeller(mag = best_mag_labs))
+# ggsave("best_snv_heat.png", limitsize = F, dpi = 100, width = 48, height = 8)
+# 
+# best_snv_sum <- ggplot(subset(best_sum_long, class == "SNVs"), aes(x = graph_name, y=((divergent_sites/mag_length)*10^6), fill = treatment))+
+#   geom_bar(stat = "identity")+ 
+#   theme_classic()+
+#   scale_fill_manual(values= c("grey", "tomato3", "palegreen4"))+
+#   theme(legend.title = element_blank(), axis.title.x = element_blank(), strip.background = element_blank(),
+#         strip.text.x = element_blank(), text = element_text(size = 17, face = "bold"), panel.spacing = unit(0.05, "cm"))+
+#   labs(y = "SNVs / Mbp")+
+#   scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
+#   scale_x_discrete(expand = c(0, 0))+
+#   facet_wrap(~mag, nrow = 1, scales = "free")
+# ggsave("best_snv_sum.png", limitsize = F, width = 48, height = 8)
+# 
+# best_snv_frac <- ggplot(best_sum, aes(x = graph_name, y=SNSs/(SNSs+SNVs)))+
+#   geom_bar(stat="identity", fill= "#424242")+ 
+#   theme_classic()+
+#   theme(legend.title = element_blank(), strip.background = element_blank(), strip.text.x.top = element_blank(),
+#         text = element_text(size = 17, face = "bold"), panel.spacing = unit(0.4, "cm"))+
+#   labs(y = "fraction of SNVs dominated by a single allele", x = "Pond")+
+#   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0,1))+
+#   scale_x_discrete(expand = c(0, 0))+
+#   facet_wrap(~mag, nrow = 1, scales = "free")
+# ggsave("best_snv_frac.png", limitsize = F, width = 48, height = 8)
+# 
+# best_all <- best_heat / best_snv_sum / best_snv_frac
+# save_plot("best_all.jpeg", best_all, base_height = 25, base_width = 10, ncol = 2, nrow = 1, dpi = 300, limitsize = F)
 
-best_snv_sum <- ggplot(subset(best_sum_long, class == "SNVs"), aes(x = graph_name, y=((divergent_sites/mag_length)*10^6), fill = treatment))+
-  geom_bar(stat = "identity")+ 
-  theme_classic()+
-  scale_fill_manual(values= c("grey", "tomato3", "palegreen4"))+
-  theme(legend.title = element_blank(), axis.title.x = element_blank(), strip.background = element_blank(),
-        strip.text.x = element_blank(), text = element_text(size = 17, face = "bold"), panel.spacing = unit(0.05, "cm"))+
-  labs(y = "SNVs / Mbp")+
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
-  scale_x_discrete(expand = c(0, 0))+
-  facet_wrap(~mag, nrow = 1, scales = "free")
-ggsave("best_snv_sum.png", limitsize = F, width = 48, height = 8)
-
-best_snv_frac <- ggplot(best_sum, aes(x = graph_name, y=SNSs/(SNSs+SNVs)))+
-  geom_bar(stat="identity", fill= "#424242")+ 
-  theme_classic()+
-  theme(legend.title = element_blank(), strip.background = element_blank(), strip.text.x.top = element_blank(),
-        text = element_text(size = 17, face = "bold"), panel.spacing = unit(0.4, "cm"))+
-  labs(y = "fraction of SNVs dominated by a single allele", x = "Pond")+
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0,1))+
-  scale_x_discrete(expand = c(0, 0))+
-  facet_wrap(~mag, nrow = 1, scales = "free")
-ggsave("best_snv_frac.png", limitsize = F, width = 48, height = 8)
-
-best_all <- best_heat / best_snv_sum / best_snv_frac
-save_plot("best_all.jpeg", best_all, base_height = 25, base_width = 10, ncol = 2, nrow = 1, dpi = 300, limitsize = F)
