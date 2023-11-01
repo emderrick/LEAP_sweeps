@@ -39,25 +39,27 @@ all_genes_graph <- all_genes_mag[, c("gene", "name", "rel_cov")]
 all_genes_wide <- pivot_wider(all_genes_graph, names_from = "name", values_from = "rel_cov")
 all_genes_wide$mean <- rowMeans(all_genes_wide[,c('Control A', 'Control B', 'Control C', 'Control D', 'Control E', 'GBH A', 'GBH B', 'GBH C', 'GBH D')], na.rm = T)
 all_genes_wide <- subset(all_genes_wide, mean != 0) #one gene has a mean of 0 because the only pond with coverage of that gene was excluded because the coverage was > 3x the mean, so that gene isn't in any ponds 
+write.csv(all_genes_wide, "gene_rel_cov_wide.csv",row.names = F)
 all_genes_long <- pivot_longer(all_genes_wide, cols = c('Control A', 'Control B', 'Control C', 'Control D', 'Control E', 'GBH A', 'GBH B', 'GBH C', 'GBH D'), names_to = "name", values_to = "rel_cov")
 all_genes_long <- na.omit(all_genes_long)
 all_genes_long$mag <- all_genes_long$gene %>% substr(1,12)
 write.csv(all_genes_long, "gene_rel_cov.csv",row.names = F)
 
-gene_heatmap <- ggplot(all_genes_long, aes(x = name, y = reorder(gene, mean), fill = rel_cov)) +
+ggplot(all_genes_long, aes(x = name, y = reorder(gene, mean), fill = rel_cov)) +
   geom_tile()+
-  scale_fill_gradientn(colours = brewer.pal(11, "PiYG"), limits = c(0,3))+
+  scale_fill_gradientn(colours = brewer.pal(11, "RdBu"), limits = c(0,3))+
   theme_classic() +
   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.x = element_blank(), axis.ticks.x = element_blank(), 
         text = element_text(size = 17, face = "bold"), strip.text.x.top = element_text(size = 20))+
-  labs(legend = "Gene Copies")+
+  labs(legend = "Gene Copies", y = "Gene", x = "Pond")+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 4, ncol = 3, scales = "free", labeller = labeller(mag = mag_labs))
 ggsave("gene_heatmap.png", limitsize = F, dpi = 200, width = 32, height = 32)
 
 all_genes_wide$control_mean <- rowMeans(all_genes_wide[, c('Control A', 'Control B', 'Control C', 'Control D', 'Control E')], na.rm = T)
 all_genes_wide$GBH_mean <- rowMeans(all_genes_wide[,c('GBH A', 'GBH B', 'GBH C', 'GBH D')], na.rm = T)
-all_genes_wide$abs_val <- abs(all_genes_wide$control_mean - all_genes_wide$GBH_mean)
+all_genes_wide$cov_dif <- all_genes_wide$control_mean - all_genes_wide$GBH_mean
+all_genes_wide$abs_val <- abs(all_genes_wide$cov_dif)
 gene_changes <- subset(all_genes_wide, abs_val > 0.5)
 gene_changes$control <- with(gene_changes, ifelse(control_mean < GBH_mean, 'low', 'high'))
 gene_changes$control_ref <- with(gene_changes, ifelse(control == "high", 
@@ -70,8 +72,14 @@ gene_changes$GBH_ref <- with(gene_changes, ifelse(control == "high",
 
 gene_changes$pass <- with(gene_changes, ifelse(((control == "high" & GBH_ref < control_ref) | (control == "low" & GBH_ref > control_ref)), "yes", "no"))
 gene_changes_pass <- subset(gene_changes, pass == "yes")
+gene_decrease <- subset(gene_changes_pass, cov_dif > 0.5)
+gene_increase <- subset(gene_changes_pass, cov_dif < -0.5)
 write.csv(gene_changes_pass, "gene_coverage_sig_genes.csv", row.names = F)
 
 background_cog <- read_csv("cog_background_genes.csv")
 gene_cov_significant <- left_join(gene_changes_pass[, c("gene", "abs_val")], background_cog)
+gene_cov_sig_increase <- left_join(gene_increase[, c("gene", "abs_val")], background_cog)
+gene_cov_sig_decrease <- left_join(gene_decrease[, c("gene", "abs_val")], background_cog)
 write.csv(gene_cov_significant, "gene_cov_significant.csv", row.names = F)
+write.csv(gene_cov_sig_increase, "gene_cov_sig_increase.csv", row.names = F)
+write.csv(gene_cov_sig_decrease, "gene_cov_sig_decrease.csv", row.names = F)

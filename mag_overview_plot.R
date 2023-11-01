@@ -26,7 +26,7 @@ mags$mag_name <- with(mags, ifelse(mags$mag == "L8_MAG_00042", "UBA4660 sp.", ma
 mag_plot <- ggplot(mags, aes(x = mag_name, y = name, colour = treatment))+
   geom_point(size = 4)+  
   theme_classic()+
-  labs(x = "Pond", y = "MAG", colour = "Treatment")+
+  labs(y = "Pond", x = "MAG", colour = "Treatment")+
   scale_colour_manual(labels = c("Control", "GBH (15mg/L)", "Phosphorus (320ug/L)"),
                       values = c("grey", "darkred", "#FFB500"))+
   scale_y_discrete(limits=rev)+
