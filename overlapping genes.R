@@ -10,7 +10,7 @@ parevol_strict_genes <- as.list(strict_parevol_genes$gene)
 parevol_loose_genes <- as.list(loose_parevol_genes$gene)
 gene_cov_genes <- as.list(gene_cov_sig$gene)
 
-gene_overlap <- Reduce(intersect, list(allele_freq_genes, parevol_loose_genes, parevol_strict_genes, gene_cov_genes))
+gene_overlap <- Reduce(intersect, list(allele_freq_genes, parevol_strict_genes))
 
 gene_cov_sig_K <- subset(gene_cov_sig, COG_category == "K")
 loose_parevol_genes_K <- subset(loose_parevol_genes, COG_category == "K")
