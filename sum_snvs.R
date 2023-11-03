@@ -27,6 +27,7 @@ small_SNV_wide$Sweep <- with(small_SNV_wide, ifelse(SNV_to_control == "Decrease"
 write.csv(small_SNV_wide, "SNV_summary_table.csv", row.names = F)
 
 small_SNV_wide <- read_csv("SNV_summary_table.csv")
+
 fishers_snv <- small_SNV_wide %>% group_by(EPSPS_class_fisher) %>% summarise(Increase = sum(SNV_to_control == "Increase"), Decrease = sum(SNV_to_control == "Decrease"))
 mosaicplot(fishers_snv[2:3], color = TRUE)  
 fishers_snv_test <- fisher.test(fishers_snv[2:3], alternative = "less")
@@ -38,17 +39,3 @@ fishers_sns_test <-fisher.test(fishers_sns[2:3], alternative = "greater")
 fishers_sweep <- small_SNV_wide %>% group_by(EPSPS_class_fisher) %>% summarise(Yes = sum(Sweep == "Yes"), No = sum(Sweep == "No"))
 mosaicplot(fishers_sweep[2:3], color = TRUE)  
 fishers_sweep_test <- fisher.test(fishers_sweep[2:3], alternative = "greater")
-
-# snv_long <- pivot_longer(snv_sum, cols = c('control_SNV_mean', 'GBH_SNV_mean', 'control_SNS_mean', 'GBH_SNS_mean'),
-#                          names_to = "treatment_mean", values_to = "total")
-# snv_long$treatment <- str_sub(snv_long$treatment_mean, end = -10)
-# snv_long$type <- with(snv_long, ifelse(str_detect(treatment_mean, "SNV"), "SNV", "SNS"))
-# 
-# ggplot(snv_long, aes(x = treatment_mean, y = total, colour = mag))+
-#   geom_point(size=2.5)+
-#   scale_x_discrete(limits = c("control_SNV_mean", "GBH_SNV_mean", "control_SNS_mean", "GBH_SNS_mean"))+
-#   labs(y = "SNVs / MBp")+
-#   theme_classic()+
-#   theme(axis.title = element_text(face = "bold"), axis.text = element_text(face = "bold"), legend.text = element_blank())
-# 
-# save_plot("SNV_average_plot.jpeg", SNV_plot)

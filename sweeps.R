@@ -6,10 +6,10 @@ library(cowplot)
 mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099",
                  "L7_MAG_00020", "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
 
-mag_labs <- (c(I4_MAG_00006 = "SJAQ100 sp016735685 assembled from Control B", I4_MAG_00065 = "Roseomonas sp. assembled from Control B", L2_MAG_00052 = "Erythrobacter sp. assembled from GBH A",
-               L3_MAG_00058 = "Prosthecobacter sp. assembled from Control C", L4_MAG_00099 = "Bosea sp001713455 assembled from Control D", L7_MAG_00020 = "Sphingorhabdus_B sp. assembled from GBH C",
-               L7_MAG_00028 = "SYFN01 sp. assembled from GBH C", L7_MAG_00043 = "Luteolibacter sp. assembled from GBH C",L8_MAG_00011 = "UBA953 sp. assembled from GBH D",
-               L8_MAG_00019 = "UA16 family assembled from GBH D", L8_MAG_00042 = "UBA4660 sp. assembled from GBH D"))
+mag_labs <- (c(I4_MAG_00006 = "SJAQ100 sp016735685", I4_MAG_00065 = "Roseomonas sp.", L2_MAG_00052 = "Erythrobacter sp.",
+               L3_MAG_00058 = "Prosthecobacter sp.", L4_MAG_00099 = "Bosea sp001713455", L7_MAG_00020 = "Sphingorhabdus_B sp.",
+               L7_MAG_00028 = "SYFN01 sp.", L7_MAG_00043 = "Luteolibacter sp.",L8_MAG_00011 = "UBA953 sp.",
+               L8_MAG_00019 = "UA16", L8_MAG_00042 = "UBA4660 sp."))
 
 MAG_sweep_wide <- tibble()
 for(MAG in mag_list){
@@ -87,20 +87,6 @@ for(MAG in mag_list){
   save_plot(paste(MAG, "_scaffold_hist.jpeg", sep = ""), ncol = 1, nrow = rows, scaffold_hist)
 }
 
-for(MAG in mag_list){
-  MAG_SNVs <- subset(MAG_snvs_scaffold_sum, mag == MAG)
-  rows <- length(unique(MAG_SNVs$new_name))/2
-  scaffold_snv <- ggplot(MAG_SNVs, aes(y = snv_per_kb, x = reorder(scaffold, snv_per_kb)))+
-    geom_bar(stat = "identity", fill = "black", linewidth = 0.5)+
-    theme_classic()+
-    theme(text = element_text(size = 10), axis.text = element_text(colour = 'black'), axis.text.x = element_blank(), axis.ticks.x = element_blank())+
-    labs(y = "SNVs / KBp", x = "Scaffold")+
-    scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
-    scale_x_discrete(expand = c(0, 0))+
-    facet_wrap(~new_name, ncol = 1)
-  
-  save_plot(paste(MAG, "_all_scaffold_snv_kbp.jpeg", sep = ""), ncol = 1, nrow = rows, scaffold_snv)
-}
 
 threshold_snvs$snv_count <- with(threshold_snvs, ifelse(pass == "yes", 1, 0))
 threshold_snvs_sum <- threshold_snvs %>% group_by(mag, scaffold, length) %>% summarize(total = sum(snv_count))
@@ -120,65 +106,3 @@ for(MAG in mag_list){
   
   save_plot(paste(MAG, "_threshold_scaffold_hist.jpeg", sep = ""), scaffold_hist)
 }
-
-for(MAG in mag_list){
-  MAG_SNVs <- subset(threshold_snvs_sum, mag == MAG)
-  scaffold_snv <- ggplot(MAG_SNVs, aes(y = snv_per_kb, x = reorder(scaffold, snv_per_kb)))+
-    geom_bar(stat = "identity", fill = "black", linewidth = 0.5)+
-    theme_classic()+
-    theme(text = element_text(size = 10), axis.text = element_text(colour = 'black'), axis.text.x = element_blank(), axis.ticks.x = element_blank())+
-    labs(y = "SNVs / KBp", x = "Scaffold")+
-    scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
-    scale_x_discrete(expand = c(0, 0))
-  
-  save_plot(paste(MAG, "_threshold_all_scaffold_snv_kbp.jpeg", sep = ""), scaffold_snv)
-}
-
-for(MAG in mag_list){
-  MAG_SNVs <- subset(threshold_snvs_sum, mag == MAG)
-  gene_snv <- ggplot(MAG_SNVs, aes(y = snv_per_kb, x = reorder(scaffold, snv_per_kb)))+
-    geom_bar(stat = "identity", fill = "black", linewidth = 0.5)+
-    theme_classic()+
-    theme(text = element_text(size = 10), axis.text = element_text(colour = 'black'), axis.text.x = element_blank(), axis.ticks.x = element_blank())+
-    labs(y = "SNVs / KBp", x = "Scaffold")+
-    scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
-    scale_x_discrete(expand = c(0, 0))
-  
-  save_plot(paste(MAG, "_threshold_gene_snv_kbp.jpeg", sep = ""), gene_snv)
-}
-
-
-#to do by bins of 1000
-#MAG_sweep_wide$bin <- ((as.numeric(MAG_sweep_wide$position)) - 1) /1000
-#MAG_sweep_wide$bin <- floor(MAG_sweep_wide$bin)
-#MAG_sweep_wide$one <- 1
-#MAG_sweep_sum <- MAG_sweep_wide %>% group_by(mag, scaffold, bin) %>% summarize(sum_abs_val = sum(abs_val, na.rm = T), bin_count = sum(one))
-#MAG_sweep_sum$abs_val_mean <- MAG_sweep_sum$sum_abs_val / MAG_sweep_sum$bin_count
-#MAG_sweep_sum$one <- 1
-#MAG_sweep_scaf <- MAG_sweep_sum %>% group_by(mag, scaffold) %>% summarize(bins_per_scaf = sum(one))
-#MAG_sweep_scaf <- MAG_sweep_scaf %>% arrange(desc(bins_per_scaf), .by_group = T)
-#sweep_new_pos <- data.frame()
-#for(MAG in mag_list){
-  #scaffold_position = 0
-  #MAG_sweep <- subset(MAG_sweep_scaf, mag == MAG)
-  #for(contig in 1: nrow(MAG_sweep)){
-    #scaffold_position = scaffold_position + MAG_sweep$bins_per_scaf[contig]
-    #MAG_sweep$scaffold_position[contig] <- scaffold_position
-  #}
-  #sweep_new_pos <- bind_rows(sweep_new_pos, MAG_sweep)
-#}
-#sweep_new_pos <- sweep_new_pos %>% group_by(mag) %>% mutate(index = row_number())
-#MAG_sweep_plot <- left_join(MAG_sweep_sum[, c('mag', 'scaffold', 'abs_val_mean', 'bin', 'bin_count')], sweep_new_pos[, c('scaffold', 'scaffold_position', 'bins_per_scaf', 'index')], by = 'scaffold')
-#MAG_sweep_plot$group <- paste(MAG_sweep_plot$bin, MAG_sweep_plot$bins_per_scaf)
-#MAG_sweep_plot <- MAG_sweep_plot %>% arrange(index)
-#write.csv(MAG_sweep_plot, "MAG_sweep_plot.csv")
-#for(MAG in mag_list){
-    #MAG_sweep <- subset(MAG_sweep_plot, mag == MAG)
-    #sweep_plot <- ggplot(MAG_sweep, aes(x = group, y = abs_val_mean, group = 1))+
-    #geom_line()+
-    #geom_vline(xintercept = MAG_sweep$scaffold_position, colour = "blue")+
-    #theme_classic()+
-    #theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-    #ggsave(paste(MAG, "_big_sweep.png", sep = ""), limitsize = F, width = 150, height = 12)
-#}
-                       

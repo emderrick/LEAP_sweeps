@@ -41,79 +41,138 @@ select_snv_heat <- ggplot(select_snv, aes(x = graph_name, y = reorder(groups, al
   geom_tile()+
   scale_fill_viridis(direction = -1, na.value = "white") +
   theme_classic() +
-  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.x = element_blank(), text = element_text(size = 40), axis.title.y = element_text(face = "bold"),
-        strip.text.x.top = element_text(size = 55, face = "bold"), panel.spacing = unit(1, "cm"), axis.text.x = element_text(colour = "black", vjust = -1), legend.title = element_text(face = "bold"))+
+  theme(text = element_text(size = 43),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(), 
+        axis.title.y = element_text(face = "bold", size = 50), 
+        axis.line.y.left = element_line(linewidth = 2),
+        axis.text.x = element_text(colour = "black", vjust = -1, face = "bold"),
+        axis.title.x = element_blank(),
+        axis.line.x.bottom = element_line(linewidth = 2), 
+        strip.text.x.top = element_text(size = 60, margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"), face = "bold"),
+        strip.background = element_rect(linewidth = 4),
+        legend.title = element_text(face = "bold", size = 35),
+        legend.key.size = unit(2, 'cm'),
+        legend.text = element_text(size = 30),
+        plot.margin = unit(c(0,0,1,0), "cm"), 
+        panel.spacing = unit(1, "cm"))+
   labs(fill = "Ref. Freq.", y = "Genome Position")+
   guides(fill = guide_legend(reverse = TRUE))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, ncol = 6, scales = "free", labeller = labeller(mag = select_mag_labs))
-ggsave("select_snv_heat.png", limitsize = F, dpi = 100, width = 56, height = 8)
 
 select_snv_sum <- ggplot(subset(select_sum_long, class == "SNVs"), aes(x = graph_name, y=((divergent_sites/mag_length)*10^6), fill = treatment))+
-  geom_bar(stat = "identity", colour = "black")+ 
+  geom_bar(stat = "identity", colour = "black", linewidth = 2)+ 
   theme_classic()+
-  scale_fill_manual(values= c("white", "grey30", "grey70"))+
-  theme(axis.title.x = element_blank(), strip.text.x = element_blank(), axis.text = element_text(color = "black"), axis.title.y = element_text(face = "bold"),
-        text = element_text(size = 40), panel.spacing = unit(0.05, "cm"), legend.position = "none")+
+  scale_fill_manual(breaks = c('Control', 'Phosphorus', 'GBH'), values= c("white", "grey70", "grey30"))+
+  theme(text = element_text(size = 43),
+        axis.text = element_text(color = "black"),
+        axis.text.x = element_text(vjust = -1, face = "bold"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(face = "bold", size = 50),
+        strip.text.x = element_blank(),
+        axis.line = element_line(linewidth = 2),
+        legend.position = "none",
+        plot.margin = unit(c(0,0,1,0), "cm"),
+        panel.spacing = unit(0.05, "cm"))+
   labs(y = "SNVs / Mbp")+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, scales = "free")
-ggsave("select_snv_sum.png", limitsize = F, width = 56, height = 8)
 
 select_snv_frac <- ggplot(select_sum, aes(x = graph_name, y = SNSs/(SNSs+SNVs), fill = treatment))+
-  geom_bar(stat="identity", colour = "black")+ 
+  geom_bar(stat="identity", colour = "black", linewidth = 2)+ 
   theme_classic()+
-  scale_fill_manual(values= c("white", "grey30", "grey70"))+
-  theme(strip.text.x = element_blank(), axis.text = element_text(color = "black"), axis.title.y = element_text(face = "bold"), axis.title.x = element_text(face = "bold"),
-        text = element_text(size = 40), panel.spacing = unit(0.4, "cm"), legend.title = element_text(face = "bold", size = 40), legend.position = "bottom", legend.key.size = unit(2, 'cm') , legend.text = element_text(size = 30))+
-  labs(y = "Fraction of fixed substitutions", x = "Pond", fill = "Treatment")+
+  scale_fill_manual(breaks = c('Control', 'Phosphorus', 'GBH'), values= c("white", "grey70", "grey30"))+
+  theme(text = element_text(size = 43),
+        axis.text = element_text(color = "black"),
+        axis.title.y = element_text(face = "bold", size = 50),
+        axis.title.x = element_blank(),
+        axis.text.x = element_text(vjust = -1, face = "bold"),
+        strip.text.x = element_blank(),
+        axis.line = element_line(linewidth = 2),
+        legend.title = element_text(face = "bold", size = 50),
+        legend.position = "bottom",
+        legend.key.size = unit(3, 'cm'),
+        legend.text = element_text(size = 50),
+        plot.margin = unit(c(0,0,1,0), "cm"),
+        panel.spacing = unit(0.4, "cm"))+
+  labs(y = "Fraction of fixed substitutions", fill = "Treatment")+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0,1))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, scales = "free")
-ggsave("select_snv_frac.png", limitsize = F, width = 56, height = 8)
 
 select_all <- select_snv_heat / select_snv_sum / select_snv_frac
-save_plot("select_all.jpeg", select_all, base_height = 5.5, base_width = 24, ncol = 3, nrow = 6, dpi = 300, limitsize = F)
+save_plot("select_all.jpeg", select_all, base_height = 5.5, base_width = 24, ncol = 3, nrow = 6, dpi = 200, limitsize = F)
 
 #no sweep
 other_snv_heat <- ggplot(other_snv, aes(x = graph_name, y = reorder(groups, all_mean), fill = final_ref_freq)) +
   geom_tile()+
   scale_fill_viridis(direction = -1, na.value = "white") +
   theme_classic() +
-  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.x = element_blank(), text = element_text(size = 25), axis.title.y = element_text(face = "bold"),
-        strip.text.x.top = element_text(size = 35, face = "bold"), panel.spacing = unit(1.5, "cm"), axis.text.x = element_text(angle = 45, hjust = 1, colour = "black"), legend.title = element_text(face = "bold"))+
+  theme(text = element_text(size = 43),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(), 
+        axis.title.y = element_text(face = "bold", size = 50), 
+        axis.line.y.left = element_line(linewidth = 2),
+        axis.text.x = element_text(colour = "black", vjust = -1, face = "bold"),
+        axis.title.x = element_blank(),
+        axis.line.x.bottom = element_line(linewidth = 2), 
+        strip.text.x.top = element_text(size = 60, margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"), face = "bold"),
+        strip.background = element_rect(linewidth = 4),
+        legend.title = element_text(face = "bold", size = 35),
+        legend.key.size = unit(2, 'cm'),
+        legend.text = element_text(size = 30),
+        plot.margin = unit(c(0,0,1,0), "cm"), 
+        panel.spacing = unit(1, "cm"))+
   labs(fill = "Ref. Freq.", y = "Genome Position")+
   guides(fill = guide_legend(reverse = TRUE))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, ncol = 6, scales = "free", labeller = labeller(mag = other_mag_labs))
-ggsave("other_snv_heat.png", limitsize = F, dpi = 100, width = 48, height = 10)
 
 other_snv_sum <- ggplot(subset(other_sum_long, class == "SNVs"), aes(x = graph_name, y=((divergent_sites/mag_length)*10^6), fill = treatment))+
-  geom_bar(stat = "identity")+ 
+  geom_bar(stat = "identity", colour = "black", linewidth = 2)+ 
   theme_classic()+
-  scale_fill_manual(values= c("grey", "darkred", "#FFB500"))+
-  theme(axis.title.x = element_blank(), strip.text.x = element_blank(), axis.text = element_text(color = "black"), axis.title.y = element_text(face = "bold"),
-        text = element_text(size = 25), panel.spacing = unit(0.5, "cm"), axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_text(face = "bold"))+
-  labs(y = "SNVs / Mbp", fill = "Treatment")+
+  scale_fill_manual(breaks = c('Control', 'Phosphorus', 'GBH'), values= c("white", "grey70", "grey30"))+
+  theme(text = element_text(size = 43),
+        axis.text = element_text(color = "black"),
+        axis.text.x = element_text(vjust = -1, face = "bold"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(face = "bold", size = 50),
+        strip.text.x = element_blank(),
+        axis.line = element_line(linewidth = 2),
+        legend.position = "none",
+        plot.margin = unit(c(0,0,1,0), "cm"),
+        panel.spacing = unit(0.05, "cm"))+
+  labs(y = "SNVs / Mbp")+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, scales = "free")
-ggsave("other_snv_sum.png", limitsize = F, width = 48, height = 10)
 
-other_snv_frac <- ggplot(other_sns_sum, aes(x = graph_name, y=SNSs/total))+
-  geom_bar(stat="identity", fill= "#424242")+ 
+other_snv_frac <- ggplot(other_sum, aes(x = graph_name, y = SNSs/(SNSs+SNVs), fill = treatment))+
+  geom_bar(stat="identity", colour = "black", linewidth = 2)+ 
   theme_classic()+
-  theme(strip.text.x = element_blank(), axis.text = element_text(color = "black"), axis.title.y = element_text(face = "bold"), axis.title.x = element_text(face = "bold"),
-        text = element_text(size = 25), panel.spacing = unit(0.4, "cm"), axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_blank())+
-  labs(y = "Fraction of SNVs dominated by a single allele", x = "Pond")+
+  scale_fill_manual(breaks = c('Control', 'Phosphorus', 'GBH'), values= c("white", "grey70", "grey30"))+
+  theme(text = element_text(size = 43),
+        axis.text = element_text(color = "black"),
+        axis.title.y = element_text(face = "bold", size = 50),
+        axis.title.x = element_blank(),
+        axis.text.x = element_text(vjust = -1, face = "bold"),
+        strip.text.x = element_blank(),
+        axis.line = element_line(linewidth = 2),
+        legend.title = element_text(face = "bold", size = 50),
+        legend.position = "bottom",
+        legend.key.size = unit(3, 'cm'),
+        legend.text = element_text(size = 50),
+        plot.margin = unit(c(0,0,1,0), "cm"),
+        panel.spacing = unit(0.4, "cm"))+
+  labs(y = "Fraction of fixed substitutions", fill = "Treatment")+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0,1))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, nrow = 1, scales = "free")
-ggsave("other_snv_frac.png", limitsize = F, width = 48, height = 10)
 
 other_all <- other_snv_heat / other_snv_sum / other_snv_frac
-save_plot("other_all.jpeg", other_all, base_height = 5, base_width = 15, ncol = 3, nrow = 5, dpi = 300)
+save_plot("other_all.jpeg", other_all, base_height = 5.5, base_width = 20, ncol = 3, nrow = 6, dpi = 200, limitsize = F)
 
 # select_snv$fixed <- with(select_snv, ifelse((final_ref_freq == 0 | final_ref_freq == 1), 1, 0))
 # select_snv$all <- 1
