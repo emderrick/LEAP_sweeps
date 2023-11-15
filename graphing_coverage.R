@@ -19,14 +19,15 @@ mag_scaf_cov$mag_order = factor(mag_scaf_cov$mag, levels=c('I4_MAG_00006', 'I4_M
 
 all_MAG_scaf_cov <- ggplot(mag_scaf_cov, aes(x = coverage, y = log10((SNV_SNS_tot/length)*10^6), colour = name)) + 
   geom_point()+
-  scale_colour_viridis(discrete = T)+
+  #scale_colour_manual(values = c("#8E0152", "#C51B7D", "#DE77AE", "#F1B6DA", "#FDE0EF", "#B8E186", "#7FBC41", "#4D9221", "#276419"))+
+  scale_colour_manual(values = c("#40004B", "#762A83", "#9970AB", "#C2A5CF", "#E7D4E8", "#A6DBA0", "#5AAE61", "#1B7837", "#00441B"))+
   labs(y ="log10 SNVs / Mbp", x="Coverage (x)", colour= "Pond") +
   theme_classic()+
   theme(text = element_text(size = 30, colour = 'black'),
         axis.text = element_text(colour = "black"),
         axis.title = element_text(face = "bold", size = 30), 
         axis.ticks.length = unit(.4, "cm"),
-        axis.ticks = element_line(size = 1.5, colour = "black"),
+        axis.ticks = element_line(linewidth = 1.5, colour = "black"),
         axis.text.x = element_text(vjust = -1),
         axis.title.x = element_text(vjust = -1),
         axis.line = element_line(linewidth = 1),

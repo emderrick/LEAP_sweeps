@@ -7,25 +7,7 @@ library(cowplot)
 
 mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099",
                  "L7_MAG_00020", "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
-
-gene_files <- list.files("95_profiles/",recursive = T, pattern=".*gene_info.tsv",full.names = T)
-all_genes <- data.frame()
-
-for(i in 1:length(gene_files)){
-  pond_time_genes <- read.table(gene_files[i],sep="\t",header=T)
-  timepoint <- gsub(".*profile_output/", "", gene_files[i]) %>% substr(1,9)
-  pond_time_genes <- cbind(pond_time_genes,timepoint=rep(timepoint,nrow(pond_time_genes)))
-  all_genes <- rbind(all_genes,pond_time_genes)
-}
-
-#get all gene coordinates
-all_gene_coord <- all_genes[c('gene', 'start', 'end')]
-all_gene_coord <- subset(all_gene_coord, mag %in% mag_list)
-all_gene_coord <- all_gene_coord %>% distinct(gene, .keep_all = T)
-all_gene_coord$start <- all_gene_coord$start+1
-all_gene_coord$end <- all_gene_coord$end+1
-all_gene_coord$scaffold <- all_gene_coord$gene %>% substr(1,25)
-all_gene_coord$mag <- all_gene_coord$gene %>% substr(1,12)
+good_examples<- list("I4_MAG_00006", "L3_MAG_00058")
 
 eggnog_genes <- read_tsv("eggnog_output_oct/eggnog_genes_oct_nt.emapper.annotations", skip = 4)
 colnames(eggnog_genes)[1]="gene"
@@ -34,14 +16,18 @@ eggnog_genes <- subset(eggnog_genes, mag %in% mag_list)
 eggnog_genes$COG_ID<- str_extract(eggnog_genes$eggNOG_OGs, "COG\\d{4}")
 eggnog_genes <- eggnog_genes[, c("mag", "gene", "COG_ID", "COG_category", "Description", "Preferred_name")]
 background_cog <- subset(eggnog_genes, is.na(COG_ID) == F)
+background_cog_noMAG11 <- subset(background_cog, mag != "L8_MAG_00011")
 write.csv(background_cog, "cog_background_genes.csv", row.names = F)
+write.csv(background_cog_noMAG11, "cog_background_genes_no_MAG11.csv", row.names = F)
 
-not_strict_parevol_genes <- read_csv("not_strict_MAG_significant_genes.csv")
-not_strict_significant_genes <- left_join(not_strict_parevol_genes, background_cog)
+not_strict_parevol_genes <- read_csv("loose_MAG_significant_genes_noMAG11.csv")
+not_strict_significant_genes <- left_join(not_strict_parevol_genes, background_cog_noMAG11)
+not_strict_significant_genes_good_ex <- subset(not_strict_significant_genes, mag %in% good_examples)
 write.csv(not_strict_significant_genes, "significant_genes_not_strict.csv", row.names = F)
 
-strict_parevol_genes <- read_csv("MAG_significant_genes.csv")
-strict_significant_genes <- left_join(strict_parevol_genes, background_cog)
+strict_parevol_genes <- read_csv("strict_MAG_significant_genes_noMAG11.csv")
+strict_significant_genes <- left_join(strict_parevol_genes, background_cog_noMAG11)
+strict_significant_genes_good_ex <- subset(strict_significant_genes, mag %in% good_examples)
 write.csv(strict_significant_genes, "significant_genes_strict.csv", row.names = F)
 
 threshold_snvs <- read_csv("threshold_snvs.csv")
@@ -49,6 +35,7 @@ threshold_snvs <- subset(threshold_snvs, pass=="yes")
 threshold_snvs$snv_count <- 1
 threshold_snvs_sum <- threshold_snvs %>% group_by(mag, scaffold, gene) %>% summarize(snvs_in_gene = sum(snv_count))
 threshold_significant_genes <- left_join(threshold_snvs_sum, background_cog) %>% subset(is.na(gene) == F)
+threshold_significant_genes_good_ex <- subset(threshold_significant_genes, mag %in% good_examples)
 write.csv(threshold_significant_genes, "threshold_significant_genes.csv", row.names = F)
 
 threshold_snvs_sum  <- na.omit(threshold_snvs_sum)
@@ -92,7 +79,25 @@ for(MAG in mag_list2){
 MAG_overlap$count <- 1
 overlap_summary <- MAG_overlap %>% group_by(mag) %>% summarise(total_overlap = sum(count))
 
-
+# gene_files <- list.files("95_profiles/",recursive = T, pattern=".*gene_info.tsv",full.names = T)
+# all_genes <- data.frame()
+# 
+# for(i in 1:length(gene_files)){
+#   pond_time_genes <- read.table(gene_files[i],sep="\t",header=T)
+#   timepoint <- gsub(".*profile_output/", "", gene_files[i]) %>% substr(1,9)
+#   pond_time_genes <- cbind(pond_time_genes,timepoint=rep(timepoint,nrow(pond_time_genes)))
+#   all_genes <- rbind(all_genes,pond_time_genes)
+# }
+# 
+# #get all gene coordinates
+# all_gene_coord <- all_genes[c('gene', 'start', 'end')]
+# all_gene_coord <- all_gene_coord %>% distinct(gene, .keep_all = T)
+# all_gene_coord$start <- all_gene_coord$start+1
+# all_gene_coord$end <- all_gene_coord$end+1
+# all_gene_coord$scaffold <- all_gene_coord$gene %>% substr(1,25)
+# all_gene_coord$mag <- all_gene_coord$gene %>% substr(1,12)
+# all_gene_coord <- subset(all_gene_coord, mag %in% mag_list)
+# 
 
 # bakta_files <- list.files("MAG bakta output/",recursive = T, pattern=".tsv",full.names = T)
 # all_bakta <- data.frame()

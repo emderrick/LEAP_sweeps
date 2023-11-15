@@ -34,14 +34,4 @@ for(MAG in mag_list){
   gene_pop_matrix[is.na(gene_pop_matrix)] = 0
   write.csv(gene_pop_matrix, paste(MAG, "_gene_nonsyn_matrix.csv", sep=""), row.names = F)
   
-  MAG_snvs_gene <- left_join(MAG_snvs_gene_sum, subset(distinct(all_genes[, c('gene', 'gene_length')]), is.na(gene_length) == F), by = 'gene') %>% na.omit()
-  MAG_snvs_gene$snv_per_kb <- (MAG_snvs_gene$total/MAG_snvs_gene$gene_length) * 1000
-  gene_hist <- ggplot(MAG_snvs_gene, aes(x = snv_per_kb))+
-    geom_histogram(bins = 15, fill = "grey", colour = "black", linewidth = 0.5)+
-    theme_classic()+
-    theme(text = element_text(size = 10), axis.text = element_text(colour = 'black'))+
-    labs(y = "Frequency", x = "SNVs per kb of gene")
-  save_plot(paste(MAG, "_gene_hist.jpeg", sep = ""), gene_hist)
 }
-
-MAG <- "I4_MAG_00006"
