@@ -49,10 +49,10 @@ all_genes_wide$control_mean <- rowMeans(all_genes_wide[, c('Control A', 'Control
 all_genes_wide$GBH_mean <- rowMeans(all_genes_wide[,c('GBH A', 'GBH B', 'GBH C', 'GBH D')], na.rm = T)
 all_genes_wide$cov_dif <- all_genes_wide$GBH_mean - all_genes_wide$control_mean
 all_genes_wide$abs_val <- abs(all_genes_wide$cov_dif)
+all_genes_wide <- all_genes_wide[-which(all_genes_wide[2:10] > 3, arr.ind = TRUE)[, 1], ]
 write.csv(all_genes_wide, "gene_rel_cov_wide.csv",row.names = F)
 
-all_genes_wide <- subset(all_genes_wide, !(GBH_mean > 5 | control_mean > 5))
-all_genes_line <- pivot_longer(all_genes_wide, cols = c('Control AVG', 'GBH AVG'), names_to = "treatment", values_to = "average_copies")
+all_genes_line <- pivot_longer(all_genes_wide, cols = c('control_mean', 'GBH_mean'), names_to = "treatment", values_to = "average_copies")
 all_genes_line$mag <- all_genes_line$gene %>% substr(1,12)
 all_genes_line$mag_order = factor(all_genes_line$mag, levels=c('I4_MAG_00006', 'I4_MAG_00065', 'L3_MAG_00058', 'L7_MAG_00020', 'L8_MAG_00011', 'L8_MAG_00019',
                                                              'L2_MAG_00052', 'L4_MAG_00099',  'L7_MAG_00028', 'L7_MAG_00043', 'L8_MAG_00042'))
@@ -60,103 +60,57 @@ all_genes_line$mag_order = factor(all_genes_line$mag, levels=c('I4_MAG_00006', '
 gene_copy <- ggplot(all_genes_line %>% arrange(abs_val), aes(x = treatment, y = average_copies, colour = cov_dif, group = reorder(gene, abs_val)))+ 
   geom_line()+
   geom_point()+
-  scale_colour_gradient2(low = "blue", mid = "grey95", high = "red", limits = c(-4,4))+
-  labs(y ="Gene Copies", colour = "Copy Change") +
+  #scale_colour_gradientn(colours = c("#CC0000", "#FF3333", "#FF7070", "#FFADAD", "#e7dada","#F5F5F5","#EBEEFF", "#C2CDFF", "#708AFF", "#3358FF","#0022E0"), limits = c(-3,3))+
+  scale_colour_gradientn(colours = brewer.pal(11, "RdBu"), limits = c(-3,3))+
+  labs(y ="Gene Copies", colour = NULL) +
   theme_classic()+
   theme(text = element_text(size = 30, colour = 'black'),
         axis.text = element_text(colour = "black"),
-        axis.title = element_text(face = "bold", size = 30), 
+        axis.title = element_text(size = 35), 
         axis.ticks.length = unit(.4, "cm"),
         axis.ticks = element_line(linewidth = 1.5, colour = "black"),
         axis.ticks.x = element_blank(),
         axis.text.x = element_blank(),
         axis.title.x = element_blank(),
+        axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)),
         axis.line = element_line(linewidth = 1),
         strip.text.x.top = element_text(size = 30, margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"), face = "bold"),
         strip.background = element_rect(linewidth = 2),
-        legend.position = ("right"),
-        legend.key.size = unit(1.5, 'cm'),
+        legend.position = ("bottom"),
+        legend.margin =  margin(t = 20, r = 0, b = 0, l = 0),
+        legend.key.size = unit(2, 'cm'),
         legend.text = element_text(size = 30),
-        legend.title = element_text(size = 35, face = "bold"),
+        legend.title = element_text(size = 35),
         plot.margin = unit(c(1, 1, 1, 1), "cm"),
         panel.spacing.y = unit(1.5, "lines"))+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag_order, nrow = 2, ncol = 6, scales = "free", labeller = labeller(mag_order = mag_labs))
  
-save_plot("gene_copy_dif.jpeg", gene_copy, base_height = 7, base_width = 7, ncol = 6, nrow = 2, dpi = 300, limitsize = F)
+save_plot("gene_copy_dif.jpeg", gene_copy, base_height = 7, base_width = 6, ncol = 6, nrow = 2, dpi = 300, limitsize = F)
 
 
-# all_genes_wide_increase <- subset(all_genes_wide, cov_dif > 0)
-# all_genes_wide_decrease <- subset(all_genes_wide, cov_dif < 0)
-# all_genes_long_increase <- pivot_longer(all_genes_wide_increase, cols = c('Control A', 'Control B', 'Control C', 'Control D', 'Control E', 'GBH A', 'GBH B', 'GBH C', 'GBH D'),
-#                                         names_to = "name", values_to = "rel_cov") %>% na.omit()
-# all_genes_long_increase$mag <- all_genes_long_increase$gene %>% substr(1,12)
-# all_genes_long_decrease <- pivot_longer(all_genes_wide_decrease, cols = c('Control A', 'Control B', 'Control C', 'Control D', 'Control E', 'GBH A', 'GBH B', 'GBH C', 'GBH D'),
-#                                         names_to = "name", values_to = "rel_cov") %>% na.omit()
-# all_genes_long_decrease$mag <- all_genes_long_decrease$gene %>% substr(1,12)
-# 
-# gene_changes <- subset(all_genes_wide, abs_val > 0.5)
-# gene_changes$control <- with(gene_changes, ifelse(control_mean < GBH_mean, 'low', 'high'))
-# gene_changes$control_ref <- with(gene_changes, ifelse(control == "high", 
-#                                                       apply(gene_changes[,c('Control A', 'Control B', 'Control C', 'Control D', 'Control E')], 1, min, na.rm = T), 
-#                                                       apply(gene_changes[,c('Control A', 'Control B', 'Control C', 'Control D', 'Control E')], 1, max, na.rm = T)))
-# 
-# gene_changes$GBH_ref <- with(gene_changes, ifelse(control == "high", 
-#                                                   apply(gene_changes[,c('GBH A', 'GBH B', 'GBH C', 'GBH D')], 1, max, na.rm = T), 
-#                                                   apply(gene_changes[,c('GBH A', 'GBH B', 'GBH C', 'GBH D')], 1, min, na.rm = T)))
-# 
-# gene_changes$pass <- with(gene_changes, ifelse(((control == "high" & GBH_ref < control_ref) | (control == "low" & GBH_ref > control_ref)), "yes", "no"))
-# gene_changes_pass <- subset(gene_changes, pass == "yes")
-# gene_decrease <- subset(gene_changes_pass, cov_dif < -0.5)
-# gene_increase <- subset(gene_changes_pass, cov_dif > 0.5)
-# write.csv(gene_changes_pass, "gene_coverage_sig_genes.csv", row.names = F)
-# 
-# background_cog <- read_csv("cog_background_genes.csv")
-# gene_cov_significant <- left_join(gene_changes_pass[, c("gene", "abs_val")], background_cog)
-# gene_cov_sig_increase <- left_join(gene_increase[, c("gene", "abs_val")], background_cog)
-# gene_cov_sig_decrease <- left_join(gene_decrease[, c("gene", "abs_val")], background_cog)
-# write.csv(gene_cov_significant, "gene_cov_significant.csv", row.names = F)
-# write.csv(gene_cov_sig_increase, "gene_cov_sig_increase.csv", row.names = F)
-# write.csv(gene_cov_sig_decrease, "gene_cov_sig_decrease.csv", row.names = F)
+gene_changes <- subset(all_genes_wide, abs_val > 0.5)
+gene_changes$control <- with(gene_changes, ifelse(control_mean < GBH_mean, 'low', 'high'))
+gene_changes$control_ref <- with(gene_changes, ifelse(control == "high",
+                                                      apply(gene_changes[,c('Control A', 'Control B', 'Control C', 'Control D', 'Control E')], 1, min, na.rm = T),
+                                                      apply(gene_changes[,c('Control A', 'Control B', 'Control C', 'Control D', 'Control E')], 1, max, na.rm = T)))
 
-# ggplot(all_genes_long, aes(x = name, y = reorder(gene, mean), fill = rel_cov)) +
-#   geom_tile()+
-#   scale_fill_gradientn(colours = brewer.pal(11, "RdBu"), limits = c(0,3))+
-#   theme_classic() +
-#   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.x = element_blank(), axis.ticks.x = element_blank(), 
-#         text = element_text(size = 17, face = "bold"), strip.text.x.top = element_text(size = 20))+
-#   labs(legend = "Gene Copies", y = "Gene", x = "Pond")+
-#   scale_x_discrete(expand = c(0, 0))+
-#   facet_wrap(~mag, nrow = 4, ncol = 3, scales = "free", labeller = labeller(mag = mag_labs))
-# ggsave("gene_heatmap.png", limitsize = F, dpi = 200, width = 32, height = 32)
-# 
-# all_genes_long_increase$mag_order = factor(all_genes_long_increase$mag, levels=c('I4_MAG_00006', 'I4_MAG_00065', 'L3_MAG_00058', 'L7_MAG_00020', 'L8_MAG_00011', 'L8_MAG_00019',
-#                                                            'L2_MAG_00052', 'L4_MAG_00099',  'L7_MAG_00028', 'L7_MAG_00043', 'L8_MAG_00042'))
-# ggplot(all_genes_long_increase, aes(x = name, y = reorder(gene, mean), fill = rel_cov)) +
-#   geom_tile()+
-#   scale_fill_gradientn(colours = brewer.pal(11, "RdBu"))+
-#   theme_classic() +
-#   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.x = element_blank(), axis.ticks.x = element_blank(), 
-#         text = element_text(size = 17, face = "bold"), strip.text.x.top = element_text(size = 20))+
-#   labs(legend = "Gene Copies", y = "Gene", x = "Pond")+
-#   scale_x_discrete(expand = c(0, 0))+
-#   facet_wrap(~mag_order, nrow = 2, ncol = 6, scales = "free", labeller = labeller(mag_order = mag_labs))
-# 
-# save_plot("gene_cov_increase.jpeg", gene_cov_increase, base_height = 7, base_width = 7, ncol = 6, nrow = 2, dpi = 200, limitsize = F)
-# 
-# 
-# all_genes_long_decrease$mag_order = factor(all_genes_long_decrease$mag, levels=c('I4_MAG_00006', 'I4_MAG_00065', 'L3_MAG_00058', 'L7_MAG_00020', 'L8_MAG_00011', 'L8_MAG_00019',
-#                                                                                  'L2_MAG_00052', 'L4_MAG_00099',  'L7_MAG_00028', 'L7_MAG_00043', 'L8_MAG_00042'))
-# ggplot(all_genes_long_decrease, aes(x = name, y = reorder(gene, mean), fill = rel_cov)) +
-#   geom_tile()+
-#   scale_fill_gradientn(colours = brewer.pal(11, "RdBu"))+
-#   theme_classic() +
-#   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.x = element_blank(), axis.ticks.x = element_blank(), 
-#         text = element_text(size = 17, face = "bold"), strip.text.x.top = element_text(size = 20))+
-#   labs(legend = "Gene Copies", y = "Gene", x = "Pond")+
-#   scale_x_discrete(expand = c(0, 0))+
-#   facet_wrap(~mag_order, nrow = 2, ncol = 6, scales = "free", labeller = labeller(mag_order = mag_labs))
-# 
-# save_plot("gene_cov_decrease.jpeg", gene_cov_decrease, base_height = 7, base_width = 7, ncol = 6, nrow = 2, dpi = 200, limitsize = F)
-# 
+gene_changes$GBH_ref <- with(gene_changes, ifelse(control == "high",
+                                                  apply(gene_changes[,c('GBH A', 'GBH B', 'GBH C', 'GBH D')], 1, max, na.rm = T),
+                                                  apply(gene_changes[,c('GBH A', 'GBH B', 'GBH C', 'GBH D')], 1, min, na.rm = T)))
+
+gene_changes$pass <- with(gene_changes, ifelse(((control == "high" & GBH_ref < control_ref) | (control == "low" & GBH_ref > control_ref)), "yes", "no"))
+gene_changes_pass <- subset(gene_changes, pass == "yes")
+write.csv(gene_changes_pass, "gene_coverage_sig_genes.csv", row.names = F)
+gene_decrease <- subset(gene_changes_pass, cov_dif < -0.5)
+gene_increase <- subset(gene_changes_pass, cov_dif > 0.5)
+
+background_cog <- read_csv("cog_background_genes.csv")
+gene_cov_significant <- left_join(gene_changes_pass[, c("gene", "abs_val")], background_cog)
+gene_cov_sig_increase <- left_join(gene_increase[, c("gene", "abs_val")], background_cog)
+gene_cov_sig_decrease <- left_join(gene_decrease[, c("gene", "abs_val")], background_cog)
+write.csv(gene_cov_significant, "gene_cov_significant.csv", row.names = F)
+write.csv(gene_cov_sig_increase, "gene_cov_sig_increase.csv", row.names = F)
+write.csv(gene_cov_sig_decrease, "gene_cov_sig_decrease.csv", row.names = F)
+

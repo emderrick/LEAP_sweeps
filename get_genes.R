@@ -16,17 +16,15 @@ eggnog_genes <- subset(eggnog_genes, mag %in% mag_list)
 eggnog_genes$COG_ID<- str_extract(eggnog_genes$eggNOG_OGs, "COG\\d{4}")
 eggnog_genes <- eggnog_genes[, c("mag", "gene", "COG_ID", "COG_category", "Description", "Preferred_name")]
 background_cog <- subset(eggnog_genes, is.na(COG_ID) == F)
-background_cog_noMAG11 <- subset(background_cog, mag != "L8_MAG_00011")
 write.csv(background_cog, "cog_background_genes.csv", row.names = F)
-write.csv(background_cog_noMAG11, "cog_background_genes_no_MAG11.csv", row.names = F)
 
-not_strict_parevol_genes <- read_csv("loose_MAG_significant_genes_noMAG11.csv")
-not_strict_significant_genes <- left_join(not_strict_parevol_genes, background_cog_noMAG11)
+not_strict_parevol_genes <- read_csv("loose_MAG_significant_genes.csv")
+not_strict_significant_genes <- left_join(not_strict_parevol_genes, background_cog)
 not_strict_significant_genes_good_ex <- subset(not_strict_significant_genes, mag %in% good_examples)
-write.csv(not_strict_significant_genes, "significant_genes_not_strict.csv", row.names = F)
+write.csv(not_strict_significant_genes, "significant_genes_loose.csv", row.names = F)
 
-strict_parevol_genes <- read_csv("strict_MAG_significant_genes_noMAG11.csv")
-strict_significant_genes <- left_join(strict_parevol_genes, background_cog_noMAG11)
+strict_parevol_genes <- read_csv("strict_MAG_significant_genes.csv")
+strict_significant_genes <- left_join(strict_parevol_genes, background_cog)
 strict_significant_genes_good_ex <- subset(strict_significant_genes, mag %in% good_examples)
 write.csv(strict_significant_genes, "significant_genes_strict.csv", row.names = F)
 
@@ -78,68 +76,4 @@ for(MAG in mag_list2){
 
 MAG_overlap$count <- 1
 overlap_summary <- MAG_overlap %>% group_by(mag) %>% summarise(total_overlap = sum(count))
-
-# gene_files <- list.files("95_profiles/",recursive = T, pattern=".*gene_info.tsv",full.names = T)
-# all_genes <- data.frame()
-# 
-# for(i in 1:length(gene_files)){
-#   pond_time_genes <- read.table(gene_files[i],sep="\t",header=T)
-#   timepoint <- gsub(".*profile_output/", "", gene_files[i]) %>% substr(1,9)
-#   pond_time_genes <- cbind(pond_time_genes,timepoint=rep(timepoint,nrow(pond_time_genes)))
-#   all_genes <- rbind(all_genes,pond_time_genes)
-# }
-# 
-# #get all gene coordinates
-# all_gene_coord <- all_genes[c('gene', 'start', 'end')]
-# all_gene_coord <- all_gene_coord %>% distinct(gene, .keep_all = T)
-# all_gene_coord$start <- all_gene_coord$start+1
-# all_gene_coord$end <- all_gene_coord$end+1
-# all_gene_coord$scaffold <- all_gene_coord$gene %>% substr(1,25)
-# all_gene_coord$mag <- all_gene_coord$gene %>% substr(1,12)
-# all_gene_coord <- subset(all_gene_coord, mag %in% mag_list)
-# 
-
-# bakta_files <- list.files("MAG bakta output/",recursive = T, pattern=".tsv",full.names = T)
-# all_bakta <- data.frame()
-# 
-# for(i in 1:length(bakta_files)){
-#   genes <- read_tsv(bakta_files[i], skip=5)
-#   mag <- gsub(".*bakta_output/", "", bakta_files[i]) %>% substr(1,12)
-#   genes <- cbind(genes,mag=rep(mag,nrow(genes)))
-#   all_bakta <- rbind(all_bakta,genes)
-# }
-# all_bakta <- subset(all_bakta, mag %in% mag_list)
-# colnames(all_bakta)[1]="scaffold"
-# bakta_gene_coord <- left_join(all_bakta, all_gene_coord, by = c("mag", "scaffold", "Start" = "start", "Stop" = "end"))
-# bakta_gene_coord$COG_bakta<- str_extract(bakta_gene_coord$DbXrefs, "COG\\d{4}")
-
-# prokka_files <- list.files("prokka_output/",recursive = T, pattern=".tsv",full.names = T)
-# all_prokka <- data.frame()
-# 
-# for(i in 1:length(prokka_files)){
-#   genes <- read_tsv(prokka_files[i])
-#   mag <- prokka_files[i] %>% substr(16,27)
-#   genes <- cbind(genes, mag = rep(mag, nrow(genes)))
-#   all_prokka <- rbind(all_prokka, genes)
-# }
-# prokka_gene_COG <- all_prokka[, c("gene", "COG")]
-# prokka_gene_COG <- distinct(prokka_gene_COG) %>% na.omit()
-# bakta_with_COG <- left_join(bakta_gene_coord, prokka_gene_COG, by = c("Gene" = "gene"))
-
-# all_background_genes <- left_join(bakta_gene_coord, eggnog_genes, by = c("gene", "mag"))
-# all_background_genes <- bakta_with_COG[, c("mag", "scaffold", "gene", "Gene", "Product", "COG_bakta", "COG")] %>% subset(is.na(gene) == F)
-# all_background_genes_test <- subset(all_background_genes, COG_ID != COG_bakta)
-# write.csv(all_background_genes, "all_background_genes.csv", row.names = F)
-# threshold_multiple_matches <- as.data.frame(threshold_significant_genes$gene[duplicated(threshold_significant_genes$gene)]) %>% na.omit()
-# #get gene positions that pass threshold
-# genes_sum <- threshold_snvs %>% count(scaffold, gene, name="snvs_in_gene")
-# gene_locations <- left_join(genes_sum, all_gene_coord, by=c("gene"))
-# #get list of snvs in non-gene positons
-# no_gene <- subset(threshold_snvs, is.na(gene))
-# 
-# write.csv(all_gene_coord, "all_genes.csv", row.names = F)
-# write.csv(gene_locations, "gene_locations.csv", row.names = F)
-# write.csv(no_gene, "snvs_no_gene.csv", row.names= F)
-# 
-# parallel_genes <- gene_no_NA %>% count(Gene, mag) %>% count(Gene)
 

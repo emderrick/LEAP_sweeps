@@ -24,7 +24,7 @@ all_MAG_scaf_cov <- ggplot(mag_scaf_cov, aes(x = coverage, y = log10((SNV_SNS_to
   theme_classic()+
   theme(text = element_text(size = 30, colour = 'black'),
         axis.text = element_text(colour = "black"),
-        axis.title = element_text(face = "bold", size = 30), 
+        axis.title = element_text(size = 35), 
         axis.ticks.length = unit(.4, "cm"),
         axis.ticks = element_line(linewidth = 1.5, colour = "black"),
         axis.text.x = element_text(vjust = -1),
@@ -33,7 +33,7 @@ all_MAG_scaf_cov <- ggplot(mag_scaf_cov, aes(x = coverage, y = log10((SNV_SNS_to
         axis.line = element_line(linewidth = 1),
         strip.text.x.top = element_text(size = 30, margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"), face = "bold"),
         strip.background = element_rect(linewidth = 2),
-        legend.title = element_text(face = "bold", size = 30),
+        legend.title = element_text(size = 35),
         legend.position = "bottom",
         legend.text = element_text(size = 30),
         legend.background = element_blank(),
@@ -49,4 +49,15 @@ save_plot("MAG_scaf_cov_SNV.jpeg", all_MAG_scaf_cov, base_height = 7, base_width
 mag_cov <- all_snv %>% group_by(mag, name, mag_length, mag_coverage, breadth.y, detected_scaffolds, conANI_reference.y) %>% summarize(SNV_SNS_tot = sum(number_divergent))
 mag_cov <- mag_cov %>% rename(mag_breadth = breadth.y)
 mag_cov$snv_sns__per_mbp <- (mag_cov$SNV_SNS_tot / mag_cov$mag_length) *10^6
-write.csv(mag_cov, "mag_cov_summary_info.csv")
+mag_cov$mag_name <- with(mag_cov, ifelse(mag_cov$mag == "I4_MAG_00006", "SJAQ100 sp016735685", NA)) 
+mag_cov$mag_name <- with(mag_cov, ifelse(mag_cov$mag == "I4_MAG_00065", "Roseomonas sp.", mag_name)) 
+mag_cov$mag_name <- with(mag_cov, ifelse(mag_cov$mag == "L2_MAG_00052", "Erythrobacter sp.", mag_name)) 
+mag_cov$mag_name <- with(mag_cov, ifelse(mag_cov$mag == "L3_MAG_00058", "Prosthecobacter sp.", mag_name)) 
+mag_cov$mag_name <- with(mag_cov, ifelse(mag_cov$mag == "L4_MAG_00099", "Bosea sp001713455", mag_name)) 
+mag_cov$mag_name <- with(mag_cov, ifelse(mag_cov$mag == "L7_MAG_00020", "Sphingorhabdus_B sp.", mag_name)) 
+mag_cov$mag_name <- with(mag_cov, ifelse(mag_cov$mag == "L7_MAG_00028", "SYFN01 sp.", mag_name)) 
+mag_cov$mag_name <- with(mag_cov, ifelse(mag_cov$mag == "L7_MAG_00043", "Luteolibacter sp.", mag_name)) 
+mag_cov$mag_name <- with(mag_cov, ifelse(mag_cov$mag == "L8_MAG_00011", "UBA953 sp.", mag_name)) 
+mag_cov$mag_name <- with(mag_cov, ifelse(mag_cov$mag == "L8_MAG_00019", "UA16", mag_name)) 
+mag_cov$mag_name <- with(mag_cov, ifelse(mag_cov$mag == "L8_MAG_00042", "UBA4660 sp.", mag_name)) 
+write.csv(mag_cov, "mag_cov_summary_info.csv", row.names = F)
