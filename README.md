@@ -1,45 +1,44 @@
 ## LEAP 2021
 This is a place for all analyses of the 2021 LEAP experiement. In this experiment we collected samples for metagenomic and whole-genome sequencing.
 
-### what each file does for analysis for metagenomic data
-Anvio_to_MAGs.md
+### what each file does for analysis for metagenomic data not in proper order
+1. Anvio_to_MAGs.md
       + starts with processing raw metagenomic sequencing reads
       + ends with dereplicating refined MAGs
       + output of one step is in renaming_bins_output.txt
-inStrain_MAGs.md
+2. inStrain_MAGs.md
       + starts with building bowtie index of all MAGs for competetive mapping with Bowtie2
       + ends with running samtools depth to get coverage at all positions
       + uses scaffold_to_genome.sh
-
-combine_filter_mag_files.R
+3. combine_filter_mag_files.R
       + combines SNV file, scaffold file, and genome file from instrain output together for downstream analysis
       + filters SNVs based on position from ends and coverage
       + filters out timepoints I won't use downstream
-graphing_coverage.R
+4. graphing_coverage.R
       + plots scaffold coverage for each mag of interest
-combine_depth.R
+5. combine_depth.R
       + combines the samtools depth output with the inStrain output to get depth at all positions
-SNVs.R
+6. SNVs.R
       + finds positions where ref has avergae abs difference of at least 0.5 ctl vs gly
       + makes file for graphing heatmaps
-sum_snvs.R
+7. sum_snvs.R
       + makes simple tables of all SNV and SNS sums for each MAG
-grouped_heatmaps.R
+8. grouped_heatmaps.R
       + makes the figures with the heatmaps, snvs, sns
-get_genes.md
+9. get_genes.md
       + merges significant genes with eggnog output for COG enrichment
-COG_enrichment_test.R
+10. COG_enrichment_test.R
       +
-COG_summary.R
+11. COG_summary.R
       +
-fisher_test.R
+12. fisher_test.R
       +
-gene_cov.R
+13. gene_cov.R
       +
-MAG_overview_plot.R
+14. MAG_overview_plot.R
       +
-NS_ratio.R
+15. NS_ratio.R
       +
-snvs_to_matrix.R
+16. snvs_to_matrix.R
       +
 
