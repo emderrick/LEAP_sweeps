@@ -77,17 +77,17 @@ gene_copy <- ggplot(all_genes_line %>% arrange(abs_val), aes(x = treatment, y = 
         strip.text.x.top = element_text(size = 30, margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"), face = "bold"),
         strip.background = element_rect(linewidth = 2),
         legend.position = ("bottom"),
-        legend.margin =  margin(t = 20, r = 0, b = 0, l = 0),
+        legend.margin =  margin(t = 60, r = 0, b = 0, l = 0),
         legend.key.size = unit(2, 'cm'),
         legend.text = element_text(size = 30),
         legend.title = element_text(size = 35),
         plot.margin = unit(c(1, 1, 1, 1), "cm"),
-        panel.spacing.y = unit(1.5, "lines"))+
+        panel.spacing.y = unit(5, "lines"))+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag_order, nrow = 2, ncol = 6, scales = "free", labeller = labeller(mag_order = mag_labs))
  
-save_plot("gene_copy_dif.jpeg", gene_copy, base_height = 7, base_width = 6, ncol = 6, nrow = 2, dpi = 300, limitsize = F)
+save_plot("gene_copy_dif.jpeg", gene_copy, base_height = 7.5, base_width = 6, ncol = 6, nrow = 2, dpi = 300, limitsize = F)
 
 
 gene_changes <- subset(all_genes_wide, abs_val > 0.5)

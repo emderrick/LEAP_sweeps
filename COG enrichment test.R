@@ -82,7 +82,7 @@ for (category in unique(COG_gene_to_category$V2)) {
 categories_to_ignore <- c('A', 'B', 'Y', 'Z')# Note that some of these COG categories only have a few members, so you should set them to be ignored (in addition to any others you are not interested in).Also, I tend to ignore eukaryotic-specific COG categories for my analyses.
 
 all_background_genes <- read_csv("cog_background_genes.csv")
-sig_gene_files = c("significant_genes_loose.csv", "significant_genes_strict.csv")
+sig_gene_files = c("significant_genes_strict.csv")
 
 for(gene_file in sig_gene_files){
   significant_genes_df <- read_csv(gene_file)
