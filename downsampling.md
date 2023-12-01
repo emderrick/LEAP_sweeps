@@ -99,4 +99,17 @@ samtools view -bh --subsample 0.159 L4_pulse1_L8_MAG_00042.bam > L4_pulse1_L8_MA
 samtools view -bh --subsample 0.686 I8_pulse1_L8_MAG_00042.bam > I8_pulse1_L8_MAG_00042_subsamp.bam
 samtools view -bh --subsample 1.000 L8_pulse1_L8_MAG_00042.bam > L8_pulse1_L8_MAG_00042_subsamp.bam
 ```
+Then merge the bam files for each pond back together
+
+```bash
+samtools merge subsamp_K1_pulse1.bam *K1_pulse1*
+samtools merge subsamp_I4_pulse1.bam *I4_pulse1*
+samtools merge subsamp_L3_pulse1.bam *L3_pulse1*
+samtools merge subsamp_L4_pulse1.bam *L4_pulse1*
+samtools merge subsamp_I8_pulse1.bam *I8_pulse1*
+samtools merge subsamp_L2_pulse1.bam *L2_pulse1*
+samtools merge subsamp_L6_pulse1.bam *L6_pulse1*
+samtools merge subsamp_L7_pulse1.bam *L7_pulse1*
+samtools merge subsamp_L8_pulse1.bam *L8_pulse1*
+```
 
