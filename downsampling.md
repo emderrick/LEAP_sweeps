@@ -42,7 +42,7 @@ Subsammple each mag/pond combination to the lowest coverage mag/pond combination
 
 ```bash
 samtools view -bh --subsample 0.228 I4_pulse1_I4_MAG_00006.bam > I4_pulse1_I4_MAG_00006_subsamp.bam
-samtools view -bh --subsample 1 I8_pulse1_I4_MAG_00006.bam > I8_pulse1_I4_MAG_00006_subsamp.bam  
+samtools view -bh --subsample 1.000 I8_pulse1_I4_MAG_00006.bam > I8_pulse1_I4_MAG_00006_subsamp.bam
 samtools view -bh --subsample 0.676 L2_pulse1_I4_MAG_00006.bam > L2_pulse1_I4_MAG_00006_subsamp.bam
 samtools view -bh --subsample 0.896 L8_pulse1_I4_MAG_00006.bam > L8_pulse1_I4_MAG_00006_subsamp.bam
 
