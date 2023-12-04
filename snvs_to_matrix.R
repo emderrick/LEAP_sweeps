@@ -6,22 +6,29 @@ mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058",
 
 all_MAG_snvs <- read_csv("all_MAG_SNVs_med_Aug15.csv")
 all_MAG_snvs <- subset(all_MAG_snvs, new_time == 2)
+all_genes <- read_csv("MAG_gene_info.csv")
+all_genes <- subset(all_genes, select = -c(scaffold, timepoint, new_time))
 
 for(MAG in mag_list){
   MAG_snvs <- subset(all_MAG_snvs, mag == MAG)
-  MAG_snvs_for_gene <- MAG_snvs[, c('name', 'gene', 'number_divergent', 'mutation_type', 'position')] %>% subset(is.na(gene) == F)
+  MAG_genes <- subset(all_genes, mag == MAG)
+  MAG_snvs_for_gene <- MAG_snvs[, c('name', 'gene', 'number_divergent', 'class', 'mutation_type', 'position')] %>% subset(is.na(gene) == F)
+  MAG_snvs_for_gene <- subset(MAG_snvs_for_gene, class == "SNV")
   MAG_snvs_for_gene$number_divergent <- with(MAG_snvs_for_gene, ifelse(is.na(MAG_snvs_for_gene$number_divergent), 0, number_divergent))
   MAG_snvs_gene_sum <- MAG_snvs_for_gene %>% group_by(name, gene) %>% summarize(total = sum(number_divergent))
+  MAG_snvs_gene_sum <- subset(MAG_snvs_gene_sum, !str_detect(gene, ","))
   MAG_snvs_gene_sum <- subset(MAG_snvs_gene_sum, total < 300)
-  gene_pop_matrix <- pivot_wider(MAG_snvs_gene_sum, names_from = 'gene', values_from = "total")
-  gene_pop_matrix[is.na(gene_pop_matrix)] = 0
-  write.csv(gene_pop_matrix, paste(MAG, "_gene_matrix.csv", sep = ""), row.names = F)
   
-  MAG_snvs_gene_nosyn <- subset(MAG_snvs_for_gene, mutation_type == "N")
-  MAG_snvs_gene_nosyn_sum <- MAG_snvs_gene_nosyn %>% group_by(name, gene) %>% summarize(total = sum(number_divergent))
-  MAG_snvs_gene_nosyn_sum <- subset(MAG_snvs_gene_nosyn_sum, total < 300)
-  gene_pop_non_matrix <- pivot_wider(MAG_snvs_gene_nosyn_sum, names_from = 'gene', values_from = "total")
-  gene_pop_non_matrix[is.na(gene_pop_matrix)] = 0
-  write.csv(gene_pop_non_matrix, paste(MAG, "_gene_nonsyn_matrix.csv", sep=""), row.names = F)
+  MAG_genes_wide <- subset(MAG_genes, select = c("gene", "coverage", "name"))
+  MAG_genes_wide <- subset(MAG_genes_wide, coverage > 4)
+  MAG_genes_wide <- pivot_wider(MAG_genes_wide, names_from = "name", values_from = "coverage")
+  MAG_genes_wide <- MAG_genes_wide %>% na.omit()
+  MAG_genes_long <- pivot_longer(MAG_genes_wide, cols = -c("gene"), names_to = "name", values_to = "coverage")
+  
+  MAG_gene_snvs <- left_join(MAG_genes_long[, c("gene", "name")], MAG_snvs_gene_sum,  by = c("gene", "name"))
+  MAG_gene_snvs$total <- with(MAG_gene_snvs, ifelse(is.na(MAG_gene_snvs$total), 0, total))
+  gene_pop_matrix <- pivot_wider(MAG_gene_snvs, names_from = 'gene', values_from = "total")
+  gene_pop_matrix <- gene_pop_matrix[order(gene_pop_matrix$name),]
+  write.csv(gene_pop_matrix, paste(MAG, "_gene_no_SNS_matrix.csv", sep = ""), row.names = F)
   
 }

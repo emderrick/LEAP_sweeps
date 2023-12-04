@@ -1,9 +1,5 @@
 library(tidyverse)
 library(dplyr)
-library(ggplot2)
-library(ggVennDiagram)
-library(viridis)
-library(cowplot)
 
 mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099",
                  "L7_MAG_00020", "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
@@ -19,7 +15,15 @@ eggnog_genes <- eggnog_genes[, c("mag", "gene", "COG_ID", "Description", "Prefer
 background_cog <- subset(eggnog_genes, is.na(COG_ID) == F)
 write.csv(background_cog, "cog_background_genes.csv", row.names = F)
 
-background_cog <- read_csv("cog_background_genes.csv")
+gene_changes_pass <- read_csv("gene_coverage_sig_genes.csv")
+gene_decrease <- subset(gene_changes_pass, cov_dif < -0.5)
+gene_increase <- subset(gene_changes_pass, cov_dif > 0.5)
+gene_cov_significant <- left_join(gene_changes_pass[, c("gene", "abs_val")], background_cog)
+write.csv(gene_cov_significant, "gene_cov_significant.csv", row.names = F)
+gene_cov_sig_increase <- left_join(gene_increase[, c("gene", "abs_val")], background_cog)
+write.csv(gene_cov_sig_increase, "gene_cov_sig_increase.csv", row.names = F)
+gene_cov_sig_decrease <- left_join(gene_decrease[, c("gene", "abs_val")], background_cog)
+write.csv(gene_cov_sig_decrease, "gene_cov_sig_decrease.csv", row.names = F)
 
 not_strict_parevol_genes <- read_csv("loose_MAG_significant_genes.csv")
 not_strict_significant_genes <- left_join(not_strict_parevol_genes, background_cog)
@@ -77,7 +81,6 @@ sig_gene_summary <- left_join(sig_gene_summary, overlap_summary_strict, by = c("
 sig_gene_summary[is.na(sig_gene_summary)] <- 0
 write.csv(sig_gene_summary, "significant_genes_summary.csv", row.names = F)
 
-
 strict_significant_genes_I4_MAG_00006 <- subset(strict_significant_genes, mag == "I4_MAG_00006")
 strict_significant_genes_I4_MAG_00006 <- left_join(strict_significant_genes_I4_MAG_00006, COG_gene_to_category, by = c("COG_ID" = "V1"))
 strict_significant_genes_I4_MAG_00006 <- rename(strict_significant_genes_I4_MAG_00006, COG_category = V2)
@@ -108,7 +111,6 @@ threshold_significant_genes_L3_MAG_00058 <- left_join(threshold_significant_gene
 threshold_significant_genes_L3_MAG_00058 <- rename(threshold_significant_genes_L3_MAG_00058, COG_category = V2)
 write.csv(threshold_significant_genes_L3_MAG_00058, "L3_MAG_00058_examples_threshold.csv", row.names = F)
 
-
 loose_significant_genes_E <- left_join(not_strict_significant_genes, COG_gene_to_category, by = c("COG_ID" = "V1"))
 loose_significant_genes_E <- rename(loose_significant_genes_E, COG_category = V2)
 loose_significant_genes_E <- subset(loose_significant_genes_E, COG_category == "E")
@@ -119,19 +121,17 @@ threshold_significant_genes_E <- rename(threshold_significant_genes_E, COG_categ
 threshold_significant_genes_E <- subset(threshold_significant_genes_E, COG_category == "E")
 write.csv(threshold_significant_genes_E, "threshold_significant_genes_E.csv", row.names = F)
 
-
-
-threshold_snvs_sum  <- na.omit(threshold_snvs_sum)
-threshold_genes <- as.vector(threshold_snvs_sum$gene)
-parevol_strict_genes <- as.vector(strict_parevol_genes$gene)
-parevol_not_strict_genes <- as.vector(not_strict_parevol_genes$gene)
-
-all_sig_genes <- list(threshold_genes, parevol_strict_genes, parevol_not_strict_genes)
-
-gene_VD <- ggVennDiagram(all_sig_genes, 
-                         category.names = c("Allele Freq", "Strict", "Loose"), 
-                         label = c("count"), edge_size = 0) +
-  scale_x_continuous(expand = expansion(mult = .2))+
-  scale_fill_gradient('Genes', high = "purple4", low = "thistle")
-
-save_plot("gene_venndiagram.jpeg", gene_VD)
+# threshold_snvs_sum  <- na.omit(threshold_snvs_sum)
+# threshold_genes <- as.vector(threshold_snvs_sum$gene)
+# parevol_strict_genes <- as.vector(strict_parevol_genes$gene)
+# parevol_not_strict_genes <- as.vector(not_strict_parevol_genes$gene)
+# 
+# all_sig_genes <- list(threshold_genes, parevol_strict_genes, parevol_not_strict_genes)
+# 
+# gene_VD <- ggVennDiagram(all_sig_genes, 
+#                          category.names = c("Allele Freq", "Strict", "Loose"), 
+#                          label = c("count"), edge_size = 0) +
+#   scale_x_continuous(expand = expansion(mult = .2))+
+#   scale_fill_gradient('Genes', high = "purple4", low = "thistle")
+# 
+# save_plot("gene_venndiagram.jpeg", gene_VD)

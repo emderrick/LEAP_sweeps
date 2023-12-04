@@ -21,15 +21,6 @@ MAG_NS$total <- MAG_NS$N + MAG_NS$S + MAG_NS$I + MAG_NS$M
 MAG_NS$graph_name <- str_sub(MAG_NS$new_name, end = -6) 
 MAG_NS$graph_name <- gsub('Control', 'CTL', MAG_NS$graph_name)
 
-# MAG_NS_long <- pivot_longer(MAG_NS, cols = c("N", "S", "I", "M"), names_to = "mutation_type", values_to = "count")
-# 
-# ggplot(MAG_NS_long, aes(x = graph_name, y = count/total, fill = mutation_type))+
-#   geom_bar(stat = "identity")+
-#   theme_classic()+
-#   labs(y = "Fraction of SNVs", x = "pond", legend = "Mutation Type")+
-#   facet_wrap(~mag, nrow = 4, ncol = 4, scales="free", labeller = labeller(mag = mag_labs))
-# save_plot("NS_MAG_plot.jpeg", NS_plot, ncol = 4, nrow = 4, dpi = 300)
-
 MAG_NS$NS_ratio <-  MAG_NS$N / MAG_NS$S
 MAG_NS$SNVs_MBp <- (MAG_NS$total / MAG_NS$mag_length) * 1000000
 MAG_NS$treatment <- str_sub(MAG_NS$new_name, end = -8)
@@ -54,3 +45,12 @@ NS_SNV_EPSPS <- ggplot(MAG_NS_plot, aes(x = NS_ratio, y = SNVs_MBp, colour = EPS
         legend.position = c(0.85, 0.65))
 save_plot("NS_SNV_max_EPSPS_plot.jpeg", NS_SNV_EPSPS, dpi = 300, base_height = 4, base_width = 6.7)
 
+
+# MAG_NS_long <- pivot_longer(MAG_NS, cols = c("N", "S", "I", "M"), names_to = "mutation_type", values_to = "count")
+# 
+# ggplot(MAG_NS_long, aes(x = graph_name, y = count/total, fill = mutation_type))+
+#   geom_bar(stat = "identity")+
+#   theme_classic()+
+#   labs(y = "Fraction of SNVs", x = "pond", legend = "Mutation Type")+
+#   facet_wrap(~mag, nrow = 4, ncol = 4, scales="free", labeller = labeller(mag = mag_labs))
+# save_plot("NS_MAG_plot.jpeg", NS_plot, ncol = 4, nrow = 4, dpi = 300)

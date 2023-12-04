@@ -16,7 +16,7 @@ all_snv$graph_name <- gsub("Control", "CTL", all_snv$name)
 select_snv <- subset(all_snv, mag %in% select_mags)
 other_snv <- subset(all_snv, mag %in% other_mags)
 
-all_sum <- read_csv("all_snv_sum.csv")
+all_sum <- read_csv("all_SNV_sum.csv")
 all_sum <- subset(all_sum, str_detect(new_name, "2"))
 all_sum$graph_name <- gsub("Control", "CTL", all_sum$new_name) %>% str_sub(end = -6)
 
@@ -99,7 +99,7 @@ select_snv_frac <- ggplot(select_sum, aes(x = graph_name, y = SNSs/(SNSs+SNVs), 
   facet_wrap(~mag, nrow = 1, scales = "free")
 
 select_all <- select_snv_heat / select_snv_sum / select_snv_frac
-save_plot("select_all.jpeg", select_all, base_height = 2, base_width = 9.6, ncol = 3, nrow = 6, dpi =400, limitsize = F)
+save_plot("select_all.jpeg", select_all, base_height = 2, base_width = 9.6, ncol = 3, nrow = 6, dpi = 400, limitsize = F)
 
 #no sweep
 other_snv_heat <- ggplot(other_snv, aes(x = graph_name, y = reorder(groups, all_mean), colour = final_ref_freq)) +

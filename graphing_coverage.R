@@ -11,7 +11,7 @@ mag_labs <- c(I4_MAG_00006 = "SJAQ100 sp016735685", I4_MAG_00065 = "Roseomonas s
               L7_MAG_00028 = "SYFN01 sp.", L7_MAG_00043 = "Luteolibacter sp.", L8_MAG_00011 = "UBA953 sp.", 
               L8_MAG_00019 = "UA16", L8_MAG_00042 = "UBA4660 sp.")
 
-all_snv <- read_csv("filtered_ANI_95_mag_SNVs.csv")
+all_snv <- read_csv("filtered_ANI_95_mag_SNVs.csv") ###CHANGE WHAT FILE I"M USING####
 all_snv <- subset(all_snv, new_time == 2)
 mag_scaf_cov <- all_snv %>% group_by(scaffold, name, length, coverage, mag) %>% summarize(SNV_SNS_tot = sum(number_divergent))
 mag_scaf_cov$mag_order = factor(mag_scaf_cov$mag, levels=c('I4_MAG_00006', 'I4_MAG_00065', 'L3_MAG_00058', 'L7_MAG_00020', 'L8_MAG_00011', 'L8_MAG_00019',
