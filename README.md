@@ -1,7 +1,7 @@
 ## LEAP 2021
 This is a place for all analyses of the 2021 LEAP experiement. In this experiment we collected samples for metagenomic and whole-genome sequencing.
 
-### what each file does for analysis for metagenomic data
+### what each file does for analysis for metagenomic data not in proper order
 1. Anvio_to_MAGs.md
       + starts with processing raw metagenomic sequencing reads
       + ends with dereplicating refined MAGs
@@ -10,31 +10,35 @@ This is a place for all analyses of the 2021 LEAP experiement. In this experimen
       + starts with building bowtie index of all MAGs for competetive mapping with Bowtie2
       + ends with running samtools depth to get coverage at all positions
       + uses scaffold_to_genome.sh
-3. mag_presence.R
-      + makes big plot of all MAGs in each pond at each timepint
-4. graphing_presence.R
-      + plots summary of what ponds my MAGs of interest are in
-5. combine_filter_mag_files.R
+3. combine_filter_mag_files.R
       + combines SNV file, scaffold file, and genome file from instrain output together for downstream analysis
       + filters SNVs based on position from ends and coverage
       + filters out timepoints I won't use downstream
-7. graphing_coverage.R
+4. graphing_coverage.R
       + plots scaffold coverage for each mag of interest
-8. combine_depth.R
+5. combine_depth.R
       + combines the samtools depth output with the inStrain output to get depth at all positions
-9. SNVs.R
-      + makes snv data horizontal and adds means to snv data to find significant snvs
-      + creates a new snv file for each mag to use for graphing
+6. SNVs.R
       + finds positions where ref has avergae abs difference of at least 0.5 ctl vs gly
-      + saves list of genes these positions are in
-10. sum_snvs.R
+      + makes file for graphing heatmaps
+7. sum_snvs.R
       + makes simple tables of all SNV and SNS sums for each MAG
-11. graphing_heatmaps.R
-      + plots individual heatmaps of the reference frequency at each position there is an SNV 
-12. grouped_heatmaps.R
-      + easier way to plot heatmaps grouped in panels and adds plots of snv sums
-13. SNVs_genes.md
-      + starts with extracting genes of interest in list from all MAG genes
-      + ends with annotating MAGs with bakta
-14. get_genes.R
-      + takes list of genes with snv counts and matches them to bakta output
+8. grouped_heatmaps.R
+      + makes the figures with the heatmaps, snvs, sns
+9. get_genes.md
+      + merges significant genes with eggnog output for COG enrichment
+10. COG_enrichment_test.R
+      +
+11. COG_summary.R
+      +
+12. fisher_test.R
+      +
+13. gene_cov.R
+      +
+14. MAG_overview_plot.R
+      +
+15. NS_ratio.R
+      +
+16. snvs_to_matrix.R
+      +
+
