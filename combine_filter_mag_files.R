@@ -1,14 +1,10 @@
 library(tidyverse)
-library(ggplot2)
-library(dplyr)
-library(viridis)
-library(stringr)
 
 mag_list<-list("L3_MAG_00058", "L4_MAG_00099", "L8_MAG_00019", "L8_MAG_00011", "L7_MAG_00043", "L7_MAG_00028",
                "I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L7_MAG_00020", "L8_MAG_00042")
 
 #list genome files from instrain output in directory
-genome_files<-list.files("95_profiles/",recursive = T, pattern=".*genome_info.tsv",full.names = T)
+genome_files<-list.files("subsampled_instrain/",recursive = T, pattern=".*genome_info.tsv",full.names = T)
 
 #create an empty dataframe
 all_mags<-data.frame()
@@ -16,14 +12,14 @@ all_mags<-data.frame()
 #add genome files into dataframe and add column that is the name of the file
 for(i in 1:length(genome_files)){
   pond_time_mags<-read.table(genome_files[i],sep="\t",header=T)
-  timepoint<-gsub(".*profile_output/", "", genome_files[i]) %>% substr(1,9)
+  timepoint<-gsub(".*instrain_output/", "", genome_files[i]) %>% substr(9,17)
   pond_time_mags<-cbind(pond_time_mags,timepoint=rep(timepoint,nrow(pond_time_mags)))
   all_mags<-rbind(all_mags,pond_time_mags)
 }
 
-all_mags$time<-as.numeric(all_mags$timepoint%>%substr(9,9))
-all_mags$new_time<-all_mags$time +1
-all_mags$pond<-all_mags$timepoint%>%substr(1,2)
+all_mags$time <- all_mags$timepoint %>% substr(9,9)
+all_mags$new_time <- as.numeric(all_mags$time) + 1
+all_mags$pond <- all_mags$timepoint %>% substr(1,2)
 
 all_mags <- mutate(all_mags, treatment = ifelse(pond == "I4" | pond == "K1" | pond == "L3" | pond == "L4" | pond == "I8", "control", "glyphosate"))
 all_mags <- mutate(all_mags, treatment =ifelse(pond == "I8", "phosphorus", treatment))
@@ -37,84 +33,49 @@ all_mags <- all_mags %>% mutate(name = case_when(timepoint%>%substr(1,2) == "K1"
                                 timepoint%>%substr(1,2)== "L6" ~ "GBH B", timepoint%>%substr(1,2) == "L7" ~ "GBH C",
                                 timepoint%>%substr(1,2) == "L8" ~ "GBH D"))
 all_mags$new_name <- paste(paste(all_mags$name, "at T"), all_mags$new_time, sep="")
+write.csv(all_mags, "all_mags_subsamp.csv", row.names = F)
 
-write.csv(all_mags, "ANI_95_all_mags.csv", row.names = F)
+mag_cov <- all_mags[, c(1,2,3,37)]
+write.csv(mag_cov, "mag_coverage_subsamp.csv", row.names = F)
 
-#filter out mags and times I don't need
-mag_cov <- subset(all_mags, mag %in% mag_list)
-mag_cov <- mag_cov %>% subset(!(mag=="L3_MAG_00058" & new_time=="1"))
-mag_cov <- mag_cov %>% subset(!(mag=="L3_MAG_00058" & new_time=="3"))
-mag_cov <- mag_cov %>% subset(!(mag=="L4_MAG_00099" & new_time=="3"))
-mag_cov <- mag_cov %>% subset(!(mag=="L8_MAG_00011" & new_time=="3"))
-mag_cov <- mag_cov %>% subset(!(mag=="L7_MAG_00043" & new_time=="3"))
-mag_cov <- mag_cov %>% subset(!(mag=="L7_MAG_00028" & new_time=="3"))
-mag_cov <- mag_cov %>% subset(!(mag=="I4_MAG_00065" & new_time=="1"))
-mag_cov <- mag_cov %>% subset(!(mag=="I4_MAG_00065" & new_time=="3"))
-mag_cov <- mag_cov %>% subset(!(mag=="L8_MAG_00042" & new_time=="3"))
-mag_cov <- mag_cov %>% subset(!(mag=="L7_MAG_00020" & new_time=="1" & pond=="L7"))
-mag_cov <- mag_cov %>% subset(!(mag=="L2_MAG_00052" & new_time=="1"))
-mag_cov <- mag_cov[, c(1,2,3,37)]
-write.csv(mag_cov, "candidate_mag_coverage.csv", row.names = F)
-
-
-scaffold_files<-list.files("95_profiles/",recursive = T, pattern=".*scaffold_info.tsv",full.names = T)
+scaffold_files<-list.files("subsampled_instrain/",recursive = T, pattern=".*scaffold_info.tsv",full.names = T)
 all_scaffolds<-data.frame()
 
 for(i in 1:length(scaffold_files)){
   pond_time_scaffolds<-read.table(scaffold_files[i],sep="\t",header=T)
-  timepoint<-gsub(".*profile_output/", "", scaffold_files[i]) %>% substr(1,9)
+  timepoint<-gsub(".*instrain_output/", "", scaffold_files[i]) %>% substr(9,17)
   pond_time_scaffolds<-cbind(pond_time_scaffolds,timepoint=rep(timepoint,nrow(pond_time_scaffolds)))
   all_scaffolds<-rbind(all_scaffolds,pond_time_scaffolds)
 } 
 
-all_scaffolds$mag<- all_scaffolds$scaffold%>%substr(1,12)
+all_scaffolds$mag<- all_scaffolds$scaffold %>% substr(1,12)
 
-#Merge the scaffold dataframe with the dataframe containing the MAG genome information
-#all_mags = y all_scaffolds = x
-mag_scaffolds <-all_scaffolds %>% left_join(all_mags, by=c("mag", "timepoint"))
-write.csv(mag_scaffolds, "ANI_95_all_scaffolds.csv", row.names = F)
+mag_scaffolds <- all_scaffolds %>% left_join(all_mags, by = c("mag", "timepoint"))
+write.csv(mag_scaffolds, "all_scaffolds_subsamp.csv", row.names = F)
 
-SNV_files<-list.files("95_profiles/",recursive = T, pattern=".*SNVs.tsv",full.names = T)
+SNV_files<-list.files("subsampled_instrain/", recursive = T, pattern=".*SNVs.tsv",full.names = T)
 all_SNVs<-data.frame()
 
 for(i in 1:length(SNV_files)){
   pond_time_SNV<-read.table(SNV_files[i],sep="\t",header=T)
-  timepoint<-gsub(".*profile_output/", "", SNV_files[i]) %>% substr(1,9)
+  timepoint<-gsub(".*instrain_output/", "", SNV_files[i]) %>% substr(9,17)
   pond_time_SNV<-cbind(pond_time_SNV,timepoint=rep(timepoint,nrow(pond_time_SNV)))
   all_SNVs<-rbind(all_SNVs,pond_time_SNV)
 }  
 
-#merge SNV file with scaffold file 
-mag_scaf_SNV<- left_join(all_SNVs, mag_scaffolds, by=c("timepoint","scaffold"))
-write.csv(mag_scaf_SNV, "ANI_95_all_SNVs.csv", row.names = F)
+mag_scaf_SNV <- left_join(all_SNVs, mag_scaffolds, by=c("timepoint","scaffold"))
+write.csv(mag_scaf_SNV, "all_SNVs_subsamp.csv", row.names = F)
 
-#filter to only include candidate mags and times I'm interested in
-mags <- subset(mag_scaf_SNV, mag %in% mag_list)
-write.csv(mags, "ANI_95_mag_SNVs.csv", row.names = F)
-mags <- mags %>% subset(!(mag=="L3_MAG_00058" & new_time=="1"))
-mags <- mags %>% subset(!(mag=="L3_MAG_00058" & new_time=="3"))
-mags <- mags %>% subset(!(mag=="L4_MAG_00099" & new_time=="3"))
-mags <- mags %>% subset(!(mag=="L8_MAG_00011" & new_time=="3"))
-mags <- mags %>% subset(!(mag=="L7_MAG_00043" & new_time=="3"))
-mags <- mags %>% subset(!(mag=="L7_MAG_00028" & new_time=="3"))
-mags <- mags %>% subset(!(mag=="I4_MAG_00065" & new_time=="1"))
-mags <- mags %>% subset(!(mag=="I4_MAG_00065" & new_time=="3"))
-mags <- mags %>% subset(!(mag=="L8_MAG_00042" & new_time=="3"))
-mags <- mags %>% subset(!(mag=="L2_MAG_00052" & new_time=="1"))
-mags <- mags %>% subset(!(mag=="L7_MAG_00020" & new_time=="1" & pond=="L7"))
+mag_scaf_SNV$pos_from_end <- mag_scaf_SNV$length - mag_scaf_SNV$position
+mag_scaf_SNV <- subset(mag_scaf_SNV, position > 100)
+mag_scaf_SNV <- subset(mag_scaf_SNV, pos_from_end > 100)
 
-#filter SNVs within 100bp of beginning and end of scaffold
-mags$pos_from_end<-mags$length-mags$position
-mags<- subset(mags, position > 100)
-mags<- subset(mags, pos_from_end > 100)
+mag_scaf_SNV$number_SNVs <- with(mag_scaf_SNV, ifelse(class == "SNV", 1, 0))
+mag_scaf_SNV$number_SNSs <- with(mag_scaf_SNV, ifelse(class == "SNS", 1, 0))
 
-#assign value of 1 to everything that isn't an SNS and assign 0 to SNS
-mags <- mutate(mags, number_SNVs = ifelse(class == "SNS", 0, 1))
-#assign value of 1 to SNS and 0 to everythign else
-mags <- mutate(mags, number_SNSs = ifelse(class == "SNS", 1, 0))
-mags$number_divergent<- 1
-mags$full_group <- paste(mags$mag, mags$new_name)
-mags <- mags %>% subset(!(position_coverage > mag_coverage*3)) 
-mags <- mags %>% subset(!(position_coverage < mag_coverage/3))
-mags <- subset(mags, allele_count <=2)
-write.csv(mags, "filtered_ANI_95_mag_SNVs.csv", row.names=F)
+mag_scaf_SNV$number_divergent <- 1
+mag_scaf_SNV$full_group <- paste(mag_scaf_SNV$mag, mag_scaf_SNV$new_name)
+mag_scaf_SNV <- mag_scaf_SNV %>% subset(!(position_coverage > mag_coverage*3)) 
+mag_scaf_SNV <- mag_scaf_SNV %>% subset(!(position_coverage < mag_coverage/3))
+mag_scaf_SNV <- subset(mag_scaf_SNV, allele_count <= 2)
+write.csv(mag_scaf_SNV, "filtered_mag_SNVs_subsamp.csv", row.names=F)
