@@ -79,14 +79,14 @@ for (category in unique(COG_gene_to_category$V2)) {
   COG_category_to_COG[[category]] <- COG_gene_to_category[which(COG_gene_to_category$V2 == category), "V1"]
 }
 
-categories_to_ignore <- c('A', 'B', 'Y', 'Z')# Note that some of these COG categories only have a few members, so you should set them to be ignored (in addition to any others you are not interested in).Also, I tend to ignore eukaryotic-specific COG categories for my analyses.
+categories_to_ignore <- c('A', 'B', 'Y', 'Z')
 
 all_background_genes <- read_csv("cog_background_genes.csv")
 
-sig_gene_files = c("sig_genes_loose_C1.csv", "sig_genes_strict_C1.csv", "sig_genes_threshold_C1.csv", "sig_genes_increase_C1.csv", "sig_genes_decrease_C1.csv",
-                   "sig_genes_loose_C2.csv", "sig_genes_strict_C2.csv", "sig_genes_threshold_C2.csv", "sig_genes_increase_C2.csv", "sig_genes_decrease_C2.csv",
-                   "sig_genes_loose_sweep.csv", "sig_genes_strict_sweep.csv", "sig_genes_threshold_sweep.csv", "sig_genes_increase_sweep.csv", "sig_genes_decrease_sweep.csv",
-                   "sig_genes_loose_no_sweep.csv", "sig_genes_strict_no_sweep.csv", "sig_genes_threshold_no_sweep.csv", "sig_genes_increase_no_sweep.csv", "sig_genes_decrease_no_sweep.csv")
+sig_gene_files = c("sig_genes_loose_C1_subsamp.csv", "sig_genes_strict_C1_subsamp.csv", "sig_genes_threshold_C1_subsamp.csv", "sig_genes_increase_C1_subsamp.csv", "sig_genes_decrease_C1_subsamp.csv",
+                   "sig_genes_loose_C2_subsamp.csv", "sig_genes_strict_C2_subsamp.csv", "sig_genes_threshold_C2_subsamp.csv", "sig_genes_increase_C2_subsamp.csv", "sig_genes_decrease_C2_subsamp.csv",
+                   "sig_genes_loose_sweep_subsamp.csv", "sig_genes_strict_sweep_subsamp.csv", "sig_genes_threshold_sweep_subsamp.csv", "sig_genes_increase_sweep_subsamp.csv", "sig_genes_decrease_sweep_subsamp.csv",
+                   "sig_genes_loose_no_sweep_subsamp.csv", "sig_genes_strict_no_sweep_subsamp.csv", "sig_genes_threshold_no_sweep_subsamp.csv", "sig_genes_increase_no_sweep_subsamp.csv", "sig_genes_decrease_no_sweep_subsamp.csv")
 
 for(gene_file in sig_gene_files){
   significant_genes_df <- read_csv(gene_file)

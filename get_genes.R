@@ -15,29 +15,29 @@ eggnog_genes <- eggnog_genes[, c("mag", "gene", "COG_ID", "Description", "Prefer
 background_cog <- subset(eggnog_genes, is.na(COG_ID) == F)
 write.csv(background_cog, "cog_background_genes.csv", row.names = F)
 
-gene_changes_pass <- read_csv("gene_coverage_sig_genes.csv")
+gene_changes_pass <- read_csv("gene_coverage_sig_genes_subsamp.csv")
 gene_decrease <- subset(gene_changes_pass, cov_dif < -0.5)
 gene_increase <- subset(gene_changes_pass, cov_dif > 0.5)
 gene_cov_significant <- left_join(gene_changes_pass[, c("gene", "abs_val")], background_cog)
-write.csv(gene_cov_significant, "gene_cov_significant.csv", row.names = F)
+write.csv(gene_cov_significant, "gene_cov_significant_subsamp.csv", row.names = F)
 gene_cov_sig_increase <- left_join(gene_increase[, c("gene", "abs_val")], background_cog)
-write.csv(gene_cov_sig_increase, "gene_cov_sig_increase.csv", row.names = F)
+write.csv(gene_cov_sig_increase, "gene_cov_sig_increase_subsamp.csv", row.names = F)
 gene_cov_sig_decrease <- left_join(gene_decrease[, c("gene", "abs_val")], background_cog)
-write.csv(gene_cov_sig_decrease, "gene_cov_sig_decrease.csv", row.names = F)
+write.csv(gene_cov_sig_decrease, "gene_cov_sig_decrease_subsamp.csv", row.names = F)
 
-not_strict_parevol_genes <- read_csv("loose_MAG_significant_genes.csv")
+not_strict_parevol_genes <- read_csv("loose_MAG_significant_genes_subsamp.csv")
 not_strict_significant_genes <- left_join(not_strict_parevol_genes, background_cog)
-write.csv(not_strict_significant_genes, "significant_genes_loose.csv", row.names = F)
+write.csv(not_strict_significant_genes, "significant_genes_loose_subsamp.csv", row.names = F)
 
-strict_parevol_genes <- read_csv("strict_MAG_significant_genes.csv")
+strict_parevol_genes <- read_csv("strict_MAG_significant_genes_subsamp.csv")
 strict_significant_genes <- left_join(strict_parevol_genes, background_cog)
-write.csv(strict_significant_genes, "significant_genes_strict.csv", row.names = F)
+write.csv(strict_significant_genes, "significant_genes_strict_subsamp.csv", row.names = F)
 
-threshold_snvs <- read_csv("threshold_snvs.csv")
+threshold_snvs <- read_csv("threshold_snvs_subsamp.csv")
 threshold_snvs <- subset(threshold_snvs, pass=="yes")
 threshold_snvs_sum <- threshold_snvs %>% group_by(mag, scaffold, gene) %>% summarize(snvs_in_gene = sum(pass == "yes"))
 threshold_significant_genes <- left_join(threshold_snvs_sum, background_cog) %>% subset(is.na(gene) == F)
-write.csv(threshold_significant_genes, "threshold_significant_genes.csv", row.names = F)
+write.csv(threshold_significant_genes, "threshold_significant_genes_subsamp.csv", row.names = F)
 
 not_strict_significant_genes$count <- 1
 not_strict_parevol_sum <- not_strict_significant_genes %>% group_by(mag) %>% summarize(loose_genes = sum(count))
@@ -79,47 +79,47 @@ overlap_summary_strict <- MAG_overlap_strict %>% group_by(mag) %>% summarise(str
 sig_gene_summary <- left_join(sig_gene_summary, overlap_summary_loose, by = c("mag"))
 sig_gene_summary <- left_join(sig_gene_summary, overlap_summary_strict, by = c("mag"))
 sig_gene_summary[is.na(sig_gene_summary)] <- 0
-write.csv(sig_gene_summary, "significant_genes_summary.csv", row.names = F)
+write.csv(sig_gene_summary, "significant_genes_summary_subsamp.csv", row.names = F)
 
-strict_significant_genes_I4_MAG_00006 <- subset(strict_significant_genes, mag == "I4_MAG_00006")
-strict_significant_genes_I4_MAG_00006 <- left_join(strict_significant_genes_I4_MAG_00006, COG_gene_to_category, by = c("COG_ID" = "V1"))
-strict_significant_genes_I4_MAG_00006 <- rename(strict_significant_genes_I4_MAG_00006, COG_category = V2)
-write.csv(strict_significant_genes_I4_MAG_00006, "I4_MAG_00006_examples_strict.csv", row.names = F)
-
-loose_significant_genes_I4_MAG_00006 <- subset(not_strict_significant_genes, mag == "I4_MAG_00006")
-loose_significant_genes_I4_MAG_00006 <- left_join(loose_significant_genes_I4_MAG_00006, COG_gene_to_category, by = c("COG_ID" = "V1"))
-loose_significant_genes_I4_MAG_00006 <- rename(loose_significant_genes_I4_MAG_00006, COG_category = V2)
-write.csv(loose_significant_genes_I4_MAG_00006, "I4_MAG_00006_examples_loose.csv", row.names = F)
-
-threshold_significant_genes_I4_MAG_00006 <- subset(threshold_significant_genes, mag == "I4_MAG_00006")
-threshold_significant_genes_I4_MAG_00006 <- left_join(threshold_significant_genes_I4_MAG_00006, COG_gene_to_category, by = c("COG_ID" = "V1"))
-threshold_significant_genes_I4_MAG_00006 <- rename(threshold_significant_genes_I4_MAG_00006, COG_category = V2)
-write.csv(threshold_significant_genes_I4_MAG_00006, "I4_MAG_00006_examples_threshold.csv", row.names = F)
-
-strict_significant_genes_L3_MAG_00058 <- subset(strict_significant_genes, mag == "L3_MAG_00058")
-strict_significant_genes_L3_MAG_00058 <- left_join(strict_significant_genes_L3_MAG_00058, COG_gene_to_category, by = c("COG_ID" = "V1"))
-strict_significant_genes_L3_MAG_00058 <- rename(strict_significant_genes_L3_MAG_00058, COG_category = V2)
-write.csv(strict_significant_genes_L3_MAG_00058, "L3_MAG_00058_examples_strict.csv", row.names = F)
-
-loose_significant_genes_L3_MAG_00058 <- subset(not_strict_significant_genes, mag == "L3_MAG_00058")
-loose_significant_genes_L3_MAG_00058 <- left_join(loose_significant_genes_L3_MAG_00058, COG_gene_to_category, by = c("COG_ID" = "V1"))
-loose_significant_genes_L3_MAG_00058 <- rename(loose_significant_genes_L3_MAG_00058, COG_category = V2)
-write.csv(loose_significant_genes_L3_MAG_00058, "L3_MAG_00058_examples_loose.csv", row.names = F)
-
-threshold_significant_genes_L3_MAG_00058 <- subset(threshold_significant_genes, mag == "L3_MAG_00058")
-threshold_significant_genes_L3_MAG_00058 <- left_join(threshold_significant_genes_L3_MAG_00058, COG_gene_to_category, by = c("COG_ID" = "V1"))
-threshold_significant_genes_L3_MAG_00058 <- rename(threshold_significant_genes_L3_MAG_00058, COG_category = V2)
-write.csv(threshold_significant_genes_L3_MAG_00058, "L3_MAG_00058_examples_threshold.csv", row.names = F)
-
-loose_significant_genes_E <- left_join(not_strict_significant_genes, COG_gene_to_category, by = c("COG_ID" = "V1"))
-loose_significant_genes_E <- rename(loose_significant_genes_E, COG_category = V2)
-loose_significant_genes_E <- subset(loose_significant_genes_E, COG_category == "E")
-write.csv(loose_significant_genes_E, "loose_significant_genes_E.csv", row.names = F)
-
-threshold_significant_genes_E <- left_join(threshold_significant_genes, COG_gene_to_category, by = c("COG_ID" = "V1"))
-threshold_significant_genes_E <- rename(threshold_significant_genes_E, COG_category = V2)
-threshold_significant_genes_E <- subset(threshold_significant_genes_E, COG_category == "E")
-write.csv(threshold_significant_genes_E, "threshold_significant_genes_E.csv", row.names = F)
+# strict_significant_genes_I4_MAG_00006 <- subset(strict_significant_genes, mag == "I4_MAG_00006")
+# strict_significant_genes_I4_MAG_00006 <- left_join(strict_significant_genes_I4_MAG_00006, COG_gene_to_category, by = c("COG_ID" = "V1"))
+# strict_significant_genes_I4_MAG_00006 <- rename(strict_significant_genes_I4_MAG_00006, COG_category = V2)
+# write.csv(strict_significant_genes_I4_MAG_00006, "I4_MAG_00006_examples_strict.csv", row.names = F)
+# 
+# loose_significant_genes_I4_MAG_00006 <- subset(not_strict_significant_genes, mag == "I4_MAG_00006")
+# loose_significant_genes_I4_MAG_00006 <- left_join(loose_significant_genes_I4_MAG_00006, COG_gene_to_category, by = c("COG_ID" = "V1"))
+# loose_significant_genes_I4_MAG_00006 <- rename(loose_significant_genes_I4_MAG_00006, COG_category = V2)
+# write.csv(loose_significant_genes_I4_MAG_00006, "I4_MAG_00006_examples_loose.csv", row.names = F)
+# 
+# threshold_significant_genes_I4_MAG_00006 <- subset(threshold_significant_genes, mag == "I4_MAG_00006")
+# threshold_significant_genes_I4_MAG_00006 <- left_join(threshold_significant_genes_I4_MAG_00006, COG_gene_to_category, by = c("COG_ID" = "V1"))
+# threshold_significant_genes_I4_MAG_00006 <- rename(threshold_significant_genes_I4_MAG_00006, COG_category = V2)
+# write.csv(threshold_significant_genes_I4_MAG_00006, "I4_MAG_00006_examples_threshold.csv", row.names = F)
+# 
+# strict_significant_genes_L3_MAG_00058 <- subset(strict_significant_genes, mag == "L3_MAG_00058")
+# strict_significant_genes_L3_MAG_00058 <- left_join(strict_significant_genes_L3_MAG_00058, COG_gene_to_category, by = c("COG_ID" = "V1"))
+# strict_significant_genes_L3_MAG_00058 <- rename(strict_significant_genes_L3_MAG_00058, COG_category = V2)
+# write.csv(strict_significant_genes_L3_MAG_00058, "L3_MAG_00058_examples_strict.csv", row.names = F)
+# 
+# loose_significant_genes_L3_MAG_00058 <- subset(not_strict_significant_genes, mag == "L3_MAG_00058")
+# loose_significant_genes_L3_MAG_00058 <- left_join(loose_significant_genes_L3_MAG_00058, COG_gene_to_category, by = c("COG_ID" = "V1"))
+# loose_significant_genes_L3_MAG_00058 <- rename(loose_significant_genes_L3_MAG_00058, COG_category = V2)
+# write.csv(loose_significant_genes_L3_MAG_00058, "L3_MAG_00058_examples_loose.csv", row.names = F)
+# 
+# threshold_significant_genes_L3_MAG_00058 <- subset(threshold_significant_genes, mag == "L3_MAG_00058")
+# threshold_significant_genes_L3_MAG_00058 <- left_join(threshold_significant_genes_L3_MAG_00058, COG_gene_to_category, by = c("COG_ID" = "V1"))
+# threshold_significant_genes_L3_MAG_00058 <- rename(threshold_significant_genes_L3_MAG_00058, COG_category = V2)
+# write.csv(threshold_significant_genes_L3_MAG_00058, "L3_MAG_00058_examples_threshold.csv", row.names = F)
+# 
+# loose_significant_genes_E <- left_join(not_strict_significant_genes, COG_gene_to_category, by = c("COG_ID" = "V1"))
+# loose_significant_genes_E <- rename(loose_significant_genes_E, COG_category = V2)
+# loose_significant_genes_E <- subset(loose_significant_genes_E, COG_category == "E")
+# write.csv(loose_significant_genes_E, "loose_significant_genes_E.csv", row.names = F)
+# 
+# threshold_significant_genes_E <- left_join(threshold_significant_genes, COG_gene_to_category, by = c("COG_ID" = "V1"))
+# threshold_significant_genes_E <- rename(threshold_significant_genes_E, COG_category = V2)
+# threshold_significant_genes_E <- subset(threshold_significant_genes_E, COG_category == "E")
+# write.csv(threshold_significant_genes_E, "threshold_significant_genes_E.csv", row.names = F)
 
 # threshold_snvs_sum  <- na.omit(threshold_snvs_sum)
 # threshold_genes <- as.vector(threshold_snvs_sum$gene)

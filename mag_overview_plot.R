@@ -7,20 +7,11 @@ library(cowplot)
 mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099",
                  "L7_MAG_00020", "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
 
-mags <- read_csv("ANI_95_all_mags.csv")
-mags <- subset(mags, mag %in% mag_list & new_time == 2)
-
-mags$mag_name <- with(mags, ifelse(mags$mag == "I4_MAG_00006", "SJAQ100 sp016735685", NA)) 
-mags$mag_name <- with(mags, ifelse(mags$mag == "I4_MAG_00065", "Roseomonas sp.", mag_name)) 
-mags$mag_name <- with(mags, ifelse(mags$mag == "L2_MAG_00052", "Erythrobacter sp.", mag_name)) 
-mags$mag_name <- with(mags, ifelse(mags$mag == "L3_MAG_00058", "Prosthecobacter sp.", mag_name)) 
-mags$mag_name <- with(mags, ifelse(mags$mag == "L4_MAG_00099", "Bosea sp001713455", mag_name)) 
-mags$mag_name <- with(mags, ifelse(mags$mag == "L7_MAG_00020", "Sphingorhabdus_B sp.", mag_name)) 
-mags$mag_name <- with(mags, ifelse(mags$mag == "L7_MAG_00028", "SYFN01 sp.", mag_name)) 
-mags$mag_name <- with(mags, ifelse(mags$mag == "L7_MAG_00043", "Luteolibacter sp.", mag_name)) 
-mags$mag_name <- with(mags, ifelse(mags$mag == "L8_MAG_00011", "UBA953 sp.", mag_name)) 
-mags$mag_name <- with(mags, ifelse(mags$mag == "L8_MAG_00019", "UA16", mag_name)) 
-mags$mag_name <- with(mags, ifelse(mags$mag == "L8_MAG_00042", "UBA4660 sp.", mag_name)) 
+mags <- read_csv("all_mags_subsamp.csv")
+mags <- subset(mags, new_time == 2)
+mags <- mags %>% mutate(mag_name = case_when(mag == "I4_MAG_00006" ~"SJAQ100 sp016735685", mag == "I4_MAG_00006" ~ "SJAQ100 sp016735685", mag == "I4_MAG_00065" ~ "Roseomonas sp.", mag == "L2_MAG_00052" ~ "Erythrobacter sp.",
+                                             mag == "L3_MAG_00058" ~ "Prosthecobacter sp.", mag == "L4_MAG_00099" ~ "Bosea sp001713455", mag == "L7_MAG_00020" ~ "Sphingorhabdus_B sp.", mag == "L7_MAG_00028" ~ "SYFN01 sp.",
+                                             mag == "L7_MAG_00043" ~ "Luteolibacter sp.", mag == "L8_MAG_00011" ~ "UBA953 sp.", mag == "L8_MAG_00019" ~ "UA16", mag == "L8_MAG_00042" ~ "UBA4660 sp."))
 
 mags$treatment <- factor(mags$treatment, levels = c("control", "phosphorus", "glyphosate"))
 mag_plot <- ggplot(mags, aes(x = mag_name, y = name))+
@@ -36,4 +27,4 @@ mag_plot <- ggplot(mags, aes(x = mag_name, y = name))+
         axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "none")
 
-save_plot("mag_overview.jpeg", mag_plot, dpi = 500, base_height = 4, base_width = 8)
+save_plot("mag_overview_subsamp.jpeg", mag_plot, dpi = 500, base_height = 4, base_width = 8)
