@@ -19,30 +19,28 @@ gene_changes_pass <- read_csv("gene_coverage_sig_genes_subsamp.csv")
 gene_decrease <- subset(gene_changes_pass, cov_dif < -0.5)
 gene_increase <- subset(gene_changes_pass, cov_dif > 0.5)
 gene_cov_significant <- left_join(gene_changes_pass[, c("gene", "abs_val")], background_cog)
-write.csv(gene_cov_significant, "gene_cov_significant_subsamp.csv", row.names = F)
+write.csv(gene_cov_significant, "gene_cov_significant_all_subsamp.csv", row.names = F)
 gene_cov_sig_increase <- left_join(gene_increase[, c("gene", "abs_val")], background_cog)
-write.csv(gene_cov_sig_increase, "gene_cov_sig_increase_subsamp.csv", row.names = F)
+write.csv(gene_cov_sig_increase, "gene_cov_sig_increase_all_subsamp.csv", row.names = F)
 gene_cov_sig_decrease <- left_join(gene_decrease[, c("gene", "abs_val")], background_cog)
-write.csv(gene_cov_sig_decrease, "gene_cov_sig_decrease_subsamp.csv", row.names = F)
+write.csv(gene_cov_sig_decrease, "gene_cov_sig_decrease_all_subsamp.csv", row.names = F)
 
 not_strict_parevol_genes <- read_csv("loose_MAG_significant_genes_subsamp.csv")
 not_strict_significant_genes <- left_join(not_strict_parevol_genes, background_cog)
-write.csv(not_strict_significant_genes, "significant_genes_loose_subsamp.csv", row.names = F)
+write.csv(not_strict_significant_genes, "significant_genes_loose_all_subsamp.csv", row.names = F)
 
 strict_parevol_genes <- read_csv("strict_MAG_significant_genes_subsamp.csv")
 strict_significant_genes <- left_join(strict_parevol_genes, background_cog)
-write.csv(strict_significant_genes, "significant_genes_strict_subsamp.csv", row.names = F)
+write.csv(strict_significant_genes, "significant_genes_strict_all_subsamp.csv", row.names = F)
 
 threshold_snvs <- read_csv("threshold_snvs_subsamp.csv")
-threshold_snvs <- subset(threshold_snvs, pass=="yes")
+threshold_snvs <- subset(threshold_snvs, pass == "yes")
 threshold_snvs_sum <- threshold_snvs %>% group_by(mag, scaffold, gene) %>% summarize(snvs_in_gene = sum(pass == "yes"))
 threshold_significant_genes <- left_join(threshold_snvs_sum, background_cog) %>% subset(is.na(gene) == F)
-write.csv(threshold_significant_genes, "threshold_significant_genes_subsamp.csv", row.names = F)
+write.csv(threshold_significant_genes, "threshold_significant_genes_all_subsamp.csv", row.names = F)
 
-not_strict_significant_genes$count <- 1
-not_strict_parevol_sum <- not_strict_significant_genes %>% group_by(mag) %>% summarize(loose_genes = sum(count))
-strict_significant_genes$count <- 1
-strict_parevol_sum <- strict_significant_genes %>% group_by(mag) %>% summarize(strict_genes = sum(count))
+not_strict_parevol_sum <- not_strict_significant_genes %>% group_by(mag) %>% summarize(loose_pos_genes = sum(direction == "positive"), loose_neg_genes = sum(direction == "negative"))
+strict_parevol_sum <- strict_significant_genes %>% group_by(mag) %>% summarize(strict_pos_genes = sum(direction == "positive"), strict_neg_genes = sum(direction == "negative"))
 threshold_significant_genes$count <- 1
 threshold_snvs_gene_sum  <- threshold_significant_genes  %>% group_by(mag) %>% summarize(allele_frequency_genes = sum(count))
 sig_gene_summary <- right_join(strict_parevol_sum, not_strict_parevol_sum,  by = c("mag"))
@@ -69,10 +67,9 @@ for(MAG in mag_list){
   MAG_parevol_gene_vector <- as.vector(MAG_parevol_genes$gene)
   MAG_threshold_gene_vector <- as.vector(MAG_threshold_genes$gene)
   overlaping_genes <- as.data.frame(intersect(MAG_parevol_genes$gene, MAG_threshold_genes$gene))
-  overlaping_genes$mag <- MAG
   MAG_overlap_strict <- rbind(MAG_overlap_strict, overlaping_genes)
 }
-
+MAG_overlap_strict$mag <- MAG_overlap_strict$`intersect(MAG_parevol_genes$gene, MAG_threshold_genes$gene)` %>% substr(1,12)
 MAG_overlap_strict$count <- 1
 overlap_summary_strict <- MAG_overlap_strict %>% group_by(mag) %>% summarise(strict_allele_frequency = sum(count))
 

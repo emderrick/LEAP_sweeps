@@ -5,7 +5,6 @@ EPSPS_class_1 <- list("I4_MAG_00006", "L7_MAG_00028", "L8_MAG_00011", "L8_MAG_00
 EPSPS_unclass <- list("L2_MAG_00052", "L4_MAG_00099", "L7_MAG_00020")
 
 all_MAG_snvs <- read_csv("all_MAG_SNVs_med_Dec7.csv")
-all_MAG_snvs <- subset(all_MAG_snvs, str_detect(new_name, "T2"))
 all_SNV_sum <- all_MAG_snvs %>% group_by(mag, mag_length, new_name) %>% count(class, name = "total") %>% na.omit() %>% pivot_wider(names_from = "class", values_from = "total")
 all_SNV_sum$SNV_Mbp <- (all_SNV_sum$SNV / all_SNV_sum$mag_length) *10^6
 all_SNV_sum$SNS_Mbp <- (all_SNV_sum$SNS / all_SNV_sum$mag_length) *10^6
@@ -13,11 +12,12 @@ write.csv(all_SNV_sum, "all_SNV_sum_subsamp.csv", row.names = F)
 
 all_SNV_sum <- subset(all_SNV_sum, select = -c(SNV, SNS))
 all_SNV_wide <- pivot_wider(all_SNV_sum, names_from = "new_name", values_from = c(SNV_Mbp, SNS_Mbp))
-all_SNV_wide <- all_SNV_wide %>% rowwise %>% mutate(control_SNV_mean = mean(c_across(contains("SNV_Mbp_Control")), na.rm = T))
-all_SNV_wide <- all_SNV_wide %>% rowwise %>% mutate(GBH_SNV_mean = mean(c_across(contains("SNV_Mbp_GBH")), na.rm = T))
-all_SNV_wide <- all_SNV_wide %>% rowwise %>% mutate(control_SNS_mean = mean(c_across(contains("SNS_Mbp_Control")), na.rm = T))
-all_SNV_wide <- all_SNV_wide %>% rowwise %>% mutate(GBH_SNS_mean = mean(c_across(contains("SNS_Mbp_GBH")), na.rm = T))
+all_SNV_wide$control_SNV_mean <- rowMeans(all_SNV_wide[,c('SNV_Mbp_Control A at T2', 'SNV_Mbp_Control B at T2', 'SNV_Mbp_Control C at T2', 'SNV_Mbp_Control D at T2', 'SNV_Mbp_Control E at T2')], na.rm = T)
+all_SNV_wide$GBH_SNV_mean <- rowMeans(all_SNV_wide[,c('SNV_Mbp_GBH A at T2', 'SNV_Mbp_GBH B at T2', 'SNV_Mbp_GBH C at T2', 'SNV_Mbp_GBH D at T2')], na.rm = T)
+all_SNV_wide$control_SNS_mean <- rowMeans(all_SNV_wide[,c('SNS_Mbp_Control A at T2', 'SNS_Mbp_Control B at T2', 'SNS_Mbp_Control C at T2', 'SNS_Mbp_Control D at T2', 'SNS_Mbp_Control E at T2')], na.rm = T)
+all_SNV_wide$GBH_SNS_mean <- rowMeans(all_SNV_wide[,c('SNS_Mbp_GBH A at T2', 'SNS_Mbp_GBH B at T2', 'SNS_Mbp_GBH C at T2', 'SNS_Mbp_GBH D at T2')], na.rm = T)
 write.csv(all_SNV_wide, "SNV_MAG_sums_table_subsamp.csv", row.names = F)
+
 small_SNV_wide <- select(all_SNV_wide, c('mag', 'mag_length', 'control_SNV_mean', 'GBH_SNV_mean', 'control_SNS_mean', 'GBH_SNS_mean'))
 small_SNV_wide$EPSPS_class <- with(small_SNV_wide, ifelse(mag %in% EPSPS_class_1, "Class I", "Class II"))
 small_SNV_wide$EPSPS_class <- with(small_SNV_wide, ifelse(mag %in% EPSPS_unclass, "Unclassified", EPSPS_class))

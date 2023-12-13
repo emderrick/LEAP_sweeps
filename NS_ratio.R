@@ -38,19 +38,26 @@ NS_SNV_EPSPS <- ggplot(MAG_NS_plot, aes(x = NS_ratio, y = SNVs_MBp, colour = EPS
   scale_colour_manual(values = c("#0A9396", "#AE2012", "#EE9B00"))+
   labs(y = "Maximum SNVs / Mbp", x = "N:S ratio", colour = "EPSPS Class", shape = "Potential Sweep")+
   theme_classic()+
-  theme(axis.title = element_text(size = 9),
-        axis.text = element_text(colour = "black", size = 8), 
-        legend.title = element_text(size=8),
-        legend.text = element_text(size=8),
+  theme(axis.title = element_text(size = 7),
+        axis.text = element_text(colour = "black", size = 7), 
+        legend.title = element_text(size=7),
+        legend.text = element_text(size=7),
         legend.position = c(0.85, 0.65))
-save_plot("NS_SNV_max_EPSPS_plot.jpeg", NS_SNV_EPSPS, dpi = 300, base_height = 3, base_width = 5)
+save_plot("NS_SNV_max_EPSPS_plot.jpeg", NS_SNV_EPSPS, dpi = 300, base_height = 4, base_width = 6)
 
 
-# MAG_NS_long <- pivot_longer(MAG_NS, cols = c("N", "S", "I", "M"), names_to = "mutation_type", values_to = "count")
-# 
-# ggplot(MAG_NS_long, aes(x = graph_name, y = count/total, fill = mutation_type))+
-#   geom_bar(stat = "identity")+
-#   theme_classic()+
-#   labs(y = "Fraction of SNVs", x = "pond", legend = "Mutation Type")+
-#   facet_wrap(~mag, nrow = 4, ncol = 4, scales="free", labeller = labeller(mag = mag_labs))
-# save_plot("NS_MAG_plot.jpeg", NS_plot, ncol = 4, nrow = 4, dpi = 300)
+MAG_NS_long <- pivot_longer(MAG_NS, cols = c("N", "S", "I", "M"), names_to = "mutation_type", values_to = "count")
+MAG_NS_long$mag_order = factor(MAG_NS_long$mag, levels=c('L2_MAG_00052', 'L4_MAG_00099', 'L7_MAG_00020', 'L7_MAG_00028', 'L7_MAG_00043', 'L8_MAG_00042',
+                                                         'I4_MAG_00006', 'I4_MAG_00065', 'L3_MAG_00058', 'L8_MAG_00011', 'L8_MAG_00019'))
+NS_ratio <- ggplot(MAG_NS_long, aes(x = graph_name, y = count/total, fill = mutation_type))+
+  geom_bar(stat = "identity")+
+  scale_fill_manual(values = c("#EE9B00", "#0A9396", "#AE2012", "#084c61"))+
+  theme_classic()+
+  theme(text = element_text(colour = "black"),
+        strip.text.x.top = element_text(size = 12, face = "bold"))+
+  labs(y = "Fraction of SNVs", x = "pond", fill = "Mutation Type")+
+  guides(fill = guide_legend(reverse = TRUE))+
+  scale_y_continuous(expand = expansion(mult = c(0, 0)))+
+  scale_x_discrete(expand = c(0, 0))+
+  facet_wrap(~mag_order, scales="free", ncol = 6, nrow = 2, labeller = labeller(mag_order = mag_labs))
+save_plot("NS_MAG_plot.jpeg", NS_ratio, ncol = 6, nrow = 2, base_height = 3, base_width = 3.5, dpi = 300)

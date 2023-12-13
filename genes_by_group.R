@@ -1,17 +1,17 @@
 library(tidyverse)
 library(dplyr)
 
-select_mags <- list("I4_MAG_00006", "I4_MAG_00065", "L3_MAG_00058", "L7_MAG_00020", "L8_MAG_00011", "L8_MAG_00019")
-other_mags <- list ("L2_MAG_00052", "L4_MAG_00099", "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00042")
+select_mags <- list("I4_MAG_00006", "I4_MAG_00065", "L3_MAG_00058", "L8_MAG_00011", "L8_MAG_00019")
+other_mags <- list ("L2_MAG_00052", "L4_MAG_00099", "L7_MAG_00020", "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00042")
 EPSPS_class_1 <- list("I4_MAG_00006", "L7_MAG_00028", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042", "L2_MAG_00052", "L4_MAG_00099", "L7_MAG_00020")
 EPSPS_class_2 <- list("I4_MAG_00065", "L3_MAG_00058", "L7_MAG_00043")
 
-sig_genes_loose <- read_csv("significant_genes_loose_subsamp.csv")
-sig_genes_strict <- read_csv("significant_genes_strict_subsamp.csv")
-sig_genes_threshold <- read_csv("threshold_significant_genes_subsamp.csv")
-sig_genes_increase <- read_csv("gene_cov_sig_increase_subsamp.csv")
+sig_genes_loose <- read_csv("significant_genes_loose_all_subsamp.csv")
+sig_genes_strict <- read_csv("significant_genes_strict_all_subsamp.csv")
+sig_genes_threshold <- read_csv("threshold_significant_genes_all_subsamp.csv")
+sig_genes_increase <- read_csv("gene_cov_sig_increase_all_subsamp.csv")
 sig_genes_increase$mag <- sig_genes_increase$gene %>% substr(1,12)
-sig_genes_decrease <- read_csv("gene_cov_sig_decrease_subsamp.csv")
+sig_genes_decrease <- read_csv("gene_cov_sig_decrease_all_subsamp.csv")
 sig_genes_decrease$mag <- sig_genes_decrease$gene %>% substr(1,12)
 
 #by EPSPS class

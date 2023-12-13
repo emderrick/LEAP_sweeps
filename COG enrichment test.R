@@ -83,7 +83,8 @@ categories_to_ignore <- c('A', 'B', 'Y', 'Z')
 
 all_background_genes <- read_csv("cog_background_genes.csv")
 
-sig_gene_files = c("sig_genes_loose_C1_subsamp.csv", "sig_genes_strict_C1_subsamp.csv", "sig_genes_threshold_C1_subsamp.csv", "sig_genes_increase_C1_subsamp.csv", "sig_genes_decrease_C1_subsamp.csv",
+sig_gene_files <- c("significant_genes_loose_all_subsamp.csv", "significant_genes_strict_all_subsamp.csv", "threshold_significant_genes_all_subsamp.csv", "gene_cov_sig_increase_all_subsamp.csv", "gene_cov_sig_decrease_all_subsamp.csv",
+                   "sig_genes_loose_C1_subsamp.csv", "sig_genes_strict_C1_subsamp.csv", "sig_genes_threshold_C1_subsamp.csv", "sig_genes_increase_C1_subsamp.csv", "sig_genes_decrease_C1_subsamp.csv",
                    "sig_genes_loose_C2_subsamp.csv", "sig_genes_strict_C2_subsamp.csv", "sig_genes_threshold_C2_subsamp.csv", "sig_genes_increase_C2_subsamp.csv", "sig_genes_decrease_C2_subsamp.csv",
                    "sig_genes_loose_sweep_subsamp.csv", "sig_genes_strict_sweep_subsamp.csv", "sig_genes_threshold_sweep_subsamp.csv", "sig_genes_increase_sweep_subsamp.csv", "sig_genes_decrease_sweep_subsamp.csv",
                    "sig_genes_loose_no_sweep_subsamp.csv", "sig_genes_strict_no_sweep_subsamp.csv", "sig_genes_threshold_no_sweep_subsamp.csv", "sig_genes_increase_no_sweep_subsamp.csv", "sig_genes_decrease_no_sweep_subsamp.csv")
@@ -104,3 +105,4 @@ for(gene_file in sig_gene_files){
 
   write.csv(COG_enrichment_output, paste("COG_enrichment_eggnog_", gene_file, sep = ""), row.names = F)
 }
+
