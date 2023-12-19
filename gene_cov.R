@@ -1,7 +1,6 @@
 library(tidyverse)
 library(dplyr)
 
-# for Emma data
 mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099",
                  "L7_MAG_00020", "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
 
@@ -60,16 +59,15 @@ gene_changes$GBH_ref <- with(gene_changes, ifelse(control == "high",
 
 gene_changes$pass <- with(gene_changes, ifelse(((control == "high" & GBH_ref < control_ref) | (control == "low" & GBH_ref > control_ref)), "yes", "no"))
 gene_changes_pass <- subset(gene_changes, pass == "yes")
+
+gene_changes_pass$mag <- gene_changes_pass$gene %>% substr(1,12)
 write.csv(gene_changes_pass, "gene_coverage_sig_genes_subsamp.csv", row.names = F)
 
 gene_decrease <- subset(gene_changes_pass, cov_dif < -0.5)
 gene_increase <- subset(gene_changes_pass, cov_dif > 0.5)
 
-gene_decrease$mag <- gene_decrease$gene %>% substr(1,12)
-gene_decrease_sum <- gene_decrease %>% group_by(mag) %>% summarize(decrease_total = sum(pass == "yes"))
-
-gene_increase$mag <- gene_increase$gene %>% substr(1,12)
-gene_increase_sum <- gene_increase %>% group_by(mag) %>% summarize(increase_total = sum(pass == "yes"))
+gene_decrease_sum <- gene_decrease %>% group_by(mag) %>% summarize(cov_decrease_total = sum(pass == "yes"))
+gene_increase_sum <- gene_increase %>% group_by(mag) %>% summarize(cov_increase_total = sum(pass == "yes"))
 
 gene_sum <- left_join(gene_increase_sum, gene_decrease_sum)
 write.csv(gene_sum, "gene_cov_change_sum_subsamp.csv", row.names = F)

@@ -3,40 +3,41 @@ library(dplyr)
 library(ggplot2)
 library(cowplot)
 
-test_groups <- list(all = list("COG_enrichment_eggnog_threshold_significant_genes_all_subsamp.csv", "COG_enrichment_eggnog_significant_genes_loose_all_subsamp.csv", "COG_enrichment_eggnog_significant_genes_strict_all_subsamp.csv",
-                            "COG_enrichment_eggnog_gene_cov_sig_increase_all_subsamp.csv", "COG_enrichment_eggnog_gene_cov_sig_decrease_all_subsamp.csv"),
-                    class_1 = list("COG_enrichment_eggnog_sig_genes_threshold_C1_subsamp.csv", "COG_enrichment_eggnog_sig_genes_loose_C1_subsamp.csv", "COG_enrichment_eggnog_sig_genes_strict_C1_subsamp.csv",
-                                "COG_enrichment_eggnog_sig_genes_increase_C1_subsamp.csv", "COG_enrichment_eggnog_sig_genes_decrease_C1_subsamp.csv"),
-                    class_2 = list("COG_enrichment_eggnog_sig_genes_threshold_C2_subsamp.csv", "COG_enrichment_eggnog_sig_genes_loose_C2_subsamp.csv", "COG_enrichment_eggnog_sig_genes_strict_C2_subsamp.csv",
-                                "COG_enrichment_eggnog_sig_genes_increase_C2_subsamp.csv", "COG_enrichment_eggnog_sig_genes_decrease_C2_subsamp.csv"))
+test_groups <- list(all = list("COG_enrich_sig_genes_loose_pos_subsamp.csv", "COG_enrich_sig_genes_loose_neg_subsamp.csv", "COG_enrich_sig_genes_strict_pos_subsamp.csv", "COG_enrich_sig_genes_strict_neg_subsamp.csv",
+                               "COG_enrich_threshold_significant_genes_all_subsamp.csv", "COG_enrich_gene_cov_sig_increase_all_subsamp.csv", "COG_enrich_gene_cov_sig_decrease_all_subsamp.csv"),
+                    class_1 = list("COG_enrich_sig_genes_loose_pos_C1_subsamp.csv", "COG_enrich_sig_genes_loose_neg_C1_subsamp.csv", "COG_enrich_sig_genes_strict_pos_C1_subsamp.csv", "COG_enrich_sig_genes_strict_neg_C1_subsamp.csv",
+                                   "COG_enrich_sig_genes_threshold_C1_subsamp.csv", "COG_enrich_sig_genes_increase_C1_subsamp.csv", "COG_enrich_sig_genes_decrease_C1_subsamp.csv"),
+                    class_2 = list( "COG_enrich_sig_genes_loose_pos_C2_subsamp.csv", "COG_enrich_sig_genes_loose_neg_C2_subsamp.csv", "COG_enrich_sig_genes_strict_pos_C2_subsamp.csv", "COG_enrich_sig_genes_strict_neg_C2_subsamp.csv",
+                                    "COG_enrich_sig_genes_threshold_C2_subsamp.csv", "COG_enrich_sig_genes_increase_C2_subsamp.csv", "COG_enrich_sig_genes_decrease_C2_subsamp.csv"))
 
 output_names <- names(test_groups)
 
 for(name in output_names){
-  COG_threshold <- read_csv(test_groups[[name]][[1]])
-  COG_loose <-  read_csv(test_groups[[name]][[2]])
-  COG_strict <-  read_csv(test_groups[[name]][[3]])
-  COG_increase <-  read_csv(test_groups[[name]][[4]])
-  COG_decrease <-  read_csv(test_groups[[name]][[5]])
+  COG_loose_pos <- read_csv(test_groups[[name]][[1]])
+  COG_loose_neg <-  read_csv(test_groups[[name]][[2]])
+  COG_strict_pos <- read_csv(test_groups[[name]][[3]])
+  COG_strict_neg <-  read_csv(test_groups[[name]][[4]])
+  COG_threshold <-  read_csv(test_groups[[name]][[5]])
+  COG_increase <-  read_csv(test_groups[[name]][[6]])
+  COG_decrease <-  read_csv(test_groups[[name]][[7]])
   
+  COG_loose_pos$method <- "Not Parallel - SNV Decrease"
+  COG_loose_neg$method <- "Not Parallel - SNV Increase"
+  COG_strict_pos$method <- "Parallel - SNV Decrease"
+  COG_strict_neg$method <- "Parallel - SNV Increase"
   COG_threshold$method <- "Allele Frequency Change"
-  COG_loose$method <- "SNV Count Loose"
-  COG_strict$method <- "SNV Count Strict"
   COG_increase$method <- "Gene Copy Increase"
   COG_decrease$method <- "Gene Copy Decrease"
   
-  all_COG <- rbind(COG_threshold, COG_loose, COG_strict, COG_increase, COG_decrease)
-  all_COG <- all_COG[, c(1, 6:9)]
-  all_COG$method <- factor(all_COG$method, levels = c("Allele Frequency Change", "SNV Count Loose", "SNV Count Strict", "Gene Copy Increase", "Gene Copy Decrease"))
+  all_COG <- rbind(COG_loose_pos, COG_loose_neg, COG_strict_pos, COG_strict_neg, COG_threshold, COG_increase, COG_decrease)
   all_COG$OR_sig <- with(all_COG, ifelse(OR < 1 & p < 0.05, "p < 0.05 & depleted", "p > 0.05"))
   all_COG$OR_sig <- with(all_COG, ifelse(OR > 1 & p < 0.05, "p < 0.05 & enriched", OR_sig))
-  all_COG$category <-  factor(all_COG$category, levels = c("J", "K", "L", "D", "V", "T", "M", "N", "W", "U", "O", "C", "G", "E", "F", "H", "I", "P", "Q", "X", "R", "S"))
   write.csv(all_COG, paste(name, "COG.csv", sep ="_"), row.names = F)
 
 }
 
 all <- read_csv("all_COG.csv")
-all$method <- factor(all$method, levels = c("Allele Frequency Change", "SNV Count Loose", "SNV Count Strict", "Gene Copy Increase", "Gene Copy Decrease"))
+all$method <- factor(all$method, levels = c("Allele Frequency Change", "Parallel - SNV Decrease", "Parallel - SNV Increase", "Not Parallel - SNV Decrease", "Not Parallel - SNV Increase", "Gene Copy Increase", "Gene Copy Decrease"))
 all$category <-  factor(all$category, levels = c("J", "K", "L", "D", "V", "T", "M", "N", "W", "U", "O", "C", "G", "E", "F", "H", "I", "P", "Q", "X", "R", "S"))
 all_sig <- subset(all, OR_sig != "p > 0.05" & fdr < 0.1)
 all_sig$fdr_sig <- "FDR < 0.1"
@@ -62,7 +63,7 @@ COG_summary_all <- ggplot(all, aes(y = method, x = category, fill = OR_sig))+
     scale_x_discrete(expand = c(0, 0.5))+
     guides(colour = guide_legend(order = 1))
 
-save_plot("all_COG_summary_plot.jpeg", COG_summary_all, base_height = 7, base_width = 16, dpi = 200)
+save_plot("all_COG_summary_plot.jpeg", COG_summary_all, base_height = 9, base_width = 16, dpi = 200)
 
 
 class_1 <- read_csv("class_1_COG.csv")
@@ -70,7 +71,7 @@ class_1$class <- "Class I - Sensitive"
 class_2 <- read_csv("class_2_COG.csv")
 class_2$class <- "Class II - Resistant"
 all_class <- rbind(class_1, class_2)
-all_class$method <- factor(all_class$method, levels = c("Allele Frequency Change", "SNV Count Loose", "SNV Count Strict", "Gene Copy Increase", "Gene Copy Decrease"))
+all_class$method <- factor(all_class$method, levels = c("Allele Frequency Change", "Parallel - SNV Decrease", "Parallel - SNV Increase", "Not Parallel - SNV Decrease", "Not Parallel - SNV Increase", "Gene Copy Increase", "Gene Copy Decrease"))
 all_class$category <-  factor(all_class$category, levels = c("J", "K", "L", "D", "V", "T", "M", "N", "W", "U", "O", "C", "G", "E", "F", "H", "I", "P", "Q", "X", "R", "S"))
 all_class_sig <- subset(all_class, OR_sig != "p > 0.05" & fdr < 0.1)
 all_class_sig$fdr_sig <- "FDR < 0.1"
@@ -99,4 +100,4 @@ class_COG <- ggplot(all_class, aes(y = method, x = category, fill = OR_sig))+
   guides(colour = guide_legend(order = 1))+
   facet_wrap(~class, ncol = 1, scales = "free")
 
-save_plot("class_grouped_COG.jpeg", base_height = 14, base_width = 16, class_COG, dpi = 400)
+save_plot("class_grouped_COG.jpeg", base_height = 20, base_width = 18, class_COG, dpi = 400)
