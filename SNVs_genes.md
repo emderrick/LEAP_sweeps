@@ -1,3 +1,4 @@
+**Annotation of MAG genes**
 
 Annotation of my candidate MAGs with bakta since I had previously done it with prokka. I installed bakta in a virtual environment in the venvs directory in home. This is bakta version 1.8.1.
 
@@ -62,5 +63,22 @@ do
 out="${file//.fa/_full_bakta_output}"
 bakta $file --db /home/ederrick/scratch/dbs/bakta  --output $out --threads 16
 done
+deactivate
+```
+
+Annotating with EggNOG to get COG categories for each gene because bakta doesn't output it nicely.
+
+```bash
+#!/usr/bin/bash
+#SBATCH --account=
+#SBATCH --time=03:00:00
+#SBATCH --mem-per-cpu=2G
+#SBATCH --cpus-per-task=36
+
+source /home/ederrick/virtual_envs/eggnog/bin/activate
+export EGGNOG_DATA_DIR=/home/ederrick/virtual_envs/eggnog/
+
+emapper.py  -m diamond --itype CDS -i oct_mag_genes.fna -o eggnog_genes_oct_nt --output_dir /home/ederrick/scratch/eggnog_output_oct --cpu 36
+
 deactivate
 ```
