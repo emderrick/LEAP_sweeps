@@ -113,3 +113,26 @@ samtools merge subsamp_L7_pulse1.bam *L7_pulse1*
 samtools merge subsamp_L8_pulse1.bam *L8_pulse1*
 ```
 
+Count mapped reads at each TP
+
+```bash
+#!/usr/bin/bash
+#SBATCH --time=01:00:00
+#SBATCH --account=
+#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu=2G
+
+module load StdEnv/2023
+module load samtools/1.18
+
+for magfile in *contigs.txt
+do
+  	for file in *.bam
+        do
+	mag="${magfile//_contigs.txt/}"
+        total=$(samtools view -c $file)
+        mapped=$(cat $magfile | tr "\n" " " | xargs samtools view -c -f 1 $file)
+        echo $mag, $file, $mapped, $total
+        done
+done
+```
