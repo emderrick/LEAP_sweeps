@@ -9,9 +9,9 @@ sens_mags <- list("I4_MAG_00006", "L7_MAG_00028", "L8_MAG_00011", "L8_MAG_00019"
 res_mags <- list("I4_MAG_00065", "L3_MAG_00058", "L7_MAG_00020", "L7_MAG_00043")
 unclass_mags <- list("L2_MAG_00052", "L4_MAG_00099")
 
-sens_mag_labs <- c(I4_MAG_00006 = "SJAQ100 sp016735685", L7_MAG_00028 = "SYFN01 sp.", L8_MAG_00011 = "UBA953 sp.", L8_MAG_00019 = "UA16", L8_MAG_00042 = "UBA4660 sp.")
-res_mag_labs <-  c(I4_MAG_00065  = "Roseomonas sp.",  L3_MAG_00058 = "Prosthecobacter sp.", L7_MAG_00020 = "Sphingorhabdus_B sp.", L7_MAG_00043 = "Luteolibacter sp.")
-unclass_mag_labs <- c(L2_MAG_00052 = "Erythrobacter sp.", L4_MAG_00099 = "Bosea sp001713455")
+sens_mag_labs <- c(I4_MAG_00006 = "Burkholderiaceae 1", L7_MAG_00028 = "Burkholderiaceae 2", L8_MAG_00011 = "Verrucomicrobiae", L8_MAG_00019 = "Flavobacteriales 1", L8_MAG_00042 = "Flavobacteriales 2")
+res_mag_labs <-  c(I4_MAG_00065 = "Roseomonas_A",  L3_MAG_00058 = "Prosthecobacter", L7_MAG_00020 = "Sphingorhabdus_B", L7_MAG_00043 = "Luteolibacter")
+unclass_mag_labs <- c(L2_MAG_00052 = "Erythrobacter", L4_MAG_00099 = "Bosea sp001713455")
 
 all_snv <- read_csv("all_MAG_SNVs_med_Dec7.csv")
 all_snv$graph_name <- gsub("Control", "CTL", all_snv$new_name) %>% str_sub(end = -6)

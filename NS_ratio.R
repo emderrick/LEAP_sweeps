@@ -3,14 +3,14 @@ library(dplyr)
 library(ggplot2)
 library(cowplot)
 
-mag_labs <- (c(I4_MAG_00006 = "SJAQ100 sp016735685", I4_MAG_00065 = "Roseomonas sp.", L2_MAG_00052 = "Erythrobacter sp.",
-               L3_MAG_00058 = "Prosthecobacter sp.", L4_MAG_00099 = "Bosea sp001713455", L7_MAG_00020 = "Sphingorhabdus_B sp.",
-               L7_MAG_00028 = "SYFN01 sp.", L7_MAG_00043 = "Luteolibacter sp.",L8_MAG_00011 = "UBA953 sp.",
-               L8_MAG_00019 = "UA16", L8_MAG_00042 = "UBA4660 sp."))
+mag_labs <- c(I4_MAG_00006 = "Burkholderiaceae 1", I4_MAG_00065 = "Roseomonas_A", L2_MAG_00052 = "Erythrobacter", 
+              L3_MAG_00058 = "Prosthecobacter", L4_MAG_00099 = "Bosea sp001713455", L7_MAG_00020 = "Sphingorhabdus_B",
+              L7_MAG_00028 = "Burkholderiaceae 2", L7_MAG_00043 = "Luteolibacter", L8_MAG_00011 = "Verrucomicrobiae", 
+              L8_MAG_00019 = "Flavobacteriales 1", L8_MAG_00042 = "Flavobacteriales 2")
 
 select_mags <- list("I4_MAG_00006", "I4_MAG_00065", "L3_MAG_00058", "L8_MAG_00011", "L8_MAG_00019")
-EPSPS_class_1 <- list("I4_MAG_00006", "L7_MAG_00028", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
-EPSPS_unclass <- list("L2_MAG_00052", "L4_MAG_00099", "L7_MAG_00020")
+EPSPS_class_1 <- list("I4_MAG_00006", "L7_MAG_00020", "L7_MAG_00028", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
+EPSPS_unclass <- list("L2_MAG_00052", "L4_MAG_00099")
 
 all_MAG_snvs <- read_csv("all_MAG_SNVs_med_Dec7.csv")
 all_MAG_snvs <- subset(all_MAG_snvs, str_detect(new_name, "T2"))
@@ -47,17 +47,18 @@ save_plot("NS_SNV_max_EPSPS_plot.jpeg", NS_SNV_EPSPS, dpi = 300, base_height = 4
 
 
 MAG_NS_long <- pivot_longer(MAG_NS, cols = c("N", "S", "I", "M"), names_to = "mutation_type", values_to = "count")
-MAG_NS_long$mag_order = factor(MAG_NS_long$mag, levels=c('L2_MAG_00052', 'L4_MAG_00099', 'L7_MAG_00020', 'L7_MAG_00028', 'L7_MAG_00043', 'L8_MAG_00042',
-                                                         'I4_MAG_00006', 'I4_MAG_00065', 'L3_MAG_00058', 'L8_MAG_00011', 'L8_MAG_00019'))
+MAG_NS_long$mag_order = factor(MAG_NS_long$mag, levels=c('I4_MAG_00006','L7_MAG_00028','L8_MAG_00011', 'L8_MAG_00019', 'L8_MAG_00042',
+                                                         'I4_MAG_00065', 'L3_MAG_00058', 'L7_MAG_00020',  'L7_MAG_00043',
+                                                         'L2_MAG_00052', 'L4_MAG_00099'))
 NS_ratio <- ggplot(MAG_NS_long, aes(x = graph_name, y = count/total, fill = mutation_type))+
   geom_bar(stat = "identity")+
   scale_fill_manual(values = c("#EE9B00", "#0A9396", "#AE2012", "#084c61"))+
   theme_classic()+
   theme(text = element_text(colour = "black"),
         strip.text.x.top = element_text(size = 12, face = "bold"))+
-  labs(y = "Fraction of SNVs", x = "pond", fill = "Mutation Type")+
+  labs(y = "Fraction of SNVs", x = NULL, fill = "Mutation Type")+
   guides(fill = guide_legend(reverse = TRUE))+
   scale_y_continuous(expand = expansion(mult = c(0, 0)))+
   scale_x_discrete(expand = c(0, 0))+
-  facet_wrap(~mag_order, scales="free", ncol = 6, nrow = 2, labeller = labeller(mag_order = mag_labs))
-save_plot("NS_MAG_plot.jpeg", NS_ratio, ncol = 6, nrow = 2, base_height = 3, base_width = 3.5, dpi = 300)
+  facet_wrap(~mag_order, scales="free", ncol = 5, nrow = 3, labeller = labeller(mag_order = mag_labs))
+save_plot("NS_MAG_plot.jpeg", NS_ratio, ncol = 5, nrow = 3, base_height = 3, base_width = 3.5, dpi = 300)

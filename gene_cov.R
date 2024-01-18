@@ -4,11 +4,6 @@ library(dplyr)
 mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099",
                  "L7_MAG_00020", "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
 
-mag_labs <- (c(I4_MAG_00006 = "SJAQ100 sp016735685", I4_MAG_00065 = "Roseomonas sp.", L2_MAG_00052 = "Erythrobacter sp.",
-               L3_MAG_00058 = "Prosthecobacter sp.", L4_MAG_00099 = "Bosea sp001713455", L7_MAG_00020 = "Sphingorhabdus_B sp.",
-               L7_MAG_00028 = "SYFN01 sp.", L7_MAG_00043 = "Luteolibacter sp.",L8_MAG_00011 = "UBA953 sp.",
-               L8_MAG_00019 = "UA16", L8_MAG_00042 = "UBA4660 sp."))
-
 gene_files <- list.files("subsampled_instrain/", recursive = T, pattern = ".*gene_info.tsv", full.names = T)
 all_genes <- data.frame()
 for(i in 1:length(gene_files)){

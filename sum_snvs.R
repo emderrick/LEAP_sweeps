@@ -2,7 +2,7 @@ library(tidyverse)
 library(dplyr)
 
 EPSPS_class_1 <- list("I4_MAG_00006", "L7_MAG_00028", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
-EPSPS_unclass <- list("L2_MAG_00052", "L4_MAG_00099", "L7_MAG_00020")
+EPSPS_unclass <- list("L2_MAG_00052", "L4_MAG_00099")
 
 all_MAG_snvs <- read_csv("all_MAG_SNVs_med_Dec7.csv")
 all_SNV_sum <- all_MAG_snvs %>% group_by(mag, mag_length, new_name) %>% count(class, name = "total") %>% na.omit() %>% pivot_wider(names_from = "class", values_from = "total")
@@ -24,15 +24,18 @@ small_SNV_wide$EPSPS_class <- with(small_SNV_wide, ifelse(mag %in% EPSPS_unclass
 small_SNV_wide$EPSPS_class_fisher <- with(small_SNV_wide, ifelse(EPSPS_class == "Class II", "Class II", "Class I"))
 small_SNV_wide$SNV_to_control <- with(small_SNV_wide, ifelse(control_SNV_mean > GBH_SNV_mean, "Decrease", "Increase"))
 small_SNV_wide$SNS_to_control <- with(small_SNV_wide, ifelse(control_SNS_mean > GBH_SNS_mean, "Decrease", "Increase"))
-small_SNV_wide$Sweep <- with(small_SNV_wide, ifelse(SNV_to_control == "Decrease" & SNS_to_control == "Increase", "Yes", "No"))
 write.csv(small_SNV_wide, "SNV_summary_table_subsamp.csv", row.names = F)
+
+mag_cov <- read_csv("mag_coverage_subsamp.csv")
+mag_cov_snv_sum <- left_join(mag_cov, all_SNV_sum)
+mag_cov_snv_sum <- mag_cov_snv_sum %>% mutate(mag_name = case_when(mag == "I4_MAG_00006" ~ "Burkholderiaceae 1", mag == "I4_MAG_00065" ~ "Roseomonas_A", mag == "L2_MAG_00052" ~ "Erythrobacter",
+                                                                     mag == "L3_MAG_00058" ~ "Prosthecobacter", mag == "L4_MAG_00099" ~ "Bosea sp001713455", mag == "L7_MAG_00020" ~ "Sphingorhabdus_B",
+                                                                     mag == "L7_MAG_00028" ~ "Burkholderiaceae 2", mag == "L7_MAG_00043" ~ "Luteolibacter", mag == "L8_MAG_00011" ~ "Verrucomicrobiae",
+                                                                     mag == "L8_MAG_00019" ~ "Flavobacteriales 1", mag == "L8_MAG_00042" ~ "Flavobacteriales 2"))
+write.csv(mag_cov_snv_sum, "mag_coverage_snv_sum.csv", row.names = F)
 
 fishers_snv <- small_SNV_wide %>% group_by(EPSPS_class_fisher) %>% summarise(Increase = sum(SNV_to_control == "Increase"), Decrease = sum(SNV_to_control == "Decrease"))
 fishers_snv_test <- fisher.test(fishers_snv[2:3])
 
 fishers_sns <- small_SNV_wide %>% group_by(EPSPS_class_fisher) %>% summarise(Increase = sum(SNS_to_control == "Increase"), Decrease = sum(SNS_to_control == "Decrease"))
 fishers_sns_test <-fisher.test(fishers_sns[2:3])
-
-fishers_sweep <- small_SNV_wide %>% group_by(EPSPS_class_fisher) %>% summarise(Yes = sum(Sweep == "Yes"), No = sum(Sweep == "No"))
-fishers_sweep_test <- fisher.test(fishers_sweep[2:3])
-
