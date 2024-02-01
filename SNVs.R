@@ -63,4 +63,4 @@ for(MAG in mag_list){
   all_finished_SNVs <- rbind(all_finished_SNVs, MAG_SNVs)
 }
 
-write.csv(all_finished_SNVs, "all_MAG_SNVs_med_Dec7.csv", row.names = F)
+write.csv(all_finished_SNVs, "all_MAG_SNVs_med_Jan30.csv", row.names = F)

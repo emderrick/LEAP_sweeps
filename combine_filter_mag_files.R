@@ -1,11 +1,7 @@
 library(tidyverse)
 
-mag_list <- list("L3_MAG_00058", "L4_MAG_00099", "L8_MAG_00019", "L8_MAG_00011", "L7_MAG_00043", "L7_MAG_00028",
-                 "I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L7_MAG_00020", "L8_MAG_00042")
-
 genome_files <- list.files("subsampled_instrain/", recursive = T, pattern = ".*genome_info.tsv", full.names = T)
 all_mags <- data.frame()
-
 for(i in 1:length(genome_files)){
   pond_time_mags <- read.table(genome_files[i], sep="\t", header = T)
   timepoint <- gsub(".*instrain_output/", "", genome_files[i]) %>% substr(9,17)
@@ -63,11 +59,8 @@ write.csv(mag_scaf_SNV, "all_SNVs_subsamp.csv", row.names = F)
 mag_scaf_SNV$pos_from_end <- mag_scaf_SNV$length - mag_scaf_SNV$position
 mag_scaf_SNV <- subset(mag_scaf_SNV, position > 100)
 mag_scaf_SNV <- subset(mag_scaf_SNV, pos_from_end > 100)
-mag_scaf_SNV$number_SNVs <- with(mag_scaf_SNV, ifelse(class == "SNV", 1, 0))
-mag_scaf_SNV$number_SNSs <- with(mag_scaf_SNV, ifelse(class == "SNS", 1, 0))
-mag_scaf_SNV$number_divergent <- 1
 mag_scaf_SNV$full_group <- paste(mag_scaf_SNV$mag, mag_scaf_SNV$new_name)
 mag_scaf_SNV <- mag_scaf_SNV %>% subset(!(position_coverage > mag_coverage*3)) 
 mag_scaf_SNV <- mag_scaf_SNV %>% subset(!(position_coverage < mag_coverage/3))
-mag_scaf_SNV <- subset(mag_scaf_SNV, allele_count <= 2)
+mag_scaf_SNV<- mag_scaf_SNV[rowSums(mag_scaf_SNV[, 11:14] == 0) >= 2,]
 write.csv(mag_scaf_SNV, "filtered_mag_SNVs_subsamp.csv", row.names = F)
