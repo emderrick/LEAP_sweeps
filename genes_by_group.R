@@ -5,16 +5,12 @@ EPSPS_class_1 <- list("I4_MAG_00006", "L7_MAG_00028", "L8_MAG_00011", "L8_MAG_00
 EPSPS_class_2 <- list("I4_MAG_00065", "L3_MAG_00058", "L7_MAG_00020", "L7_MAG_00043")
 
 sig_genes_loose <- read_csv("significant_genes_loose_all_subsamp.csv")
-sig_genes_loose_pos <- subset(sig_genes_loose, direction == "positive")
-sig_genes_loose_neg <-subset(sig_genes_loose, direction == "negative")
-write.csv(sig_genes_loose_pos, "sig_genes_loose_pos_subsamp.csv", row.names = F)
-write.csv(sig_genes_loose_neg, "sig_genes_loose_neg_subsamp.csv", row.names = F)
+sig_genes_loose_pos <- read_csv("SNV_decrease_genes.csv")
+sig_genes_loose_neg <- read_csv("SNV_increase_genes.csv")
 
 sig_genes_strict <- read_csv("significant_genes_strict_all_subsamp.csv")
-sig_genes_strict_pos <- subset(sig_genes_strict, direction == "positive")
-sig_genes_strict_neg <-subset(sig_genes_strict, direction == "negative")
-write.csv(sig_genes_strict_pos, "sig_genes_strict_pos_subsamp.csv", row.names = F)
-write.csv(sig_genes_strict_neg, "sig_genes_strict_neg_subsamp.csv", row.names = F)
+sig_genes_strict_pos <- read_csv("parallel_decrease_genes.csv")
+sig_genes_strict_neg <- read_csv("parallel_increase_genes.csv")
 
 sig_genes_threshold <- read_csv("threshold_significant_genes_all_subsamp.csv")
 sig_genes_increase <- read_csv("gene_cov_sig_increase_all_subsamp.csv")

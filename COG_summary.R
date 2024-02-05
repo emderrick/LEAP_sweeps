@@ -3,7 +3,7 @@ library(dplyr)
 library(ggplot2)
 library(cowplot)
 
-test_groups <- list(all = list("COG_enrich_sig_genes_loose_pos_subsamp.csv", "COG_enrich_sig_genes_loose_neg_subsamp.csv", "COG_enrich_sig_genes_strict_pos_subsamp.csv", "COG_enrich_sig_genes_strict_neg_subsamp.csv",
+test_groups <- list(all = list("COG_enrich_SNV_decrease_genes.csv", "COG_enrich_SNV_increase_genes.csv", "COG_enrich_parallel_decrease_genes.csv", "COG_enrich_parallel_increase_genes.csv",
                                "COG_enrich_threshold_significant_genes_all_subsamp.csv", "COG_enrich_gene_cov_sig_increase_all_subsamp.csv", "COG_enrich_gene_cov_sig_decrease_all_subsamp.csv"),
                     class_1 = list("COG_enrich_sig_genes_loose_pos_C1_subsamp.csv", "COG_enrich_sig_genes_loose_neg_C1_subsamp.csv", "COG_enrich_sig_genes_strict_pos_C1_subsamp.csv", "COG_enrich_sig_genes_strict_neg_C1_subsamp.csv",
                                    "COG_enrich_sig_genes_threshold_C1_subsamp.csv", "COG_enrich_sig_genes_increase_C1_subsamp.csv", "COG_enrich_sig_genes_decrease_C1_subsamp.csv"),
@@ -26,8 +26,8 @@ for(name in output_names){
   COG_strict_pos$method <- "Parallel - SNV Decrease"
   COG_strict_neg$method <- "Parallel - SNV Increase"
   COG_threshold$method <- "Allele Frequency Change"
-  COG_increase$method <- "Gene Copy Increase"
-  COG_decrease$method <- "Gene Copy Decrease"
+  COG_increase$method <- "Gene Copy Number Increase"
+  COG_decrease$method <- "Gene Copy Number Decrease"
   
   all_COG <- rbind(COG_loose_pos, COG_loose_neg, COG_strict_pos, COG_strict_neg, COG_threshold, COG_increase, COG_decrease)
   all_COG$OR_sig <- with(all_COG, ifelse(OR < 1 & p < 0.05, "p < 0.05 & depleted", "p > 0.05"))
@@ -37,7 +37,7 @@ for(name in output_names){
 }
 
 all <- read_csv("all_COG.csv")
-all$method <- factor(all$method, levels = c("Allele Frequency Change", "Parallel - SNV Decrease", "Parallel - SNV Increase", "Not Parallel - SNV Decrease", "Not Parallel - SNV Increase", "Gene Copy Increase", "Gene Copy Decrease"))
+all$method <- factor(all$method, levels = c("Allele Frequency Change", "Parallel - SNV Decrease", "Parallel - SNV Increase", "Not Parallel - SNV Decrease", "Not Parallel - SNV Increase", "Gene Copy Number Increase", "Gene Copy Number Decrease"))
 all$category <-  factor(all$category, levels = c("J", "K", "L", "D", "V", "T", "M", "N", "W", "U", "O", "C", "G", "E", "F", "H", "I", "P", "Q", "X", "R", "S"))
 all_sig <- subset(all, OR_sig != "p > 0.05" & fdr < 0.1)
 all_sig$fdr_sig <- "FDR < 0.1"
@@ -71,7 +71,7 @@ class_1$class <- "Class I - Sensitive"
 class_2 <- read_csv("class_2_COG.csv")
 class_2$class <- "Class II - Resistant"
 all_class <- rbind(class_1, class_2)
-all_class$method <- factor(all_class$method, levels = c("Allele Frequency Change", "Parallel - SNV Decrease", "Parallel - SNV Increase", "Not Parallel - SNV Decrease", "Not Parallel - SNV Increase", "Gene Copy Increase", "Gene Copy Decrease"))
+all_class$method <- factor(all_class$method, levels = c("Allele Frequency Change", "Parallel - SNV Decrease", "Parallel - SNV Increase", "Not Parallel - SNV Decrease", "Not Parallel - SNV Increase", "Gene Copy Number Increase", "Gene Copy Number Decrease"))
 all_class$category <-  factor(all_class$category, levels = c("J", "K", "L", "D", "V", "T", "M", "N", "W", "U", "O", "C", "G", "E", "F", "H", "I", "P", "Q", "X", "R", "S"))
 all_class_sig <- subset(all_class, OR_sig != "p > 0.05" & fdr < 0.1)
 all_class_sig$fdr_sig <- "FDR < 0.1"

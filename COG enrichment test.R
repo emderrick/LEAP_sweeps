@@ -83,7 +83,7 @@ categories_to_ignore <- c('A', 'B', 'Y', 'Z')
 
 all_background_genes <- read_csv("cog_background_genes.csv")
 
-sig_gene_files <- c("sig_genes_loose_pos_subsamp.csv", "sig_genes_loose_neg_subsamp.csv", "sig_genes_strict_pos_subsamp.csv", "sig_genes_strict_neg_subsamp.csv", 
+sig_gene_files <- c("SNV_decrease_genes.csv", "SNV_increase_genes.csv", "parallel_decrease_genes.csv", "parallel_increase_genes.csv", 
                     "threshold_significant_genes_all_subsamp.csv", "gene_cov_sig_increase_all_subsamp.csv", "gene_cov_sig_decrease_all_subsamp.csv")
 
 for(gene_file in sig_gene_files){

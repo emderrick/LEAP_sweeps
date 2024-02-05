@@ -8,6 +8,7 @@ all_MAG_snvs <- read_csv("all_MAG_SNVs_med_Jan30.csv")
 all_MAG_snvs <- subset(all_MAG_snvs, str_detect(new_name, "T2"))
 all_genes <- read_csv("MAG_gene_info_subsamp.csv")
 all_genes <- subset(all_genes, select = -c(scaffold, timepoint, new_time, gene_length))
+all_genes <- subset(all_genes, str_detect(new_name, "T2"))
 
 for(MAG in mag_list){
   MAG_snvs <- subset(all_MAG_snvs, mag == MAG)
