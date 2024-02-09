@@ -446,13 +446,15 @@ Then convert sam to bam
 #SBATCH --time=4:00:00
 #SBATCH --account=
 #SBATCH --cpus-per-task=8
-#SBATCH --mem-per-cpu=10G
+#SBATCH --mem-per-cpu=8G
 
-module load samtools
+module load StdEnv/2023
+module load samtools/1.18
+
 for f in *.sam
 do
 out="${f//.sam/.bam}"
-samtools view -b $f > $out
+samtools view -b $f > $out --threads 8
 done
 
 ```
@@ -464,13 +466,15 @@ Then need to sort bam files
 #SBATCH --time=4:00:00
 #SBATCH --account=
 #SBATCH --cpus-per-task=8
-#SBATCH --mem-per-cpu=10G
+#SBATCH --mem-per-cpu=4G
 
-module load samtools
+module load StdEnv/2023
+module load samtools/1.18
+
 for f in *.bam
 do
 out="${f//.bam/_sorted.bam}"
-samtools sort $f > $out
+samtools sort $f > $out --threads 8
 done
 
 ```
