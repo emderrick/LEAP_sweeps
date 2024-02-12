@@ -541,7 +541,7 @@ module load prodigal samtools
 
 for f in *pulse*.bam
 do
-out="${f//sorted.bam/cov5_instrain_profile}"
+out="${f//.bam/_instrain_profile}"
 inStrain profile $f ALL_MAGS.fa -o $out -p 32 -g mag_genes.fna -s genome_scaffold.stb--min_mapq 2 --min_read_ani 0.95 --skip_mm_profiling --min_genome_coverage 5 --min_freq 0
 done
 ```
@@ -774,7 +774,7 @@ module load prodigal samtools
 
 for f in *pulse*.bam
 do
-out="${f//sorted.bam/cov5_instrain_profile}"
+out="${f//.bam/subsamp_instrain_profile}"
 inStrain profile $f ALL_MAGS.fa -o $out -p 32 -g oct_mag_genes.fna -s genome_scaffold.stb --min_mapq 2 --min_read_ani 0.95
 done
 
