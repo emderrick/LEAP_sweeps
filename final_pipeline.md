@@ -534,7 +534,7 @@ Then I ran inStrain profile on merged files. The --database_mode flag does --min
 #SBATCH --cpus-per-task=32
 #SBATCH --mem-per-cpu=4G
 
-source /home/ederrick/virtual_envs/instrain/bin/activate
+source /home/ederrick/virtual_envs/inStrain/bin/activate
 module load python/3.8.10
 module load StdEnv/2020  gcc/9.3.0
 module load prodigal samtools
@@ -767,7 +767,7 @@ Then rerun instrain with downsampled bam files.
 #SBATCH --cpus-per-task=32
 #SBATCH --mem-per-cpu=4G
 
-source /home/ederrick/virtual_envs/instrain/bin/activate
+source /home/ederrick/virtual_envs/inStrain/bin/activate
 module load python/3.8.10
 module load StdEnv/2020  gcc/9.3.0
 module load prodigal samtools
