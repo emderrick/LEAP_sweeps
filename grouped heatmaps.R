@@ -57,7 +57,7 @@ sens_snv_heat <- ggplot(sens_snv, aes(x = graph_name, y = reorder(groups, all_me
         legend.text = element_text(size = 12),
         plot.margin = unit(c(0,0,1,1), "cm"), 
         panel.spacing = unit(0.5, "cm"))+
-  labs(colour = NULL, y = "Genome Position")+
+  labs(colour = NULL, y = "SNV")+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, ncol = 5, scales = "free", labeller = labeller(mag = sens_mag_labs))
 
@@ -93,7 +93,7 @@ sens_snv_frac <- ggplot(sens_sum, aes(x = graph_name, y = SNS/(SNS+SNV), fill = 
         strip.text.x = element_blank(),
         legend.position = "none",
         panel.spacing = unit(0.2, "cm"))+
-  labs(y = "SNSs / SNSs + SNVs")+
+  labs(y = "SNSs / (SNSs + SNVs)")+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0,1))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, ncol = 5, scales = "free")
@@ -121,7 +121,7 @@ res_snv_heat <- ggplot(res_snv, aes(x = graph_name, y = reorder(groups, all_mean
         legend.text = element_text(size = 12),
         plot.margin = unit(c(0,0,1,1), "cm"), 
         panel.spacing = unit(0.5, "cm"))+
-  labs(colour = NULL, y = "Genome Position")+
+  labs(colour = NULL, y = "SNV")+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, ncol = 4, scales = "free", labeller = labeller(mag = res_mag_labs))
 
@@ -157,13 +157,13 @@ res_snv_frac <- ggplot(res_sum, aes(x = graph_name, y = SNS/(SNS+SNV), fill = tr
         strip.text.x = element_blank(),
         legend.position = "none",
         panel.spacing = unit(0.2, "cm"))+
-  labs(y = "SNSs / SNSs + SNVs")+
+  labs(y = "SNSs / (SNSs + SNVs)")+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0,1))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, ncol = 4, scales = "free")
 
 res_all <- res_snv_heat / res_snv_sum / res_snv_frac
-save_plot("res_all.jpeg", res_all, base_height = 10, base_width = 17, dpi = 400, limitsize = F)
+save_plot("res_all.jpeg", res_all, base_height = 10, base_width = 16.5, dpi = 400, limitsize = F)
 
 #unclassified
 unclass_snv_heat <- ggplot(unclass_snv, aes(x = graph_name, y = reorder(groups, all_mean), colour = final_ref_freq)) +
@@ -185,7 +185,7 @@ unclass_snv_heat <- ggplot(unclass_snv, aes(x = graph_name, y = reorder(groups, 
         legend.text = element_text(size = 12),
         plot.margin = unit(c(0,0,1,1), "cm"), 
         panel.spacing = unit(0.5, "cm"))+
-  labs(colour = NULL, y = "Genome Position")+
+  labs(colour = NULL, y = "SNV")+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, ncol = 2, scales = "free", labeller = labeller(mag = unclass_mag_labs))
 
@@ -221,7 +221,7 @@ unclass_snv_frac <- ggplot(unclass_sum, aes(x = graph_name, y = SNS/(SNS+SNV), f
         strip.text.x = element_blank(),
         legend.position = "none",
         panel.spacing = unit(0.2, "cm"))+
-  labs(y = "SNSs / SNSs + SNVs")+
+  labs(y = "SNSs / (SNSs + SNVs)")+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0,1))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, ncol = 2, scales = "free")
@@ -249,7 +249,7 @@ L7_snv_heat <- ggplot(all_L7, aes(x = graph_name, y = reorder(groups, all_mean),
         legend.text = element_text(size = 12),
         plot.margin = unit(c(0,0,1,1), "cm"), 
         panel.spacing = unit(0.5, "cm"))+
-  labs(colour = NULL, y = "Genome Position")+
+  labs(colour = NULL, y = "SNV")+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~pond, ncol = 4, scales = "free")
 
@@ -285,10 +285,10 @@ L7_snv_frac <- ggplot(all_sum_L7, aes(x = graph_name, y = SNS/(SNS+SNV), fill = 
         strip.text.x = element_blank(),
         legend.position = "none",
         panel.spacing = unit(0.2, "cm"))+
-  labs(y = "SNSs / SNSs + SNVs")+
+  labs(y = "SNSs / (SNSs + SNVs)")+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0,1))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~pond, ncol = 4, scales = "free")
 
 L7_all <- L7_snv_heat / L7_snv_sum / L7_snv_frac
-save_plot("L7_all.jpeg", L7_all, base_height = 10, base_width = 17, dpi = 400, limitsize = F)
+save_plot("L7_all.jpeg", L7_all, base_height = 10, base_width = 16.5, dpi = 400, limitsize = F)

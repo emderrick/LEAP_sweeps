@@ -83,8 +83,7 @@ categories_to_ignore <- c('A', 'B', 'Y', 'Z')
 
 all_background_genes <- read_csv("cog_background_genes.csv")
 
-sig_gene_files <- c("SNV_decrease_genes.csv", "SNV_increase_genes.csv", "parallel_decrease_genes.csv", "parallel_increase_genes.csv", 
-                    "threshold_significant_genes_all_subsamp.csv", "gene_cov_sig_increase_all_subsamp.csv", "gene_cov_sig_decrease_all_subsamp.csv")
+sig_gene_files <- c("SNV_decrease_genes.csv", "parallel_decrease_genes.csv", "threshold_significant_genes_all_subsamp.csv", "gene_cov_sig_increase_all_subsamp.csv", "gene_cov_sig_decrease_all_subsamp.csv")
 
 for(gene_file in sig_gene_files){
   significant_genes_df <- read_csv(gene_file)
@@ -105,8 +104,7 @@ for(gene_file in sig_gene_files){
 
 EPSPS_class_1 <- list("I4_MAG_00006", "L7_MAG_00028", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
 
-class_1 <- c("sig_genes_loose_pos_C1_subsamp.csv", "sig_genes_loose_neg_C1_subsamp.csv", "sig_genes_strict_pos_C1_subsamp.csv", "sig_genes_strict_neg_C1_subsamp.csv",
-             "sig_genes_threshold_C1_subsamp.csv", "sig_genes_increase_C1_subsamp.csv", "sig_genes_decrease_C1_subsamp.csv")
+class_1 <- c("sig_genes_loose_C1_subsamp.csv", "sig_genes_strict_C1_subsamp.csv", "sig_genes_threshold_C1_subsamp.csv", "sig_genes_increase_C1_subsamp.csv", "sig_genes_decrease_C1_subsamp.csv")
 
 C1_background_genes <- subset(all_background_genes, mag %in% EPSPS_class_1)
 
@@ -129,8 +127,7 @@ for(gene_file in class_1){
 
 EPSPS_class_2 <- list("I4_MAG_00065", "L3_MAG_00058", "L7_MAG_00020", "L7_MAG_00043")
 
-class_2 <- c("sig_genes_loose_pos_C2_subsamp.csv", "sig_genes_loose_neg_C2_subsamp.csv", "sig_genes_strict_pos_C2_subsamp.csv", "sig_genes_strict_neg_C2_subsamp.csv",
-             "sig_genes_threshold_C2_subsamp.csv", "sig_genes_increase_C2_subsamp.csv", "sig_genes_decrease_C2_subsamp.csv")
+class_2 <- c("sig_genes_loose_C2_subsamp.csv", "sig_genes_strict_C2_subsamp.csv", "sig_genes_threshold_C2_subsamp.csv", "sig_genes_increase_C2_subsamp.csv", "sig_genes_decrease_C2_subsamp.csv")
 
 C2_background_genes <- subset(all_background_genes, mag %in% EPSPS_class_2)
 

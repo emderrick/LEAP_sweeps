@@ -38,8 +38,15 @@ threshold_snvs_sum <- subset(threshold_snvs_sum, !str_detect(gene, ","))
 threshold_significant_genes <- left_join(threshold_snvs_sum, background_cog) 
 write.csv(threshold_significant_genes, "threshold_significant_genes_all_subsamp.csv", row.names = F)
 
-not_strict_parevol_sum <- not_strict_significant_genes %>% group_by(mag) %>% summarize(loose_pos_genes = sum(direction == "positive"), loose_neg_genes = sum(direction == "negative"))
-strict_parevol_sum <- strict_significant_genes %>% group_by(mag) %>% summarize(strict_pos_genes = sum(direction == "positive"), strict_neg_genes = sum(direction == "negative"))
+strict_significant_genes <- subset(strict_significant_genes, direction == "positive")
+write.csv(strict_significant_genes, "parallel_decrease_genes.csv", row.names = F)
+
+not_strict_significant_genes <- subset(not_strict_significant_genes, direction == "positive")
+write.csv(not_strict_significant_genes, "SNV_decrease_genes.csv", row.names = F)
+
+not_strict_parevol_sum <- not_strict_significant_genes %>% group_by(mag) %>% summarize(loose_pos_genes = sum(direction == "positive"))
+strict_parevol_sum <- strict_significant_genes %>% group_by(mag) %>% summarize(strict_pos_genes = sum(direction == "positive"))
+
 threshold_significant_genes$count <- 1
 threshold_snvs_gene_sum  <- threshold_significant_genes  %>% group_by(mag) %>% summarize(allele_frequency_genes = sum(count))
 coverage_sum <- read_csv("gene_cov_change_sum_subsamp.csv")
@@ -64,14 +71,10 @@ sig_gene_summary <- right_join(sig_gene_summary, coverage_sum)
 sig_gene_summary[is.na(sig_gene_summary)] <- 0
 write.csv(sig_gene_summary, "significant_genes_summary_subsamp.csv", row.names = F)
 
-parallel_decrease <- subset(strict_significant_genes, direction == "positive")
-write.csv(parallel_decrease, "parallel_decrease_genes.csv", row.names = F)
 
-parallel_increase <- subset(strict_significant_genes, direction == "negative")
-write.csv(parallel_increase, "parallel_increase_genes.csv", row.names = F)
 
-SNV_decrease <- subset(not_strict_significant_genes, direction == "positive")
-write.csv(SNV_decrease, "SNV_decrease_genes.csv", row.names = F)
 
-SNV_increase <- subset(not_strict_significant_genes, direction == "negative")
-write.csv(SNV_increase, "SNV_increase_genes.csv", row.names = F)
+
+
+
+
