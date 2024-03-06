@@ -68,3 +68,14 @@ all_genes_wide_L7 <- all_genes_wide_L7[-which(all_genes_wide_L7[4:5] > 3, arr.in
 all_genes_long_L7 <- pivot_longer(all_genes_wide_L7, cols = c('1', '2'), names_to = "new_time", values_to = "rel_cov")
 all_genes_long_L7$gene_pond <- paste(all_genes_long_L7$gene, all_genes_long_L7$pond, sep = "")
 write.csv(all_genes_long_L7, "gene_cov_change_L7.csv", row.names = F)
+
+gene_changes_L7 <- subset(all_genes_wide_L7, abs_val > 0.5)
+gene_changes_L7_sum <- gene_changes_L7 %>% group_by(pond) %>% summarize(cov_decrease_total = sum(cov_dif < -0.5), cov_increase_total = sum(cov_dif > 0.5))
+write.csv(gene_changes_L7_sum, "gene_cov_change_sum_L7.csv", row.names = F)
+
+gene_decrease_L7 <- subset(gene_decrease, mag == "L7_MAG_00020")
+gene_increase_L7 <- subset(gene_increase, mag == "L7_MAG_00020")
+gene_changes_increase_L7 <- subset(gene_changes_L7, cov_dif > 0.5 & pond == "GBH A")
+gene_changes_decrease_L7 <- subset(gene_changes_L7, cov_dif < -0.5 & pond == "Control D")
+L7_increase_overlap <- as.data.frame(intersect(gene_changes_increase_L7$gene, gene_increase_L7$gene)) 
+L7_decrease_overlap <- as.data.frame(intersect(gene_changes_decrease_L7$gene, gene_decrease_L7$gene)) 
