@@ -72,9 +72,25 @@ sig_gene_summary[is.na(sig_gene_summary)] <- 0
 write.csv(sig_gene_summary, "significant_genes_summary_subsamp.csv", row.names = F)
 
 
+not_strict_parevol_NS_genes <- read_csv("loose_NS_sig_genes.csv")
+not_strict_NS_genes <- left_join(not_strict_parevol_NS_genes, background_cog)
+not_strict_NS_increase <- subset(not_strict_NS_genes, direction == "negative")
+not_strict_NS_decrease <- subset(not_strict_NS_genes, direction == "positive")
+write.csv(not_strict_NS_increase, "significant_genes_loose_inc_NS.csv", row.names = F)
+write.csv(not_strict_NS_decrease, "significant_genes_loose_dec_NS.csv", row.names = F)
+
+strict_parevol_NS_genes <- read_csv("strict_NS_sig_genes.csv")
+strict_NS_genes <- left_join(strict_parevol_NS_genes, background_cog)
+strict_NS_increase <- subset(strict_NS_genes, direction == "negative")
+strict_NS_decrease <- subset(strict_NS_genes, direction == "positive")
+write.csv(strict_NS_increase, "significant_genes_strict_inc_NS.csv", row.names = F)
+write.csv(strict_NS_decrease, "significant_genes_strict_dec_NS.csv", row.names = F)
 
 
-
-
-
-
+all_snv_info <- read_csv("all_MAG_SNVs_med_Jan30.csv")
+all_snv_info <- subset(all_snv_info, select = c("groups", "new_name", "mutation_type"))
+threshold_NS <- threshold_snvs[, c(4,3,7:19)]
+threshold_NS <- pivot_longer(threshold_NS, cols = c(3:15), names_to = "new_name", values_to = "final_ref_freq", values_drop_na = T)
+threshold_ns_type <- left_join(threshold_NS, all_snv_info)
+threshold_ns_type <- threshold_ns_type[, c(1:3,5)]
+threshold_NS_wide <- pivot_wider(threshold_ns_type, values_from = "mutation_type", names_from = "new_name")

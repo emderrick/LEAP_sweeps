@@ -102,13 +102,13 @@ def calculate_survival(counts_1, counts_2, genes, n_min = 3, alpha = 0.05):
     return delta_n_range_array_subset, genes, survival_obs, survival_null, delta_n_no_absolute, P_values, P_star
 
 
-MAG_gene_files = os.listdir('gene matrix subsamp/')
+MAG_gene_files = os.listdir('nonsyn matrices')
 MAG_gene_files.remove(".DS_Store")
 for file in MAG_gene_files:
   
     MAG = file[0:12]
     print(MAG)
-    input_file = 'gene matrix subsamp/' + file
+    input_file = 'nonsyn matrices/' + file
     gene_count_matrix = pd.read_csv(input_file, sep = ',', index_col =0, header=None)
     treatments = gene_count_matrix.index.tolist()
     all_treatments = treatments[1:]
@@ -139,7 +139,7 @@ for file in MAG_gene_files:
         gene_dict['delta_n'] = delta_n
         all_combinations_dict[combination] = gene_dict
     
-    output_file = MAG + '_subsamp_sig_genes.pickle'
+    output_file = MAG + '_nonsyn_sig_genes.pickle'
     
     with open(output_file, 'wb') as handle:
         pickle.dump(all_combinations_dict, handle, protocol = pickle.HIGHEST_PROTOCOL)

@@ -37,32 +37,32 @@ all_sig$fdr_sig <- "FDR < 0.1"
 
 COG_summary_all <- ggplot(all, aes(y = method, x = category, fill = OR_sig))+
     geom_tile(height=0.95, width=0.85)+
-    geom_tile(data = all_sig, aes(colour = fdr_sig), height=0.9, width=0.85, lwd = 2)+
+    geom_tile(data = all_sig, aes(colour = fdr_sig), height=0.9, width=0.8, lwd = 1)+
     scale_fill_manual(values = c("#0A9396", "#EE9B00", "grey92"))+
     scale_colour_manual(values = c("black"))+
     theme_classic()+
-    theme(axis.text.x = element_text(size = 16, colour = "black", margin = margin(t = 10, r = 0, b = 0, l = 0)),
-          axis.text.y = element_text(size = 16, colour = "black", margin = margin(t = 0, r = 10, b = 0, l = 0)),
+    theme(axis.text.x = element_text(size = 8, colour = "black", margin = margin(t = 10, r = 0, b = 0, l = 0)),
+          axis.text.y = element_text(size = 8, colour = "black", margin = margin(t = 0, r = 5, b = 0, l = 0)),
           axis.title.y = element_blank(),
           axis.title.x = element_blank(),
           legend.title = element_blank(),
-          legend.margin =  margin(t = 0, r = 0, b = 0, l = 10),
-          legend.text = element_text(size = 16),
+          legend.margin =  margin(t = 0, r = 0, b = 0, l = 5),
+          legend.text = element_text(size = 8),
           legend.position = "right",
           legend.box = "veritcal",
-          legend.key.size = unit(1, "cm"),
-          plot.margin = unit(c(1, 1, 1, 1), "cm"))+
+          legend.key.size = unit(0.5, "cm"))+
+          #plot.margin = unit(c(1, 1, 1, 1), "cm"))+
     scale_y_discrete(expand = expansion(mult = c(0.025, 0.05)))+
     scale_x_discrete(expand = c(0, 0.5))+
     guides(colour = guide_legend(order = 1))
 
-save_plot("all_COG_summary_plot.jpeg", COG_summary_all, base_height = 6.5, base_width = 16, dpi = 200)
+save_plot("all_COG_summary_plot.jpeg", COG_summary_all, base_height = 3.5, base_width = 8, dpi = 600)
 
 
 class_1 <- read_csv("class_1_COG.csv")
-class_1$class <- "Class I - Sensitive"
+class_1$class <- "Class I - GBH Sensitive"
 class_2 <- read_csv("class_2_COG.csv")
-class_2$class <- "Class II - Resistant"
+class_2$class <- "Class II - GBH Resistant"
 all_class <- rbind(class_1, class_2)
 all_class$method <- factor(all_class$method, levels = c("SNV Frequency Change", "Parallel SNV Count Decrease", "SNV Count Decrease", "Gene Copy Number Increase", "Gene Copy Number Decrease"))
 all_class$category <-  factor(all_class$category, levels = c("J", "K", "L", "D", "V", "T", "M", "N", "W", "U", "O", "C", "G", "E", "F", "H", "I", "P", "Q", "X", "R", "S"))
@@ -93,4 +93,49 @@ class_COG <- ggplot(all_class, aes(y = method, x = category, fill = OR_sig))+
   guides(colour = guide_legend(order = 1))+
   facet_wrap(~class, ncol = 1, scales = "free")
 
-save_plot("class_grouped_COG.jpeg", base_height = 14, base_width = 16, class_COG, dpi = 400)
+save_plot("class_grouped_COG.jpeg", base_height = 14, base_width = 16, class_COG, dpi = 600)
+
+
+# nonsyn <- list("COG_enrich_significant_genes_strict_dec_NS.csv", "COG_enrich_significant_genes_strict_inc_NS.csv", "COG_enrich_significant_genes_loose_dec_NS.csv", "COG_enrich_significant_genes_loose_inc_NS.csv")
+# 
+# 
+# COG_strict_dec <- read_csv(nonsyn[[1]])
+# COG_strict_inc <-  read_csv(nonsyn[[2]])
+# COG_loose_dec <- read_csv(nonsyn[[3]])
+# COG_loose_inc <-  read_csv(nonsyn[[4]])
+#   
+# COG_strict_dec$method <- "Parallel non-syn SNV decrease"
+# COG_strict_inc$method <- "Parallel non-syn SNV increase"
+# COG_loose_dec$method <- "non-syn SNV decrease"
+# COG_loose_inc$method <-  "non-syn SNV increase"
+#   
+# COG_NS <- rbind(COG_strict_dec, COG_strict_inc, COG_loose_dec, COG_loose_inc)
+# COG_NS$OR_sig <- with(COG_NS, ifelse(OR < 1 & p < 0.05, "p < 0.05 & depleted", "p > 0.05"))
+# COG_NS$OR_sig <- with(COG_NS, ifelse(OR > 1 & p < 0.05, "p < 0.05 & enriched", OR_sig))
+# 
+# COG_NS$category <-  factor(COG_NS$category, levels = c("J", "K", "L", "D", "V", "T", "M", "N", "W", "U", "O", "C", "G", "E", "F", "H", "I", "P", "Q", "X", "R", "S"))
+# COG_NS_sig <- subset(COG_NS, OR_sig != "p > 0.05" & fdr < 0.1)
+# COG_NS_sig$fdr_sig <- "FDR < 0.1"
+# 
+# COG_summary_NS <- ggplot(COG_NS, aes(y = method, x = category, fill = OR_sig))+
+#   geom_tile(height=0.95, width=0.85)+
+#   geom_tile(data = COG_NS_sig, aes(colour = fdr_sig), height=0.9, width=0.85, lwd = 2)+
+#   scale_fill_manual(values = c("#0A9396", "#EE9B00", "grey92"))+
+#   scale_colour_manual(values = c("black"))+
+#   theme_classic()+
+#   theme(axis.text.x = element_text(size = 16, colour = "black", margin = margin(t = 10, r = 0, b = 0, l = 0)),
+#         axis.text.y = element_text(size = 16, colour = "black", margin = margin(t = 0, r = 10, b = 0, l = 0)),
+#         axis.title.y = element_blank(),
+#         axis.title.x = element_blank(),
+#         legend.title = element_blank(),
+#         legend.margin =  margin(t = 0, r = 0, b = 0, l = 10),
+#         legend.text = element_text(size = 16),
+#         legend.position = "right",
+#         legend.box = "veritcal",
+#         legend.key.size = unit(1, "cm"),
+#         plot.margin = unit(c(1, 1, 1, 1), "cm"))+
+#   scale_y_discrete(expand = expansion(mult = c(0.025, 0.05)))+
+#   scale_x_discrete(expand = c(0, 0.5))+
+#   guides(colour = guide_legend(order = 1))
+# 
+# save_plot("COG_NS_summary_plot.jpeg", COG_summary_NS, base_height = 6.5, base_width = 16, dpi = 200)
