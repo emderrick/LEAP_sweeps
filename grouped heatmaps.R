@@ -163,21 +163,15 @@ unclass_snv_heat <- ggplot(unclass_snv, aes(x = graph_name, y = reorder(groups, 
   geom_tile()+
   scale_colour_viridis(direction = -1, na.value = "white") +
   theme_classic() +
-  theme(text = element_text(size = 16),
-        axis.line.x.bottom = element_line(linewidth = 0.85),
-        axis.line.y.left = element_line(linewidth = 0.85),
+  theme(text = element_text(size = 6.5),
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank(), 
-        axis.title.y = element_text(size = 16), 
+        axis.title.y = element_text(size = 8), 
         axis.text.x = element_text(colour = "black", vjust = -1),
         axis.title.x = element_blank(),
-        strip.text.x.top = element_text(size = 16, margin = unit(c(0.25, 0.25, 0.25, 0.25), "cm"), face = "bold"),
-        strip.background = element_rect(linewidth = 2),
-        legend.key.size = unit(1, "cm"),
-        legend.margin =  margin(t = 0, r = 0, b = 0, l = 40),
-        legend.text = element_text(size = 12),
-        plot.margin = unit(c(0,0,1,1), "cm"), 
-        panel.spacing = unit(0.5, "cm"))+
+        legend.key.size = unit(0.4, "cm"),
+        legend.justification = "left",
+        strip.text.x.top = element_text(size = 7, face = "bold"))+
   labs(colour = NULL, y = "Nucleotide Position")+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, ncol = 2, scales = "free", labeller = labeller(mag = unclass_mag_labs))
@@ -186,20 +180,19 @@ unclass_snv_sum <- ggplot(unclass_sum, aes(x = graph_name, y = SNV_Mbp, fill = t
   geom_bar(stat = "identity", colour = "black")+ 
   theme_classic()+
   scale_fill_manual(breaks = c('Control', 'Phosphorus', 'GBH'), values= c("white", "grey70", "grey30"))+
-  theme(text = element_text(size = 16),
-        axis.line = element_line(linewidth = 0.85),
+  theme(text = element_text(size = 6.5),
         axis.text = element_text(color = "black"),
         axis.text.x = element_text(vjust = -1),
         axis.title.x = element_blank(),
-        axis.title.y = element_text(size = 16),
-        strip.text.x = element_blank(),
-        legend.position = "none",
-        plot.margin = unit(c(0,0,1,1), "cm"), 
-        panel.spacing = unit(0.05, "cm"))+
-  labs(y = "SNVs / Mbp")+
+        axis.title.y = element_text(size = 8),
+        legend.key.size = unit(0.4, "cm"),
+        legend.justification = "left",
+        panel.spacing = unit(0.05, "cm"),
+        strip.text.x = element_blank())+
+  labs(y = "SNVs / Mbp", fill = NULL)+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
   scale_x_discrete(expand = c(0, 0))+
   facet_wrap(~mag, ncol = 2, scales = "free")
 
-unclass_all <- unclass_snv_heat / unclass_snv_sum + plot_annotation(tag_levels = 'A') & theme(plot.tag = element_text(face = 'bold'))
-save_plot("unclass_all.jpeg", unclass_all, base_height = 8, base_width = 10, dpi = 400, limitsize = F)
+unclass_all <- unclass_snv_heat / unclass_snv_sum
+save_plot("unclass_all.jpeg", unclass_all, base_height = 3.25, base_width = 4.2, dpi = 600)
