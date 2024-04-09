@@ -714,6 +714,12 @@ samtools view -bh --subsample 0.227 L6_pulse1_L4_MAG_00099.bam > L6_pulse1_L4_MA
 samtools view -bh --subsample 0.152 L7_pulse1_L4_MAG_00099.bam > L7_pulse1_L4_MAG_00099_subsamp.bam  
 samtools view -bh --subsample 0.172 L8_pulse1_L4_MAG_00099.bam > L8_pulse1_L4_MAG_00099_subsamp.bam
 
+samtools view -bh --subsample 0.614 K1_pulse0_L7_MAG_00020.bam > K1_pulse0_L7_MAG_00020_subsamp.bam
+samtools view -bh --subsample 1.000 L3_pulse0_L7_MAG_00020.bam > L3_pulse0_L7_MAG_00020_subsamp.bam 
+samtools view -bh --subsample 0.903 L4_pulse0_L7_MAG_00020.bam > L4_pulse0_L7_MAG_00020_subsamp.bam 
+samtools view -bh --subsample 0.284 L2_pulse0_L7_MAG_00020.bam > L2_pulse0_L7_MAG_00020_subsamp.bam
+samtools view -bh --subsample 0.637 L7_pulse0_L7_MAG_00020.bam > L7_pulse0_L7_MAG_00020_subsamp.bam
+
 samtools view -bh --subsample 1.000 K1_pulse1_L7_MAG_00020.bam > K1_pulse1_L7_MAG_00020_subsamp.bam
 samtools view -bh --subsample 0.169 L3_pulse1_L7_MAG_00020.bam > L3_pulse1_L7_MAG_00020_subsamp.bam 
 samtools view -bh --subsample 0.044 L4_pulse1_L7_MAG_00020.bam > L4_pulse1_L7_MAG_00020_subsamp.bam 
@@ -758,6 +764,18 @@ samtools merge subsamp_L8_pulse1.bam *L8_pulse1*
 
 ```
 
+Only one MAG is at T1 so just renaming these ones
+
+```bash
+mv K1_pulse0_L7_MAG_00020_subsamp.bam subsamp_K1_pulse0.bam
+mv L3_pulse0_L7_MAG_00020_subsamp.bam subsamp_L3_pulse0.bam
+mv L4_pulse0_L7_MAG_00020_subsamp.bam subsamp_L4_pulse0.bam
+mv L2_pulse0_L7_MAG_00020_subsamp.bam subsamp_L2_pulse0.bam
+mv L7_pulse0_L7_MAG_00020_subsamp.bam subsamp_L7_pulse0.bam
+
+```
+
+
 Then rerun instrain with downsampled bam files.
 
 ```bash
@@ -774,7 +792,7 @@ module load prodigal samtools
 
 for f in *pulse*.bam
 do
-out="${f//.bam/subsamp_instrain_profile}"
+out="${f//.bam/_instrain}"
 inStrain profile $f ALL_MAGS.fa -o $out -p 32 -g oct_mag_genes.fna -s genome_scaffold.stb --min_mapq 2 --min_read_ani 0.95
 done
 
