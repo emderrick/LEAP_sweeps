@@ -87,7 +87,7 @@ write.csv(strict_NS_increase, "significant_genes_strict_inc_NS.csv", row.names =
 write.csv(strict_NS_decrease, "significant_genes_strict_dec_NS.csv", row.names = F)
 
 
-all_snv_info <- read_csv("all_MAG_SNVs_med_Jan30.csv")
+all_snv_info <- read_csv("all_MAG_SNVs_med_Apr9.csv")
 all_snv_info <- subset(all_snv_info, select = c("groups", "new_name", "mutation_type"))
 threshold_NS <- threshold_snvs[, c(4,3,7:19)]
 threshold_NS <- pivot_longer(threshold_NS, cols = c(3:15), names_to = "new_name", values_to = "final_ref_freq", values_drop_na = T)

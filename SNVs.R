@@ -9,7 +9,7 @@ ponds_list <- list(I4_MAG_00006 = list("Control B at T2", "Control E at T2", "GB
                    L2_MAG_00052 = list("Control A at T2", "Control B at T2", "Control D at T2", "Control E at T2", "GBH A at T2"), 
                    L3_MAG_00058 = list("Control C at T2", "Control D at T2", "GBH C at T2", "GBH D at T2"), 
                    L4_MAG_00099 = list("Control D at T2", "GBH A at T2", "GBH B at T2", "GBH C at T2", "GBH D at T2"), 
-                   L7_MAG_00020 = list("Control A at T1", "Control A at T2", "Control C at T1", "Control C at T2", "Control D at T1", "Control D at T2", "GBH A at T1", "GBH A at T2"), 
+                   L7_MAG_00020 = list("Control A at T1", "Control A at T2", "Control C at T1", "Control C at T2", "Control D at T1", "Control D at T2", "GBH A at T1", "GBH A at T2", "GBH C at T1"), 
                    L7_MAG_00028 = list("Control E at T2", "GBH A at T2", "GBH B at T2", "GBH C at T2"), 
                    L7_MAG_00043 = list("Control D at T2", "GBH B at T2", "GBH C at T2"), 
                    L8_MAG_00011 = list("Control E at T2", "GBH A at T2", "GBH D at T2"), 
@@ -57,10 +57,10 @@ all_MAG_SNVs$class <- all_MAG_SNVs$class%>%str_sub(-3,-1)
 all_finished_SNVs <- data.frame()
 for(MAG in mag_list){
   MAG_SNVs <- subset(small_mag_hor_pass, mag == MAG)
-  MAG_SNVs <- MAG_SNVs[, c(1:6, which((names(MAG_SNVs) %in% ponds_list[[MAG]]) == T), 20:25)] %>%
+  MAG_SNVs <- MAG_SNVs[, c(1:6, which((names(MAG_SNVs) %in% ponds_list[[MAG]]) == T), 21:26)] %>%
   pivot_longer(cols = contains("at"),  names_to = "new_name", values_to = "final_ref_freq", values_drop_na = F) %>%
   left_join(all_MAG_SNVs)
   all_finished_SNVs <- rbind(all_finished_SNVs, MAG_SNVs)
 }
 
-write.csv(all_finished_SNVs, "all_MAG_SNVs_med_Jan30.csv", row.names = F)
+write.csv(all_finished_SNVs, "all_MAG_SNVs_med_Apr9.csv", row.names = F)

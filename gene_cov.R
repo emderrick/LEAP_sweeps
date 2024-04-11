@@ -16,6 +16,7 @@ all_genes <- all_genes[, c(1:4, 21:22)]
 all_mags <- read_csv("all_mags_subsamp.csv")
 all_mags <- all_mags[, c("mag", "mag_coverage", "timepoint", "new_name", "new_time")]
 all_genes_mag <- left_join(all_genes, all_mags, by = c("mag", "timepoint"))
+all_genes_mag <- subset(all_genes_mag, new_name != "GBH C at T1")
 all_genes_mag <- all_genes_mag %>% group_by(mag) %>% complete(gene, timepoint, fill = list(coverage = 0))
 all_genes_mag <- all_genes_mag %>% group_by(mag, timepoint) %>% fill(mag_coverage, new_time, new_name, .direction = c("updown"))
 all_genes_mag <- all_genes_mag %>% group_by(gene) %>% fill(scaffold, gene_length, .direction = c("updown"))

@@ -4,7 +4,7 @@ library(dplyr)
 EPSPS_class_1 <- list("I4_MAG_00006", "L7_MAG_00028", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
 EPSPS_unclass <- list("L2_MAG_00052", "L4_MAG_00099")
 
-all_MAG_snvs <- read_csv("all_MAG_SNVs_med_Jan30.csv")
+all_MAG_snvs <- read_csv("all_MAG_SNVs_med_Apr9.csv")
 all_MAG_snvs$SNS_count <- with(all_MAG_snvs, ifelse(final_ref_freq == 0, 1, 0))
 all_MAG_snvs$SNS_count <- with(all_MAG_snvs, ifelse(is.na(SNS_count), 0, SNS_count))
 all_MAG_snvs$SNV_count <- with(all_MAG_snvs, ifelse(final_ref_freq > 0 & final_ref_freq < 1, 1, 0))

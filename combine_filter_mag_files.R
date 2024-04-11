@@ -1,3 +1,5 @@
+setwd("/Users/emma/Library/Mobile Documents/com~apple~CloudDocs/phd docs/Chapter 1/Aim 1A")
+
 library(tidyverse)
 
 genome_files <- list.files("subsampled_instrain/", recursive = T, pattern = ".*genome_info.tsv", full.names = T)

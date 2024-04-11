@@ -167,3 +167,4 @@ for(gene_file in NS_gene_files){
   
   write.csv(COG_enrichment_output, paste("COG_enrich_", gene_file, sep = ""), row.names = F)
 }
+

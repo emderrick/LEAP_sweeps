@@ -1,18 +1,16 @@
 library(tidyverse)
 library(ggplot2)
 library(cowplot)
-library(reporter)
 
 mag_labs <- c(I4_MAG_00006 = "Burkholderiaceae 1", I4_MAG_00065 = "Roseomonas_A", L2_MAG_00052 = "Erythrobacter", 
               L3_MAG_00058 = "Prosthecobacter", L4_MAG_00099 = "Bosea sp001713455", L7_MAG_00020 = "Sphingorhabdus_B",
               L7_MAG_00028 = "Burkholderiaceae 2", L7_MAG_00043 = "Luteolibacter", L8_MAG_00011 = "Verrucomicrobiae", 
               L8_MAG_00019 = "Flavobacteriales 1", L8_MAG_00042 = "Flavobacteriales 2")
 
-all_snv <- read_csv("all_MAG_SNVs_med_Dec7.csv")
+all_snv <- read_csv("all_MAG_SNVs_med_Apr9.csv")
 all_snv <- subset(all_snv, new_time == 2)
-mag_snv <- subset(all_snv, select = c("mag", "scaffold", "new_name", "length", "coverage.y", "number_divergent"))
-mag_scaf_cov <- mag_snv %>% group_by(scaffold, new_name) %>% fill(coverage.y, .direction = "updown") 
-mag_scaf_cov_sum <- mag_scaf_cov %>% group_by(mag, scaffold, new_name, length, coverage.y) %>% summarize(SNV_SNS_tot = sum(number_divergent, na.rm = T)) %>% na.omit()
+all_snv$test <- 1
+mag_scaf_sum <- all_snv %>% group_by(mag, scaffold, new_name, length, coverage.y) %>% summarize(SNV_SNS_tot = sum(test))
 
 mag_scaf_cov_sum$mag_order = factor(mag_scaf_cov_sum$mag, levels=c('I4_MAG_00006','L7_MAG_00028','L8_MAG_00011', 'L8_MAG_00019', 'L8_MAG_00042',
                                                            'I4_MAG_00065', 'L3_MAG_00058', 'L7_MAG_00020',  'L7_MAG_00043',

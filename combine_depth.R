@@ -15,7 +15,7 @@ for(i in 1:length(depth_files)){
   all_depth <- rbind(all_depth, pond_time_mags)
 }
 
-all_depth$mag<- all_depth$scaffold %>% substr(1,12)
+all_depth$mag <- all_depth$scaffold %>% substr(1,12)
 write.csv(all_depth, "all_instrain_depth.csv", row.names = F)
 
 for(MAG in mag_list){
@@ -33,7 +33,7 @@ for(MAG in mag_list){
   all_MAG <- all_MAG[, c(3:6, 8:12, 31, 13:30)]
   all_MAG <- complete(all_MAG, timepoint, groups)
   all_MAG <- all_MAG %>% group_by(groups) %>% fill(scaffold, gene, mag, mag_length, length, .direction = "updown")
-  all_MAG <- all_MAG %>% group_by(timepoint) %>% fill(new_time, treatment, name, new_name, coverage.y, .direction = "updown")
+  all_MAG <- all_MAG %>% group_by(timepoint, scaffold) %>% fill(new_time, treatment, name, new_name, coverage.y, .direction = "updown")
   write.csv(all_MAG, paste("all_", MAG, "_SNVs_subsamp.csv", sep = ""), row.names = F)
 }
 

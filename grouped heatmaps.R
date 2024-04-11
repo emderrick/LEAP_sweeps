@@ -5,8 +5,6 @@ library(viridis)
 library(cowplot)
 library(patchwork)
 
-setwd("/Users/Emma/Library/Mobile Documents/com~apple~CloudDocs/OneDrive Documents/phd docs/Chapter 1/Aim 1A")
-
 sens_mags <- list("I4_MAG_00006", "L7_MAG_00028", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
 res_mags <- list("I4_MAG_00065", "L3_MAG_00058", "L7_MAG_00020", "L7_MAG_00043")
 unclass_mags <- list("L2_MAG_00052", "L4_MAG_00099")
@@ -15,16 +13,15 @@ sens_mag_labs <- c(I4_MAG_00006 = "Burkholderiaceae 1", L7_MAG_00028 = "Burkhold
 res_mag_labs <-  c(I4_MAG_00065 = "Roseomonas_A",  L3_MAG_00058 = "Prosthecobacter", L7_MAG_00020 = "Sphingorhabdus_B", L7_MAG_00043 = "Luteolibacter")
 unclass_mag_labs <- c(L2_MAG_00052 = "Erythrobacter", L4_MAG_00099 = "Bosea sp001713455")
 
-all_snv <- read_csv("all_MAG_SNVs_med_Jan30.csv")
+all_snv <- read_csv("all_MAG_SNVs_med_Apr9.csv")
 all_snv$graph_name <- gsub("Control", "CL", all_snv$new_name) %>% str_sub(end = -6)
 
 sens_snv <- subset(all_snv, mag %in% sens_mags)
 res_snv <- subset(all_snv, mag %in% res_mags & str_detect(all_snv$new_name, "T2"))
 unclass_snv <- subset(all_snv, mag %in% unclass_mags)
 all_L7 <- subset(all_snv, mag == "L7_MAG_00020")
-all_L7$graph_name <- gsub("Control", "CL", all_L7$new_name)
-all_L7$graph_name <- gsub("at ","", all_L7$graph_name)
-all_L7$pond <- all_L7$graph_name %>% str_sub(end = -3)
+all_L7 <- all_L7 %>% add_row(new_name = "GBH C at T2", final_ref_freq = NA, treatment = "glyphosate", name = "GBH C")
+all_L7$graph_name <- all_L7$new_name %>% str_sub(start = -2)
 
 all_sum <- read_csv("all_SNV_sum_subsamp.csv")
 all_sum$graph_name <- gsub("Control", "CL", all_sum$new_name) %>% str_sub(end = -6)
@@ -35,9 +32,9 @@ sens_sum <- subset(all_sum, mag %in% sens_mags)
 res_sum <- subset(all_sum, mag %in% res_mags & str_detect(all_sum$new_name, "T2"))
 unclass_sum <- subset(all_sum, mag %in% unclass_mags)
 all_sum_L7 <- subset(all_sum, mag == "L7_MAG_00020")
-all_sum_L7$graph_name <- gsub("Control", "CL", all_sum_L7$new_name)
-all_sum_L7$graph_name <- gsub("at ","", all_sum_L7$graph_name)
-all_sum_L7$pond <- all_sum_L7$graph_name %>% str_sub(end = -3)
+all_sum_L7 <- all_sum_L7 %>% add_row(new_name = "GBH C at T2", SNV_Mbp = 0, treatment = "GBH")
+all_sum_L7$graph_name <- all_sum_L7$new_name %>% str_sub(start = -2)
+all_sum_L7$name <- all_sum_L7$new_name %>% str_sub(end = -7)
 
 #FIGURE 2
 
@@ -134,7 +131,7 @@ L7_snv_heat <- ggplot(all_L7, aes(x = graph_name, y = reorder(groups, all_mean),
         strip.text.x.top = element_text(size = 7, face = "bold"))+
   labs(colour = NULL, y = "Nucleotide Position")+
   scale_x_discrete(expand = c(0, 0))+
-  facet_wrap(~pond, ncol = 5, scales = "free")
+  facet_wrap(~name, ncol = 5, scales = "free")
 
 L7_snv_sum <- ggplot(all_sum_L7, aes(x = graph_name, y = SNV_Mbp, fill = treatment))+
   geom_bar(stat = "identity", colour = "black")+ 
@@ -152,10 +149,10 @@ L7_snv_sum <- ggplot(all_sum_L7, aes(x = graph_name, y = SNV_Mbp, fill = treatme
   labs(y = "SNVs / Mbp", fill = NULL)+
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 3000))+
   scale_x_discrete(expand = c(0, 0))+
-  facet_wrap(~pond, ncol = 5, scales = "free")
+  facet_wrap(~name, ncol = 5, scales = "free")
 
 L7_all <- L7_snv_heat / L7_snv_sum
-save_plot("L7_all.jpeg", L7_all, base_height = 3.25, base_width = 6.9, dpi = 600)
+save_plot("L7_all.jpeg", L7_all, base_height = 3, base_width = 6.9, dpi = 600)
 
 
 #FIGURE S2
