@@ -83,7 +83,7 @@ categories_to_ignore <- c('A', 'B', 'Y', 'Z')
 
 all_background_genes <- read_csv("cog_background_genes.csv")
 
-sig_gene_files <- c("SNV_decrease_genes.csv", "parallel_decrease_genes.csv", "threshold_significant_genes_all_subsamp.csv", "gene_cov_sig_increase_all_subsamp.csv", "gene_cov_sig_decrease_all_subsamp.csv")
+sig_gene_files <- c("SNV_decrease_genes.csv", "parallel_decrease_genes.csv", "parallel_decrease_genes_cog.csv", "decrease_genes_cog.csv", "threshold_significant_genes_all_subsamp.csv", "gene_cov_sig_increase_all_subsamp.csv", "gene_cov_sig_decrease_all_subsamp.csv")
 
 for(gene_file in sig_gene_files){
   significant_genes_df <- read_csv(gene_file)
@@ -104,7 +104,7 @@ for(gene_file in sig_gene_files){
 
 EPSPS_class_1 <- list("I4_MAG_00006", "L7_MAG_00028", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
 
-class_1 <- c("sig_genes_loose_C1_subsamp.csv", "sig_genes_strict_C1_subsamp.csv", "sig_genes_threshold_C1_subsamp.csv", "sig_genes_increase_C1_subsamp.csv", "sig_genes_decrease_C1_subsamp.csv")
+class_1 <- c("sig_genes_loose_C1_subsamp.csv", "sig_genes_strict_C1_subsamp.csv", "sig_genes_par_snv_decrease_C1_subsamp.csv", "sig_genes_snv_decrease_C1_subsamp.csv", "sig_genes_threshold_C1_subsamp.csv", "sig_genes_increase_C1_subsamp.csv", "sig_genes_decrease_C1_subsamp.csv")
 
 C1_background_genes <- subset(all_background_genes, mag %in% EPSPS_class_1)
 
@@ -127,7 +127,7 @@ for(gene_file in class_1){
 
 EPSPS_class_2 <- list("I4_MAG_00065", "L3_MAG_00058", "L7_MAG_00020", "L7_MAG_00043")
 
-class_2 <- c("sig_genes_loose_C2_subsamp.csv", "sig_genes_strict_C2_subsamp.csv", "sig_genes_threshold_C2_subsamp.csv", "sig_genes_increase_C2_subsamp.csv", "sig_genes_decrease_C2_subsamp.csv")
+class_2 <- c("sig_genes_loose_C2_subsamp.csv", "sig_genes_strict_C2_subsamp.csv", "sig_genes_par_snv_decrease_C2_subsamp.csv", "sig_genes_snv_decrease_C2_subsamp.csv", "sig_genes_threshold_C2_subsamp.csv", "sig_genes_increase_C2_subsamp.csv", "sig_genes_decrease_C2_subsamp.csv")
 
 C2_background_genes <- subset(all_background_genes, mag %in% EPSPS_class_2)
 
@@ -149,22 +149,22 @@ for(gene_file in class_2){
 }
 
 
-NS_gene_files <- c("significant_genes_strict_inc_NS.csv", "significant_genes_strict_dec_NS.csv", "significant_genes_loose_inc_NS.csv", "significant_genes_loose_dec_NS.csv")
-
-for(gene_file in NS_gene_files){
-  significant_genes_df <- read_csv(gene_file)
-  significant_genes <- significant_genes_df[, c("COG_ID")] %>% na.omit()
-  significant_genes <- significant_genes[['COG_ID']]
-  background_genes_df <- all_background_genes %>% subset(!(gene %in% significant_genes_df$gene))
-  background_genes <- background_genes_df[, c("COG_ID")] %>% na.omit()
-  background_genes <- background_genes[['COG_ID']] 
-  
-  COG_enrichment_output <- identify_enriched_categories(genes = significant_genes,
-                                                        background = background_genes,
-                                                        gene_to_category_map = COG_category_to_COG,
-                                                        min_category_count = 10, #categories without at least 10 COG gene families in the sig set and background are ignored
-                                                        to_ignore = categories_to_ignore)
-  
-  write.csv(COG_enrichment_output, paste("COG_enrich_", gene_file, sep = ""), row.names = F)
-}
-
+# NS_gene_files <- c("significant_genes_strict_inc_NS.csv", "significant_genes_strict_dec_NS.csv", "significant_genes_loose_inc_NS.csv", "significant_genes_loose_dec_NS.csv")
+# 
+# for(gene_file in NS_gene_files){
+#   significant_genes_df <- read_csv(gene_file)
+#   significant_genes <- significant_genes_df[, c("COG_ID")] %>% na.omit()
+#   significant_genes <- significant_genes[['COG_ID']]
+#   background_genes_df <- all_background_genes %>% subset(!(gene %in% significant_genes_df$gene))
+#   background_genes <- background_genes_df[, c("COG_ID")] %>% na.omit()
+#   background_genes <- background_genes[['COG_ID']] 
+#   
+#   COG_enrichment_output <- identify_enriched_categories(genes = significant_genes,
+#                                                         background = background_genes,
+#                                                         gene_to_category_map = COG_category_to_COG,
+#                                                         min_category_count = 10, #categories without at least 10 COG gene families in the sig set and background are ignored
+#                                                         to_ignore = categories_to_ignore)
+#   
+#   write.csv(COG_enrichment_output, paste("COG_enrich_", gene_file, sep = ""), row.names = F)
+# }
+# 
