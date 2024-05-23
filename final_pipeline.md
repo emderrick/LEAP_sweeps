@@ -675,7 +675,7 @@ do
 	for file in *pulse1.bam
 	do
 	mag="${magfile//_contigs.txt/}"
-  out="${file//.bam/_$mag.bam}"
+  	out="${file//.bam/_$mag.bam}"
 	cat $magfile | tr "\n" " " | xargs samtools view -bh $file  > $out
 	done
 done
@@ -775,7 +775,6 @@ mv L7_pulse0_L7_MAG_00020_subsamp.bam subsamp_L7_pulse0.bam
 
 ```
 
-
 Then rerun instrain with downsampled bam files.
 
 ```bash
@@ -797,3 +796,83 @@ inStrain profile $f ALL_MAGS.fa -o $out -p 32 -g oct_mag_genes.fna -s genome_sca
 done
 
 ```
+
+### calculating species richness at TP 1 (merged 2 and 3) 
+
+first merge fastqs from pulse 1
+
+```bash
+#!/usr/bin/bash
+for pond in I4 I8 K1 L2 L3 L4 L6 L7 L8
+do
+cat ${pond}_2_R1.fastq.gz ${pond}_3_R1.fastq.gz
+cat ${pond}_2_R2.fastq.gz ${pond}_3_R2.fastq.gz
+done
+```
+
+subsample reads to lowest pond. Proportion to sample determined in read_sampling.R. Set same seed for R1 and R2.
+
+```bash
+seqkit sample -p 0.8355 -s 100 I4_pulse1_R1.fastq.gz  -o subsamp_I4_pulse1_R1.fastq.gz
+seqkit sample -p 0.8683 -s 100 I8_pulse1_R1.fastq.gz  -o subsamp_I8_pulse1_R1.fastq.gz
+seqkit sample -p 0.9584 -s 100 K1_pulse1_R1.fastq.gz  -o subsamp_K1_pulse1_R1.fastq.gz
+seqkit sample -p 0.6100 -s 100 L2_pulse1_R1.fastq.gz  -o subsamp_L2_pulse1_R1.fastq.gz
+seqkit sample -p 0.4115 -s 100 L3_pulse1_R1.fastq.gz  -o subsamp_L3_pulse1_R1.fastq.gz
+seqkit sample -p 0.4762 -s 100 L4_pulse1_R1.fastq.gz  -o subsamp_L4_pulse1_R1.fastq.gz
+seqkit sample -p 1.0000 -s 100 L6_pulse1_R1.fastq.gz  -o subsamp_L6_pulse1_R1.fastq.gz
+seqkit sample -p 0.9173 -s 100 L7_pulse1_R1.fastq.gz  -o subsamp_L7_pulse1_R1.fastq.gz
+seqkit sample -p 0.8633 -s 100 L8_pulse1_R1.fastq.gz  -o subsamp_L8_pulse1_R1.fastq.gz
+
+seqkit sample -p 0.8355 -s 100 I4_pulse1_R2.fastq.gz  -o subsamp_I4_pulse1_R2.fastq.gz
+seqkit sample -p 0.8683 -s 100 I8_pulse1_R2.fastq.gz  -o subsamp_I8_pulse1_R2.fastq.gz
+seqkit sample -p 0.9584 -s 100 K1_pulse1_R2.fastq.gz  -o subsamp_K1_pulse1_R2.fastq.gz
+seqkit sample -p 0.6100 -s 100 L2_pulse1_R2.fastq.gz  -o subsamp_L2_pulse1_R2.fastq.gz
+seqkit sample -p 0.4115 -s 100 L3_pulse1_R2.fastq.gz  -o subsamp_L3_pulse1_R2.fastq.gz
+seqkit sample -p 0.4762 -s 100 L4_pulse1_R2.fastq.gz  -o subsamp_L4_pulse1_R2.fastq.gz
+seqkit sample -p 1.0000 -s 100 L6_pulse1_R2.fastq.gz  -o subsamp_L6_pulse1_R2.fastq.gz
+seqkit sample -p 0.9173 -s 100 L7_pulse1_R2.fastq.gz  -o subsamp_L7_pulse1_R2.fastq.gz
+seqkit sample -p 0.8633 -s 100 L8_pulse1_R2.fastq.gz  -o subsamp_L8_pulse1_R2.fastq.gz
+```
+
+map subsampled reads to MAG database
+
+```bash
+#!/usr/bin/bash
+#SBATCH --time=4:00:00
+#SBATCH --account=
+#SBATCH --cpus-per-task=32
+#SBATCH --mem-per-cpu=2G
+
+module load StdEnv/2020
+module load bowtie2/2.4.4
+
+for f in *_R1.fastq.gz
+do
+bowtie2 -x ALL_MAGS -1 $f -2 ${f%*R1.fastq.gz}R2.fastq.gz --threads 32 -S ${f%*R1.fastq.gz}.sam
+done
+
+```
+
+then install and run coverm. need to run coverm inside of CoverM folder.
+
+```bash
+git clone https://github.com/wwood/CoverM
+
+```
+
+```bash
+#!/usr/bin/bash
+#SBATCH --time=00:30:00
+#SBATCH --account=
+#SBATCH --cpus-per-task=16
+#SBATCH --mem-per-cpu=4G
+
+module load StdEnv/2023 rust/1.76.0
+
+for f in /home/ederrick/scratch/pulse_1_reads/subsampled_pulse1
+do
+cargo run -- genome -d /home/ederrick/scratch/coverm_MAGs -b $f --min-read-percent-identity 95 -o ${f%*.bam}_coverm -x fa -t 16 --min-covered-fraction 0 -m relative_abundance mean trimmed_mean covered_bases count reads_per_base 
+done
+
+```
+
