@@ -834,6 +834,24 @@ seqkit sample -p 0.9173 -s 100 L7_pulse1_R2.fastq.gz  -o subsamp_L7_pulse1_R2.fa
 seqkit sample -p 0.8633 -s 100 L8_pulse1_R2.fastq.gz  -o subsamp_L8_pulse1_R2.fastq.gz
 ```
 
+get new number of subsampled reads incase I decided to calulcuate relative abundance
+
+```bash
+#!/usr/bin/bash
+#SBATCH --time=00:60:00
+#SBATCH --account=
+#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu=1G
+
+module load seqkit
+
+for file in *.gz
+do
+total=$(seqkit stats $file)
+echo $total
+done
+```
+
 map subsampled reads to MAG database
 
 ```bash
@@ -911,4 +929,6 @@ cargo run -- genome -d /home/ederrick/scratch/coverm_MAGs -b $f --min-read-perce
 done
 
 ```
+
+
 
