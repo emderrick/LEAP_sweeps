@@ -853,6 +853,42 @@ done
 
 ```
 
+convert sam to bam
+
+```bash
+#!/usr/bin/bash
+#SBATCH --time=1:00:00
+#SBATCH --account=ctb-shapiro
+#SBATCH --cpus-per-task=8
+#SBATCH --mem-per-cpu=10G
+
+module load StdEnv/2023
+module load samtools/1.18
+
+for f in *.sam
+do
+samtools view -b $f > ${f%*sam}bam --threads 8
+done
+
+```
+
+sort bam
+
+```bash
+#!/usr/bin/bash
+#SBATCH --time=1:00:00
+#SBATCH --account=ctb-shapiro
+#SBATCH --cpus-per-task=8
+#SBATCH --mem-per-cpu=4G
+
+module load StdEnv/2023
+module load samtools/1.18
+
+for f in *.bam
+do
+samtools sort $f -o ${f%*.bam}sorted.bam --threads 8
+done
+
 then install and run coverm. need to run coverm inside of CoverM folder.
 
 ```bash
@@ -869,7 +905,7 @@ git clone https://github.com/wwood/CoverM
 
 module load StdEnv/2023 rust/1.76.0
 
-for f in /home/ederrick/scratch/pulse_1_reads/subsampled_pulse1
+for f in /home/ederrick/scratch/pulse_1_reads/subsampled_pulse1/*.bam
 do
 cargo run -- genome -d /home/ederrick/scratch/coverm_MAGs -b $f --min-read-percent-identity 95 -o ${f%*.bam}_coverm -x fa -t 16 --min-covered-fraction 0 -m relative_abundance mean trimmed_mean covered_bases count reads_per_base 
 done
