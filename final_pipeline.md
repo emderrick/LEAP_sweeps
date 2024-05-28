@@ -6,6 +6,7 @@ First trim the reads to remove the Illumina adaptors.
 I downloaded the adaptor file from the trimmomatic github page it is TruSeq3-PE.fa
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=12:00:00
 #SBATCH --account=
@@ -30,6 +31,7 @@ done
 Create a co-assembly for each pond. Example below if for pond I4. Repeated for each of the nine ponds.
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=8:00:00
 #SBATCH --account=
@@ -48,6 +50,7 @@ once I have a coassembly for each pond I will follow the anvio pipeline.
 First reformat fasta deflines and remove short contigs (<1000bp). Done in CC interactive node.
 
 ```bash
+
 #!/usr/bin/bash
 module load scipy-stack/2021a
 module load python/3.7
@@ -57,6 +60,7 @@ anvi-script-reformat-fasta I4_contigs.fa -o I4_contigs_fixed.fa -l 1000 --simpli
 Then rename it to get rid of fixed in title
 
 ```bash
+
 for f in *fixed.txt
 do
 out="${f//_fixed.txt/.txt}"
@@ -71,6 +75,7 @@ Once we have our coassemblies we need to map the reads at each timepoint to the 
 We will use bowtie2.
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=8:00:00
 #SBATCH --account=
@@ -93,6 +98,7 @@ done
 After running bowtie2 we will have a .sam file for each sample. We need to convert the sam file to a bam file for anvio.
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --account=
 #SBATCH --cpus-per-task=1
@@ -111,6 +117,7 @@ done
 Then index the bam file. did in CC interactive node.
 
 ```bash
+
 #!/usr/bin/bash
 source anvio/bin/activate
 module load scipy-stack/2021a
@@ -127,6 +134,7 @@ deactivate
 Then generate contig database for each pond.
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=4:00:00
 #SBATCH --account=
@@ -151,6 +159,7 @@ deactivate
 Then run HMMS
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=4:00:00
 #SBATCH --account=
@@ -175,6 +184,7 @@ deactivate
 Then run scg-taxonomy
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=2:00:00
 #SBATCH --account=
@@ -198,6 +208,7 @@ deactivate
 Then we profile each bam file with the corresponding coassembly
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=01:00:00
 #SBATCH --account=
@@ -220,6 +231,7 @@ deactivate
 Then we merge profiles from each pond to make a merged profile for each pond.
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=01:00:00
 #SBATCH --account=
@@ -230,11 +242,13 @@ source anvio/bin/activate
 module load scipy-stack/2021a
 anvi-merge I4_1_I4_profile/PROFILE.db I4_2_I4_profile/PROFILE.db I4_3_I4_profile/PROFILE.db I4_4_I4_profile/PROFILE.db -o I4_profiles_merged -c I4_contigs.db --sample-name I4
 deactivate
+
 ```
 
 Then we use cluster contigs to make a collection for each pond. did in CC interactive node.
 
 ```bash
+
 source anvio/bin/activate
 module load scipy-stack/2021a
 anvi-cluster-contigs -p I4_profiles_merged/PROFILE.db -c I4_contigs.db -C I4_collection --driver concoct --just-do-it
@@ -245,6 +259,7 @@ deactivate
 Then we can visualize bins for each pond using anvi-interactive.
 
 ```bash
+
 source anvio/bin/activate
 module load scipy-stack/2021a
 module load diamond
@@ -259,6 +274,7 @@ deactivate
 Summarize bins to get a list of bins and their completion and redundancy so I can choose which to manually refine. Do for each pond. did in CC interactive node.
 
 ```bash
+
 source anvio/bin/activate
 module load scipy-stack/2021a
 module load diamond
@@ -273,6 +289,7 @@ deactivate
 Then refine each bin of each pond with anvi-refine. This is an example command to refine one bin. I did this for a thousand bins.
 
 ```bash
+
 source anvio/bin/activate
 module load scipy-stack/2021a
 module load diamond
@@ -287,6 +304,7 @@ deactivate
 Then rename all bins and name it a MAG if bin is <10 redundant and >70 complete and include pond name in the MAG. Do for each pond. did in CC interactive node.
 
 ```bash
+
 source anvio/bin/activate
 module load scipy-stack/2021a
 module load diamond
@@ -301,6 +319,7 @@ deactivate
 Then summarize final collection of refined bins. Do for each pond. did in CC interactive node.
 
 ```bash
+
 source anvio/bin/activate
 module load scipy-stack/2021a
 module load diamond
@@ -315,6 +334,7 @@ deactivate
 Then extract a fasta file of each MAG from each pond and put in new directory called redundant_MAGS. Do for each pond. did in CC interactive node.
 
 ```bash
+
 #!/usr/bin/bash
 source anvio/bin/activate
 module load scipy-stack/2021a
@@ -336,6 +356,7 @@ Then I created a tab deliminated text file "all_redundant_mags.txt" that contain
 Then I dereplicated the MAGs through anvio program using fastANI at 98% ANI.
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=00:20:00
 #SBATCH --account=
@@ -356,6 +377,7 @@ deactivate
 The non-redundant genomes output with strange names so need to fix them.
 
 ```bash
+
 #!/usr/bin/bash
 for f in *.fa
 do
@@ -370,6 +392,7 @@ done
 Now create a file for inStrain that has a column with the scaffold/contig name and the second with the MAG name. 
 
 ```bash
+
 #!/usr/bin/bash
 for f in *.fa
 do
@@ -389,6 +412,7 @@ rm *genomes.txt
 Then create a fasta file of all non-redundant MAGs
 
 ```bash
+
 cat *.fa > ALL_MAGS.fa
 
 ```
@@ -396,6 +420,7 @@ cat *.fa > ALL_MAGS.fa
 Then I called genes with prodigal for later use with inStrain. I used -p meta to call genes in metagenomic mode (in future versions this is -anon but CC version is old). Otherwise the program will think all the genomes are the same genome.
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=1:00:00
 #SBATCH --account=
@@ -409,6 +434,7 @@ prodigal -i ALL_MAGS.fa -d mag_genes.fna -a mag_genes.faa -p meta
 Then build a bowtie index of all MAGs. 
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=00:30:00
 #SBATCH --account=
@@ -423,6 +449,7 @@ bowtie2-build ALL_MAGS.fa ALL_MAGS
 Then I mapped the metagenomic reads from each timepoint to the bowtie index of the database containing all the non-redundant MAGs.
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=8:00:00
 #SBATCH --account=
@@ -442,6 +469,7 @@ done
 Then convert sam to bam
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=4:00:00
 #SBATCH --account=
@@ -462,6 +490,7 @@ done
 Then need to sort bam files
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=4:00:00
 #SBATCH --account=
@@ -482,6 +511,7 @@ done
 Then need to index bam files (inStrain will also do this for you if you don't)
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=2:00:00
 #SBATCH --account=
@@ -500,6 +530,7 @@ Coverage for each MAG is low so I merged the timepoints after the first pulse an
 There is no merging for I4 pulse 2 because there is no timepoint 5 (never got sequenced?). There is no pulse 2 for L7 (pond leaked). Did this in CC interactive node.
 
 ```bash
+
 module load samtools
 samtools merge -o I4_pulse1.bam I4_2_sorted.bam I4_3_sorted.bam --threads 8
 samtools merge -o I8_pulse1.bam I8_2_sorted.bam I8_3_sorted.bam --threads 8
@@ -528,6 +559,7 @@ There is also an option to set the minimum coverage for a genome to be profiled.
 Then I ran inStrain profile on merged files. The --database_mode flag does --min_read_ani 0.92 --skip_mm_profiling --min_genome_coverage 1 but I want --min_genome_coverage 5 so I will use those three parameters individually instead of using --database_mode
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=4:00:00
 #SBATCH --account=
@@ -544,6 +576,7 @@ do
 out="${f//.bam/_instrain_profile}"
 inStrain profile $f ALL_MAGS.fa -o $out -p 32 -g mag_genes.fna -s genome_scaffold.stb--min_mapq 2 --min_read_ani 0.95 --skip_mm_profiling --min_genome_coverage 5 --min_freq 0
 done
+
 ```
 
 **Annotation of MAG genes**
@@ -551,6 +584,7 @@ done
 Annotation of my candidate MAGs with bakta. I installed bakta in a virtual environment. This is bakta version 1.8.1.
 
 ```bash
+
 module load python/3.10
 virtualenv --no-download bakta
 source bakta/bin/activate
@@ -576,6 +610,7 @@ make install INSTALL_DIR=/home/ederrick/venvs/
 Then I downloaded the database with
 
 ```bash
+
 wget https://zenodo.org/record/7669534
 tar -xzf db.tar.gz
 rm db.tar.gz
@@ -585,6 +620,7 @@ rm db.tar.gz
 Then I updated the database to include the amrfinder db with bakta's internal command.
 
 ```bash
+
 export PATH=/home/ederrick/venvs/amr:/home/ederrick/venvs/pilercr1.06:$PATH
 amrfinder_update --force_update --database db/amrfinderplus-db
 
@@ -593,6 +629,7 @@ amrfinder_update --force_update --database db/amrfinderplus-db
 Then I ran bakta on each MAG.
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --account=
 #SBATCH --time=00:45:00
@@ -623,6 +660,7 @@ deactivate
 Also annotating with EggNOG to get COG categories for each gene because bakta doesn't output it nicely. Don't end up using bakta annotation.
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --account=
 #SBATCH --time=03:00:00
@@ -643,6 +681,7 @@ deactivate
 First I made a file of contig names for each MAG I need to extract from bam files
 
 ```bash
+
 cat all_mags_copy.fa | grep "I4_MAG_00006" > I4_MAG_00006_names.txt
 cat all_mags_copy.fa | grep "I4_MAG_00065" > I4_MAG_00065_names.txt
 cat all_mags_copy.fa | grep "L2_MAG_00052" > L2_MAG_00052_names.txt
@@ -661,6 +700,7 @@ for file in *names.txt; do cat $file | tr -d '>' > "${file%_names.txt}"_contigs.
 Then extract the reads mapping to each MAG in each pond
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=00:15:00
 #SBATCH --account=
@@ -685,6 +725,7 @@ done
 Then subsammple each mag/pond combination to the lowest coverage mag/pond combination. did in CC interactive node.
 
 ```bash
+
 samtools view -bh --subsample 0.228 I4_pulse1_I4_MAG_00006.bam > I4_pulse1_I4_MAG_00006_subsamp.bam
 samtools view -bh --subsample 1.000 I8_pulse1_I4_MAG_00006.bam > I8_pulse1_I4_MAG_00006_subsamp.bam
 samtools view -bh --subsample 0.676 L2_pulse1_I4_MAG_00006.bam > L2_pulse1_I4_MAG_00006_subsamp.bam
@@ -748,10 +789,13 @@ samtools view -bh --subsample 0.346 L3_pulse1_L8_MAG_00042.bam > L3_pulse1_L8_MA
 samtools view -bh --subsample 0.159 L4_pulse1_L8_MAG_00042.bam > L4_pulse1_L8_MAG_00042_subsamp.bam  
 samtools view -bh --subsample 0.686 I8_pulse1_L8_MAG_00042.bam > I8_pulse1_L8_MAG_00042_subsamp.bam
 samtools view -bh --subsample 1.000 L8_pulse1_L8_MAG_00042.bam > L8_pulse1_L8_MAG_00042_subsamp.bam
+
 ```
+
 Then merge the bam files for each pond back together. Did in CC interactive node.
 
 ```bash
+
 samtools merge subsamp_K1_pulse1.bam *K1_pulse1*
 samtools merge subsamp_I4_pulse1.bam *I4_pulse1*
 samtools merge subsamp_L3_pulse1.bam *L3_pulse1*
@@ -767,6 +811,7 @@ samtools merge subsamp_L8_pulse1.bam *L8_pulse1*
 Only one MAG is at T1 so just renaming these ones
 
 ```bash
+
 mv K1_pulse0_L7_MAG_00020_subsamp.bam subsamp_K1_pulse0.bam
 mv L3_pulse0_L7_MAG_00020_subsamp.bam subsamp_L3_pulse0.bam
 mv L4_pulse0_L7_MAG_00020_subsamp.bam subsamp_L4_pulse0.bam
@@ -778,6 +823,7 @@ mv L7_pulse0_L7_MAG_00020_subsamp.bam subsamp_L7_pulse0.bam
 Then rerun instrain with downsampled bam files.
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=4:00:00
 #SBATCH --account=
@@ -802,17 +848,20 @@ done
 first merge fastqs from pulse 1
 
 ```bash
+
 #!/usr/bin/bash
 for pond in I4 I8 K1 L2 L3 L4 L6 L7 L8
 do
 cat ${pond}_2_R1.fastq.gz ${pond}_3_R1.fastq.gz
 cat ${pond}_2_R2.fastq.gz ${pond}_3_R2.fastq.gz
 done
+
 ```
 
 subsample reads to lowest pond. Proportion to sample determined in read_sampling.R. Set same seed for R1 and R2.
 
 ```bash
+
 seqkit sample -p 0.8355 -s 100 I4_pulse1_R1.fastq.gz  -o subsamp_I4_pulse1_R1.fastq.gz
 seqkit sample -p 0.8683 -s 100 I8_pulse1_R1.fastq.gz  -o subsamp_I8_pulse1_R1.fastq.gz
 seqkit sample -p 0.9584 -s 100 K1_pulse1_R1.fastq.gz  -o subsamp_K1_pulse1_R1.fastq.gz
@@ -832,11 +881,13 @@ seqkit sample -p 0.4762 -s 100 L4_pulse1_R2.fastq.gz  -o subsamp_L4_pulse1_R2.fa
 seqkit sample -p 1.0000 -s 100 L6_pulse1_R2.fastq.gz  -o subsamp_L6_pulse1_R2.fastq.gz
 seqkit sample -p 0.9173 -s 100 L7_pulse1_R2.fastq.gz  -o subsamp_L7_pulse1_R2.fastq.gz
 seqkit sample -p 0.8633 -s 100 L8_pulse1_R2.fastq.gz  -o subsamp_L8_pulse1_R2.fastq.gz
+
 ```
 
 get new number of subsampled reads incase I decided to calulcuate relative abundance
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=00:60:00
 #SBATCH --account=
@@ -850,11 +901,13 @@ do
 total=$(seqkit stats $file)
 echo $total
 done
+
 ```
 
 map subsampled reads to MAG database
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=4:00:00
 #SBATCH --account=
@@ -874,6 +927,7 @@ done
 convert sam to bam
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=1:00:00
 #SBATCH --account=ctb-shapiro
@@ -893,6 +947,7 @@ done
 sort bam
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=1:00:00
 #SBATCH --account=ctb-shapiro
@@ -907,14 +962,18 @@ do
 samtools sort $f -o ${f%*.bam}sorted.bam --threads 8
 done
 
+```
+
 then install and run coverm. need to run coverm inside of CoverM folder.
 
 ```bash
+
 git clone https://github.com/wwood/CoverM
 
 ```
 
 ```bash
+
 #!/usr/bin/bash
 #SBATCH --time=00:30:00
 #SBATCH --account=
