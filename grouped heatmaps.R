@@ -66,6 +66,7 @@ sens_snv_sum <- ggplot(sens_sum, aes(x = graph_name, y = SNV_Mbp, fill = treatme
         axis.title.y = element_text(size = 8),
         legend.key.size = unit(0.4, "cm"),
         legend.justification = "left",
+        legend.key.spacing.y = unit(0.1, "cm"),
         panel.spacing = unit(0.05, "cm"),
         strip.text.x = element_blank())+
   labs(y = "SNVs / Mbp", fill = NULL)+
@@ -104,6 +105,7 @@ res_snv_sum <- ggplot(res_sum, aes(x = graph_name, y = SNV_Mbp, fill = treatment
         axis.title.y = element_text(size = 8),
         legend.key.size = unit(0.4, "cm"),
         legend.justification = "left",
+        legend.key.spacing.y = unit(0.1, "cm"),
         panel.spacing = unit(0.05, "cm"),
         strip.text.x = element_blank())+
   labs(y = "SNVs / Mbp", fill = NULL)+
@@ -144,6 +146,7 @@ L7_snv_sum <- ggplot(all_sum_L7, aes(x = graph_name, y = SNV_Mbp, fill = treatme
         axis.title.y = element_text(size = 8),
         legend.key.size = unit(0.4, "cm"),
         legend.justification = "left",
+        legend.key.spacing.y = unit(0.1, "cm"),
         panel.spacing = unit(0.05, "cm"),
         strip.text.x = element_blank())+
   labs(y = "SNVs / Mbp", fill = NULL)+
@@ -152,7 +155,7 @@ L7_snv_sum <- ggplot(all_sum_L7, aes(x = graph_name, y = SNV_Mbp, fill = treatme
   facet_wrap(~name, ncol = 5, scales = "free")
 
 L7_all <- L7_snv_heat / L7_snv_sum
-save_plot("L7_all.jpeg", L7_all, base_height = 3, base_width = 6.9, dpi = 600)
+save_plot("L7_all.jpeg", L7_all, base_height = 3.25, base_width = 8.1, dpi = 600)
 
 
 #FIGURE S2
@@ -168,6 +171,7 @@ unclass_snv_heat <- ggplot(unclass_snv, aes(x = graph_name, y = reorder(groups, 
         axis.title.x = element_blank(),
         legend.key.size = unit(0.4, "cm"),
         legend.justification = "left",
+        legend.key.spacing.y = unit(0.1, "cm"),
         strip.text.x.top = element_text(size = 7, face = "bold"))+
   labs(colour = NULL, y = "Nucleotide Position")+
   scale_x_discrete(expand = c(0, 0))+
