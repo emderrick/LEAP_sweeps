@@ -105,6 +105,8 @@ snv_richness_plot <- ggplot(snv_richness, aes(x = species, y = SNV_Mbp, colour =
 
 save_plot("SNV_richness.jpeg", snv_richness_plot, base_width = 8, base_height = 4)
 
+summary(lm(SNV_Mbp ~ species, data = snv_richness))
+
 # 
 # all_coverm$norm_reads <- all_coverm$read_count / (all_coverm$length / 10^6)
 # all_coverm$rel_abn <- all_coverm$norm_reads / (all_coverm$reads/2)

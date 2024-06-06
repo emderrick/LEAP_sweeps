@@ -171,7 +171,6 @@ unclass_snv_heat <- ggplot(unclass_snv, aes(x = graph_name, y = reorder(groups, 
         axis.title.x = element_blank(),
         legend.key.size = unit(0.4, "cm"),
         legend.justification = "left",
-        legend.key.spacing.y = unit(0.1, "cm"),
         strip.text.x.top = element_text(size = 7, face = "bold"))+
   labs(colour = NULL, y = "Nucleotide Position")+
   scale_x_discrete(expand = c(0, 0))+
@@ -188,6 +187,7 @@ unclass_snv_sum <- ggplot(unclass_sum, aes(x = graph_name, y = SNV_Mbp, fill = t
         axis.title.y = element_text(size = 8),
         legend.key.size = unit(0.4, "cm"),
         legend.justification = "left",
+        legend.key.spacing.y = unit(0.1, "cm"),
         panel.spacing = unit(0.05, "cm"),
         strip.text.x = element_blank())+
   labs(y = "SNVs / Mbp", fill = NULL)+
