@@ -5,6 +5,8 @@ library(viridis)
 library(cowplot)
 library(patchwork)
 
+setwd("/Users/Emma/Documents/manuscript version/")
+
 sens_mags <- list("I4_MAG_00006", "L7_MAG_00028", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
 res_mags <- list("I4_MAG_00065", "L3_MAG_00058", "L7_MAG_00020", "L7_MAG_00043")
 unclass_mags <- list("L2_MAG_00052", "L4_MAG_00099")
@@ -13,7 +15,7 @@ sens_mag_labs <- c(I4_MAG_00006 = "Burkholderiaceae 1", L7_MAG_00028 = "Burkhold
 res_mag_labs <-  c(I4_MAG_00065 = "Roseomonas_A",  L3_MAG_00058 = "Prosthecobacter", L7_MAG_00020 = "Sphingorhabdus_B", L7_MAG_00043 = "Luteolibacter")
 unclass_mag_labs <- c(L2_MAG_00052 = "Erythrobacter", L4_MAG_00099 = "Bosea sp001713455")
 
-all_snv <- read_csv("all_MAG_SNVs_med_Apr9.csv")
+all_snv <- read_csv("all_MAG_SNVs_med_Aug12.csv")
 all_snv$graph_name <- gsub("Control", "CL", all_snv$new_name) %>% str_sub(end = -6)
 
 sens_snv <- subset(all_snv, mag %in% sens_mags)

@@ -1,10 +1,12 @@
 library(tidyverse)
 library(dplyr)
 
+setwd("/Users/Emma/Documents/manuscript version/")
+
 mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099",
                  "L7_MAG_00020", "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
 
-all_MAG_snvs <- read_csv("all_MAG_SNVs_med_Apr9.csv")
+all_MAG_snvs <- read_csv("all_MAG_SNVs_med_Aug12.csv")
 all_MAG_snvs <- subset(all_MAG_snvs, str_detect(new_name, "T2"))
 all_genes <- read_csv("MAG_gene_info_subsamp.csv")
 all_genes <- subset(all_genes, select = -c(scaffold, timepoint, new_time))
@@ -51,7 +53,7 @@ for(MAG in mag_list){
     bottom_05 <- subset(bottom_05, bottom_05[comp_name] < 0)
     gene_pop_matrix[comp_pass] <- with(gene_pop_matrix, ifelse(gene_pop_matrix$gene %in% top_05$gene, "decrease", NA))
     gene_pop_matrix[comp_pass] <- with(gene_pop_matrix, ifelse(gene_pop_matrix$gene %in% bottom_05$gene, "increase", gene_pop_matrix[[comp_pass]]))
-    write.csv(gene_pop_matrix, paste(MAG, "_gene_matrix_Apr23.csv", sep = ""), row.names = F)
+    write.csv(gene_pop_matrix, paste(MAG, "_gene_matrix_Aug12.csv", sep = ""), row.names = F)
   
   }
   

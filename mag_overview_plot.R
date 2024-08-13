@@ -3,6 +3,9 @@ library(dplyr)
 library(ggplot2)
 library(cowplot)
 
+setwd("/Users/Emma/Documents/manuscript version/")
+
+
 mags <- read_csv("all_mags_subsamp.csv")
 mags <- subset(mags, new_time == 2)
 mags <- mags %>% mutate(mag_name = case_when(mag == "I4_MAG_00006" ~ "Burkholderiaceae 1", mag == "I4_MAG_00065" ~ "Roseomonas_A", mag == "L2_MAG_00052" ~ "Erythrobacter",

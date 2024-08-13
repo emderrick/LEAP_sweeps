@@ -4,7 +4,9 @@ library(dplyr)
 library(ggplot2)
 library(cowplot)
 
-mag_files <- list.files(pattern = ".*_gene_matrix_Apr23.csv", full.names = T)
+setwd("/Users/Emma/Documents/manuscript version/")
+
+mag_files <- list.files(pattern = ".*_gene_matrix_Aug12.csv", full.names = T)
 
 for (mag_file in 1: length(mag_files)){
   

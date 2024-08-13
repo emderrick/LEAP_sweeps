@@ -2,7 +2,8 @@ library(tidyverse)
 library(ggplot2)
 library(viridis)
 library(RColorBrewer)
-setwd("/Users/emma/Library/Mobile Documents/com~apple~CloudDocs/phd docs/Chapter 1/Aim 1A")
+
+setwd("/Users/Emma/Documents/manuscript version/")
 
 genome_files <- list.files("95_profiles//", recursive = T, pattern = ".*genome_info.tsv", full.names = T)
 all_mags <- data.frame()

@@ -1,6 +1,8 @@
 library(tidyverse)
 library(dplyr)
 
+setwd("/Users/Emma/Documents/manuscript version/")
+
 gene_files <- list.files("subsampled_instrain/", recursive = T, pattern = ".*gene_info.tsv", full.names = T)
 all_genes <- data.frame()
 for(i in 1:length(gene_files)){

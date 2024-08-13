@@ -1,6 +1,8 @@
 library(tidyverse)
 library(dplyr)
 
+setwd("/Users/Emma/Documents/manuscript version/")
+
 mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099",
                  "L7_MAG_00020", "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
 
@@ -23,11 +25,11 @@ write.csv(gene_cov_sig_increase, "gene_cov_sig_increase_all_subsamp.csv", row.na
 gene_cov_sig_decrease <- left_join(gene_decrease[, c("gene", "T2_cov_dif", "mag")], background_cog)
 write.csv(gene_cov_sig_decrease, "gene_cov_sig_decrease_all_subsamp.csv", row.names = F)
 
-not_strict_parevol_genes <- read_csv("loose_MAG_significant_genes_subsamp.csv")
+not_strict_parevol_genes <- read_csv("loose_MAG_significant_genes_aug13.csv")
 not_strict_significant_genes <- left_join(not_strict_parevol_genes, background_cog)
 write.csv(not_strict_significant_genes, "significant_genes_loose_all_subsamp.csv", row.names = F)
 
-strict_parevol_genes <- read_csv("strict_MAG_significant_genes_subsamp.csv")
+strict_parevol_genes <- read_csv("strict_MAG_significant_genes_aug13.csv")
 strict_significant_genes <- left_join(strict_parevol_genes, background_cog)
 write.csv(strict_significant_genes, "significant_genes_strict_all_subsamp.csv", row.names = F)
 

@@ -1,6 +1,8 @@
 library(tidyverse)
 library(dplyr)
 
+setwd("/Users/Emma/Documents/manuscript version/")
+
 mag_list <- list("I4_MAG_00006", "I4_MAG_00065", "L2_MAG_00052", "L3_MAG_00058", "L4_MAG_00099",
                  "L7_MAG_00020", "L7_MAG_00028", "L7_MAG_00043", "L8_MAG_00011", "L8_MAG_00019", "L8_MAG_00042")
 
@@ -33,7 +35,9 @@ for(MAG in mag_list){
   all_MAG <- all_MAG[, c(3:6, 8:12, 31, 13:30)]
   all_MAG <- complete(all_MAG, timepoint, groups)
   all_MAG <- all_MAG %>% group_by(groups) %>% fill(scaffold, gene, mag, mag_length, length, .direction = "updown")
-  all_MAG <- all_MAG %>% group_by(timepoint, scaffold) %>% fill(new_time, treatment, name, new_name, coverage.y, .direction = "updown")
+  all_MAG <- ungroup(all_MAG)
+  all_MAG <- all_MAG %>% group_by(timepoint) %>% fill(new_name, new_time, treatment, name, .direction = "updown")
+  all_MAG <- all_MAG %>% group_by(timepoint, scaffold) %>% fill(coverage.y, .direction = "updown")
   write.csv(all_MAG, paste("all_", MAG, "_SNVs_subsamp.csv", sep = ""), row.names = F)
 }
 

@@ -3,7 +3,10 @@ library(dplyr)
 library(ggplot2)
 library(cowplot)
 
-test_groups <- list(all = list("COG_enrich_parallel_decrease_genes.csv", "COG_enrich_parallel_decrease_genes_cog.csv", "COG_enrich_threshold_significant_genes_all_subsamp.csv",
+setwd("/Users/Emma/Documents/manuscript version/")
+
+
+test_groups <- list(all = list("COG_enrich_parevol_parallel_decrease_genes.csv", "COG_enrich_parallel_decrease_genes_cog.csv", "COG_enrich_threshold_significant_genes_all_subsamp.csv",
                                "COG_enrich_gene_cov_sig_increase_all_subsamp.csv", "COG_enrich_gene_cov_sig_decrease_all_subsamp.csv"),
                     
                     class_1 = list("COG_enrich_sig_genes_strict_C1_subsamp.csv", "COG_enrich_sig_genes_par_snv_decrease_C1_subsamp.csv", "COG_enrich_sig_genes_threshold_C1_subsamp.csv",

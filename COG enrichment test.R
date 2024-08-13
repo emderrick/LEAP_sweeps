@@ -1,4 +1,7 @@
 library(tidyverse)
+
+setwd("/Users/Emma/Documents/manuscript version/")
+
 #Fisher's exact test for each COG category (Sig genes in category, sig genes not in category, non-sig genes in category, non-sig genes not in category)
 
 identify_enriched_categories <- function(genes,
@@ -83,7 +86,7 @@ categories_to_ignore <- c('A', 'B', 'Y', 'Z')
 
 all_background_genes <- read_csv("cog_background_genes.csv")
 
-sig_gene_files <- c("SNV_decrease_genes.csv", "parallel_decrease_genes.csv", "parallel_decrease_genes_cog.csv", "decrease_genes_cog.csv", "threshold_significant_genes_all_subsamp.csv", "gene_cov_sig_increase_all_subsamp.csv", "gene_cov_sig_decrease_all_subsamp.csv")
+sig_gene_files <- c("parevol_SNV_decrease_genes.csv", "parevol_parallel_decrease_genes.csv", "parallel_decrease_genes_cog.csv", "decrease_genes_cog.csv", "threshold_significant_genes_all_subsamp.csv", "gene_cov_sig_increase_all_subsamp.csv", "gene_cov_sig_decrease_all_subsamp.csv")
 
 for(gene_file in sig_gene_files){
   significant_genes_df <- read_csv(gene_file)
