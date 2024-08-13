@@ -7,21 +7,21 @@ final_pipeline.md
 
 ### analysis files in order of use
 
-combine_filter_mag_files.R
-1. .py
-2. get_position_depth.py
-3. combine_depth.R
-4. SNVs.R
-5. sum_snvs.R
-6. gene_cov.R
-7. snvs_to_matrix.R
-8. matrix_parevol.R
-9. ParEvol.py
-10. get_significant_genes.py
-11. gene_diversity.R
-12. get_genes.R
-13. genes_by_group.R
-14. COG enrichment test.R
+1. combine_filter_mag_files.R
+2. instrain_coverage.py
+3. get_position_depth.py
+4. combine_depth.R
+5. SNVs.R
+6. sum_snvs.R
+7. gene_cov.R
+8. snvs_to_matrix.R
+9. matrix_parevol.R
+10. ParEvol.py
+11. get_significant_genes.py
+12. gene_diversity.R
+13. get_genes.R
+14. genes_by_group.R
+15. COG enrichment test.R
 
 
 ### graphing files
