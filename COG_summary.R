@@ -24,8 +24,8 @@ for(name in output_names){
   COG_increase <-  read_csv(test_groups[[name]][[4]])
   COG_decrease <-  read_csv(test_groups[[name]][[5]])
   
-  COG_strict$method <- "Parallel SNV Decrease"
-  COG_snv_par$method <- "Parallel SNV/Mbp Decrease"
+  COG_strict$method <- "Parallel SNV Number Decrease"
+  COG_snv_par$method <- "Parallel SNV Density Decrease"
   COG_threshold$method <- "SNV Frequency Change"
   COG_increase$method <- "Gene Copy Number Increase"
   COG_decrease$method <- "Gene Copy Number Decrease"
@@ -38,7 +38,7 @@ for(name in output_names){
 }
 
 all <- read_csv("all_COG.csv")
-all$method <- factor(all$method, levels = c("SNV Frequency Change", "Parallel SNV Decrease", "Parallel SNV/Mbp Decrease", "Gene Copy Number Increase", "Gene Copy Number Decrease"))
+all$method <- factor(all$method, levels = c("SNV Frequency Change", "Parallel SNV Density Decrease", "Parallel SNV Number Decrease", "Gene Copy Number Increase", "Gene Copy Number Decrease"))
 all$category <-  factor(all$category, levels = c("J", "K", "L", "D", "V", "T", "M", "N", "W", "U", "O", "C", "G", "E", "F", "H", "I", "P", "Q", "X", "R", "S"))
 all_sig <- subset(all, OR_sig != "p > 0.05" & fdr < 0.1)
 all_sig$fdr_sig <- "FDR < 0.1"
@@ -72,7 +72,7 @@ class_1$class <- "Class I - GBH Sensitive"
 class_2 <- read_csv("class_2_COG.csv")
 class_2$class <- "Class II - GBH Resistant"
 all_class <- rbind(class_1, class_2)
-all_class$method <- factor(all_class$method, levels = c("SNV Frequency Change", "Parallel SNV Decrease", "Parallel SNV/Mbp Decrease", "Gene Copy Number Increase", "Gene Copy Number Decrease"))
+all_class$method <- factor(all_class$method, levels = c("SNV Frequency Change", "Parallel SNV Density Decrease", "Parallel SNV Number Decrease", "Gene Copy Number Increase", "Gene Copy Number Decrease"))
 all_class$category <-  factor(all_class$category, levels = c("J", "K", "L", "D", "V", "T", "M", "N", "W", "U", "O", "C", "G", "E", "F", "H", "I", "P", "Q", "X", "R", "S"))
 all_class_sig <- subset(all_class, OR_sig != "p > 0.05" & fdr < 0.1)
 all_class_sig$fdr_sig <- "FDR < 0.1"

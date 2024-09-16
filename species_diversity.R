@@ -76,8 +76,9 @@ pond_richness <- ggplot(richness, aes(y = species, x = treatment_graph, colour =
   
 save_plot("pond_richness.jpeg", pond_richness, base_width = 3, base_height = 4)
 
-richness_stats <- wilcox.test(species ~ treatment_graph, data = richness)
-
+GBH_species <- subset(richness, treatment_graph == "GBH")$species
+control_species <- subset(richness, treatment_graph == "Control")$species
+richness_stats <- wilcox.test(GBH_species, control_species)
 
 snv_info <- read_csv("all_SNV_sum_subsamp.csv")
 snv_info <- subset(snv_info, select = c("mag", "new_name", "SNV_Mbp"))
