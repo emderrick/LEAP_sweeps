@@ -884,7 +884,7 @@ seqkit sample -p 0.8633 -s 100 L8_pulse1_R2.fastq.gz  -o subsamp_L8_pulse1_R2.fa
 
 ```
 
-get new number of subsampled reads incase I decided to calulcuate relative abundance
+get new number of subsampled reads
 
 ```bash
 
