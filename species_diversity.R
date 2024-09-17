@@ -31,17 +31,6 @@ for(i in 1:length(coverm_files)){
 all_coverm <- left_join(all_coverm, all_mags)
 all_coverm <- subset(all_coverm, mag != "L7_MAG_00037")
 all_coverm <- subset(all_coverm, mag != "unmapped")
-
-total_reads <- read_csv("read_stats.csv")
-total_reads <- as.data.frame(apply(total_reads, 2, function(x) gsub('\\s+', '', x)))
-total_reads$pond <- total_reads$file %>% substr(1,2)
-total_reads$time <- total_reads$file %>% substr(4,4)
-total_reads <- total_reads %>% mutate(pulse = case_when(time == 1 ~ 0, time == 2 ~ 1, time == 3 ~ 1, time == 4 ~ 2, time == 5 ~ 2))
-total_reads$timepoint <- paste(total_reads$pond, "_pulse", total_reads$pulse, sep = "")
-total_reads <- total_reads[, c(12, 4)] %>% unique()
-total_reads_sum <- total_reads %>% group_by(timepoint) %>% summarize(reads = sum(as.numeric(num_seqs)))
-
-all_coverm <- left_join(all_coverm, total_reads_sum)
 all_coverm$pond <- all_coverm$timepoint %>% substr(1,2)
 all_coverm <- all_coverm %>% mutate(name = case_when(pond == "K1" ~ "Control A", pond == "I4" ~ "Control B",
                                                      pond == "L3" ~ "Control C", pond == "L4" ~ "Control D",
@@ -108,13 +97,3 @@ snv_richness_plot <- ggplot(snv_richness, aes(x = species, y = SNV_Mbp, colour =
 save_plot("SNV_richness.jpeg", snv_richness_plot, base_width = 8, base_height = 4)
 
 summary(lm(SNV_Mbp ~ species, data = snv_richness))
-
-# 
-# all_coverm$norm_reads <- all_coverm$read_count / (all_coverm$length / 10^6)
-# all_coverm$rel_abn <- all_coverm$norm_reads / (all_coverm$reads/2)
-# coverm_T2 <- subset(all_coverm, pond == "I4")
-# coverm_T2$mag_pond <- coverm_T2$mag %>% substr(1,2)
-# 
-# coverm_T2$mag <- reorder(coverm_T2$mag, coverm_T2$rel_abn)
-# wide_coverm <- subset(all_coverm, select = c("mag", "new_name", "rel_abn"))
-# wide_coverm <- pivot_wider(wide_coverm, names_from = mag, values_from = rel_abn)
