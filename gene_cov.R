@@ -78,7 +78,23 @@ write.csv(gene_changes_L7_sum, "gene_cov_change_sum_L7.csv", row.names = F)
 
 gene_decrease_L7 <- subset(gene_decrease, mag == "L7_MAG_00020")
 gene_increase_L7 <- subset(gene_increase, mag == "L7_MAG_00020")
-gene_changes_increase_L7 <- subset(gene_changes_L7, cov_dif > 0.5 & pond == "GBH A")
-gene_changes_decrease_L7 <- subset(gene_changes_L7, cov_dif < -0.5 & pond == "Control D")
-L7_increase_overlap <- as.data.frame(intersect(gene_changes_increase_L7$gene, gene_increase_L7$gene)) 
-L7_decrease_overlap <- as.data.frame(intersect(gene_changes_decrease_L7$gene, gene_decrease_L7$gene)) 
+
+#calculate overlap between T1 vs T2 and control vs GBH at T2
+gene_changes_L7_CvG <- subset(gene_changes_pass, mag == "L7_MAG_00020")
+
+gene_changes_L7_GA <- subset(gene_changes_L7, pond == "GBH A")
+GA_overlap <- as.data.frame(intersect(gene_changes_L7_GA$gene, gene_changes_L7_CvG$gene)) 
+GA_Control_percent <- 1400 / 1538
+
+gene_changes_L7_CA <- subset(gene_changes_L7, pond == "Control A")
+CA_overlap <- as.data.frame(intersect(gene_changes_L7_CA$gene, gene_changes_L7_CvG$gene)) 
+CA_Control_percent <- 352 / 1538
+
+gene_changes_L7_CC <- subset(gene_changes_L7, pond == "Control C")
+CC_overlap <- as.data.frame(intersect(gene_changes_L7_CC$gene, gene_changes_L7_CvG$gene)) 
+CC_Control_percent <- 308 / 1538
+
+gene_changes_L7_CD <- subset(gene_changes_L7, pond == "Control D")
+CD_overlap <- as.data.frame(intersect(gene_changes_L7_CD$gene, gene_changes_L7_CvG$gene)) 
+CD_Control_percent <- 278 / 1538
+AVG_C <- (CA_Control_percent + CC_Control_percent + CD_Control_percent) / 3
