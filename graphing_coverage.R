@@ -3,6 +3,8 @@ library(ggplot2)
 library(cowplot)
 library(reporter)
 library(tidyverse)
+library(svglite)
+
 
 setwd("/Users/Emma/Documents/manuscript version/")
 
@@ -98,17 +100,11 @@ all_MAG_scaf_cov <- ggplot(snv_sum, aes(x = coverage, y = log10((count/length)*1
   theme_classic()+
   theme(text = element_text(size = 12, colour = 'black'),
         axis.text = element_text(colour = "black"),
-        axis.title = element_text(size = 12), 
-        axis.text.x = element_text(vjust = -1),
-        axis.title.x = element_text(vjust = -1, margin = margin(t = 10, r = 0, b = 10, l = 0)),
-        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.ticks = element_line(colour = "black"),
         legend.position = "bottom",
-        #legend.background = element_blank(),
-        plot.margin = unit(c(1, 1, 1, 1), "cm"),
-        strip.text.x.top = element_text(face = "bold"),
-        panel.spacing.y = unit(1.5, "lines"))+
+        strip.text.x.top = element_text(face = "bold"))+
   scale_y_continuous(limits=c(0,5))+
   guides(colour = guide_legend(nrow = 1, override.aes = list(size = 10)))+
-  facet_wrap(~mag_order, nrow = 2, ncol = 6, scales = "free", labeller = labeller(mag_order = mag_labs))
+  facet_wrap(~mag_order, ncol = 6, scales = "free", labeller = labeller(mag_order = mag_labs))
 
-save_plot("MAG_scaf_cov_SNV_sub.jpeg", all_MAG_scaf_cov, base_height = 3.5, base_width = 2.5, ncol = 6, nrow = 2, dpi = 300, limitsize = F)
+save_plot("MAG_scaf_cov_SNV_sub.svg", all_MAG_scaf_cov, base_height = 3.5, base_width = 8.5)

@@ -4,6 +4,8 @@ library(ggplot2)
 library(viridis)
 library(cowplot)
 library(patchwork)
+library(svglite)
+
 
 setwd("/Users/Emma/Documents/manuscript version/")
 
@@ -47,6 +49,7 @@ sens_snv_heat <- ggplot(sens_snv, aes(x = graph_name, y = reorder(groups, all_me
   theme(text = element_text(size = 6.5),
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank(), 
+        axis.ticks.x = element_line(colour = "black"),
         axis.title.y = element_text(size = 8), 
         axis.text.x = element_text(colour = "black", vjust = -1),
         axis.title.x = element_blank(),
@@ -66,6 +69,7 @@ sens_snv_sum <- ggplot(sens_sum, aes(x = graph_name, y = SNV_Mbp, fill = treatme
         axis.text.x = element_text(vjust = -1),
         axis.title.x = element_blank(),
         axis.title.y = element_text(size = 8),
+        axis.ticks.x = element_line(colour = "black"),
         legend.key.size = unit(0.4, "cm"),
         legend.justification = "left",
         legend.key.spacing.y = unit(0.1, "cm"),
@@ -77,7 +81,7 @@ sens_snv_sum <- ggplot(sens_sum, aes(x = graph_name, y = SNV_Mbp, fill = treatme
   facet_wrap(~mag, ncol = 5, scales = "free")
 
 sens_all <- sens_snv_heat / sens_snv_sum
-save_plot("sens_all.jpeg", sens_all, base_height = 3.25, base_width = 8.24, dpi = 600)
+save_plot("sens_all.pdf", sens_all, base_height = 3.25, base_width = 8.24)
 
 res_snv_heat <- ggplot(res_snv, aes(x = graph_name, y = reorder(groups, all_mean), colour = final_ref_freq)) +
   geom_tile()+
@@ -86,6 +90,7 @@ res_snv_heat <- ggplot(res_snv, aes(x = graph_name, y = reorder(groups, all_mean
   theme(text = element_text(size = 6.5),
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank(), 
+        axis.ticks.x = element_line(colour = "black"),
         axis.title.y = element_text(size = 8), 
         axis.text.x = element_text(colour = "black", vjust = -1),
         axis.title.x = element_blank(),
@@ -105,6 +110,7 @@ res_snv_sum <- ggplot(res_sum, aes(x = graph_name, y = SNV_Mbp, fill = treatment
         axis.text.x = element_text(vjust = -1),
         axis.title.x = element_blank(),
         axis.title.y = element_text(size = 8),
+        axis.ticks.x = element_line(colour = "black"),
         legend.key.size = unit(0.4, "cm"),
         legend.justification = "left",
         legend.key.spacing.y = unit(0.1, "cm"),
@@ -116,7 +122,7 @@ res_snv_sum <- ggplot(res_sum, aes(x = graph_name, y = SNV_Mbp, fill = treatment
   facet_wrap(~mag, ncol = 5, scales = "free")
 
 res_all <- res_snv_heat / res_snv_sum
-save_plot("res_all.jpeg", res_all, base_height = 3.25, base_width = 6.9, dpi = 600)
+save_plot("res_all.pdf", res_all, base_height = 3.25, base_width = 6.9)
 
 
 #FIGURE 3
@@ -127,6 +133,7 @@ L7_snv_heat <- ggplot(all_L7, aes(x = graph_name, y = reorder(groups, all_mean),
   theme(text = element_text(size = 6.5),
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank(), 
+        axis.ticks = element_line(colour = "black"),
         axis.title.y = element_text(size = 8), 
         axis.text.x = element_text(colour = "black", vjust = -1),
         axis.title.x = element_blank(),
@@ -143,6 +150,7 @@ L7_snv_sum <- ggplot(all_sum_L7, aes(x = graph_name, y = SNV_Mbp, fill = treatme
   scale_fill_manual(breaks = c('Control', 'Phosphorus', 'GBH'), values= c("white", "grey70", "grey30"))+
   theme(text = element_text(size = 6.5),
         axis.text = element_text(color = "black"),
+        axis.ticks = element_line(colour = "black"),
         axis.text.x = element_text(vjust = -1),
         axis.title.x = element_blank(),
         axis.title.y = element_text(size = 8),
@@ -157,10 +165,10 @@ L7_snv_sum <- ggplot(all_sum_L7, aes(x = graph_name, y = SNV_Mbp, fill = treatme
   facet_wrap(~name, ncol = 5, scales = "free")
 
 L7_all <- L7_snv_heat / L7_snv_sum
-save_plot("L7_all.jpeg", L7_all, base_height = 3.25, base_width = 8.1, dpi = 600)
+save_plot("L7_all.pdf", L7_all, base_height = 3.25, base_width = 8.1)
 
 
-#FIGURE S2
+#FIGURE S3
 unclass_snv_heat <- ggplot(unclass_snv, aes(x = graph_name, y = reorder(groups, all_mean), colour = final_ref_freq)) +
   geom_tile()+
   scale_colour_viridis(direction = -1, na.value = "white") +
@@ -168,6 +176,7 @@ unclass_snv_heat <- ggplot(unclass_snv, aes(x = graph_name, y = reorder(groups, 
   theme(text = element_text(size = 6.5),
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank(), 
+        axis.ticks = element_line(colour = "black"),
         axis.title.y = element_text(size = 8), 
         axis.text.x = element_text(colour = "black", vjust = -1),
         axis.title.x = element_blank(),
@@ -184,6 +193,7 @@ unclass_snv_sum <- ggplot(unclass_sum, aes(x = graph_name, y = SNV_Mbp, fill = t
   scale_fill_manual(breaks = c('Control', 'Phosphorus', 'GBH'), values= c("white", "grey70", "grey30"))+
   theme(text = element_text(size = 6.5),
         axis.text = element_text(color = "black"),
+        axis.ticks = element_line(colour = "black"),
         axis.text.x = element_text(vjust = -1),
         axis.title.x = element_blank(),
         axis.title.y = element_text(size = 8),
@@ -198,4 +208,4 @@ unclass_snv_sum <- ggplot(unclass_sum, aes(x = graph_name, y = SNV_Mbp, fill = t
   facet_wrap(~mag, ncol = 2, scales = "free")
 
 unclass_all <- unclass_snv_heat / unclass_snv_sum
-save_plot("unclass_all.jpeg", unclass_all, base_height = 3.25, base_width = 4.2, dpi = 600)
+save_plot("unclass_all.pdf", unclass_all, base_height = 3.25, base_width = 4.2)

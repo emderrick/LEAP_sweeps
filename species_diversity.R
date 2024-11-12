@@ -2,6 +2,8 @@ library(tidyverse)
 library(ggplot2)
 library(viridis)
 library(RColorBrewer)
+library(cowplot)
+library(svglite)
 
 setwd("/Users/Emma/Documents/manuscript version/")
 
@@ -52,18 +54,20 @@ coverm_50$one <- 1
 richness <- coverm_50 %>% group_by(timepoint, name, new_name, treatment, treatment_graph, time) %>% summarize(species = sum(one))
 
 pond_richness <- ggplot(richness, aes(y = species, x = treatment_graph, colour = treatment_graph, fill = treatment_graph))+
-  geom_boxplot()+
+  geom_boxplot(outliers = F)+
+  geom_point(size = 1)+
   scale_colour_manual(values = c("#6b033e", "#ffcb30"))+
   scale_fill_manual(values = c("#BE9EAF", "#FDF2D3"))+
   theme_classic()+
   theme(legend.position = "none",
         axis.text = element_text(colour = "black", size = 12),
         axis.title.x = element_text(vjust = -1, size = 12),
+        axis.ticks = element_line(colour = "black"),
         axis.title.y = element_text(vjust = 2, size = 12))+
   labs(y = "Species Richness (# MAGs)", x = "Treatment", colour = "Pond")+
   scale_y_continuous(limits = c(0, 160), expand = expansion(mult = c(0, 0.05)))
   
-save_plot("pond_richness.jpeg", pond_richness, base_width = 3, base_height = 4)
+save_plot("pond_richness.svg", pond_richness, base_width = 3, base_height = 4)
 
 GBH_species <- subset(richness, treatment_graph == "GBH")$species
 control_species <- subset(richness, treatment_graph == "Control")$species
@@ -83,17 +87,18 @@ snv_richness$mag_order = factor(snv_richness$mag_name, levels=c('Burkholderiacea
 
 snv_richness_plot <- ggplot(snv_richness, aes(x = species, y = SNV_Mbp, colour = mag_order))+
   geom_point(size = 3, aes(shape = factor(treatment)))+
-  geom_smooth(method="lm",se=FALSE,fullrange=T,color="black", size = 0.3, aes(group = mag))+
+  geom_smooth(method="lm",se=FALSE, fullrange=T, size = 0.3, aes(group = mag))+
   labs(x = "Species Richness (# MAGs)", y = "SNVs per Mbp", colour = "MAG", shape = "Treatment")+
   theme_classic()+
   scale_colour_brewer(palette = "Set3")+
   theme(axis.text = element_text(colour = "black", size = 12),
+        axis.ticks = element_line(colour = "black"),
         axis.title.x = element_text(vjust = -1, size = 12),
         axis.title.y = element_text(vjust = 2, size = 12),
         legend.key.size = unit(0.25, "cm"),
         legend.key.spacing.y = unit(0.1, "cm"))+
-  scale_y_continuous(limits = c(-500, 25000))
+  scale_y_continuous(limits = c(-2000, 25000))
 
-save_plot("SNV_richness.jpeg", snv_richness_plot, base_width = 8, base_height = 4)
+save_plot("SNV_richness.svg", snv_richness_plot, base_width = 8, base_height = 4)
 
 summary(lm(SNV_Mbp ~ species, data = snv_richness))

@@ -2,6 +2,7 @@ library(tidyverse)
 library(dplyr)
 library(ggplot2)
 library(cowplot)
+library(svglite)
 
 setwd("/Users/Emma/Documents/manuscript version/")
 
@@ -26,8 +27,9 @@ mag_plot <- ggplot(mags, aes(x = mag_order, y = name))+
   scale_y_discrete(limits=rev)+
   theme(axis.text = element_text(colour = "black", size = 8),
         axis.title.x = element_text(vjust = -1, size = 10),
+        axis.ticks = element_line(colour = "black"),
         axis.title.y = element_text(vjust = 2, size = 10),
         axis.text.x = element_text(angle = 35, hjust = 1),
         legend.position = "none")
 
-save_plot("mag_overview_subsamp.jpeg", mag_plot, dpi = 500, base_height = 4, base_width = 8)
+save_plot("mag_overview_subsamp.svg", mag_plot, dpi = 500, base_height = 4, base_width = 8)

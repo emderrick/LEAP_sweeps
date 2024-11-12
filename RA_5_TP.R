@@ -2,6 +2,8 @@ library(tidyverse)
 library(dplyr)
 library(ggplot2)
 library(cowplot)
+library(svglite)
+
 
 setwd("/Users/emma/Documents/manuscript version/")
 
@@ -74,13 +76,14 @@ both_pulse_RA <- ggplot(subset(read_mag_info, mag != "L4_MAG_00099" & mag != "L2
         axis.line.y.left = element_line(linewidth = 0.85),
         axis.title.y = element_text(size = 13), 
         axis.text = element_text(colour = "black"),
+        axis.ticks = element_line(colour = "black"),
         strip.text.x.top = element_text(size = 12, margin = unit(c(0.25, 0.25, 0.25, 0.25), "cm"), face = "bold"),
         strip.background = element_rect(linewidth = 2, colour = "black"))+
   labs(y = "Relative Abundance", x = "Time Point", colour = "Treatment")+
   scale_x_continuous(breaks = c(0,1,2), labels = c('TP 1', 'TP 2', 'TP 3'))+
   facet_wrap(~mag_order, scales = "free_y", ncol = 5, labeller = labeller(mag_order = mag_labs))
 
-save_plot("relative_abundance_allpulse.jpeg", both_pulse_RA, dpi = 300, base_width = 12, base_height = 4)
+save_plot("relative_abundance_allpulse.svg", both_pulse_RA, base_width = 12, base_height = 4)
 
 
 pulse_1_RA <- ggplot(subset(read_mag_info, pulse != 2 & mag != "L4_MAG_00099" & mag != "L2_MAG_00052"), aes(x = pulse, y = RA_genome, group = name, colour = name))+
@@ -89,10 +92,11 @@ pulse_1_RA <- ggplot(subset(read_mag_info, pulse != 2 & mag != "L4_MAG_00099" & 
   scale_colour_manual(values = c("#3b0043","#5d1c66","#7f3888","#c270ce", "#D9A5E0","#FFEA94","#ffd633","#ffc71f","#fdb721"))+
   theme(text = element_text(size = 12),
         axis.text = element_text(colour = "black"),
+        axis.ticks = element_line(colour = "black"),
         strip.text.x.top = element_text(face = "bold"))+
   labs(y = "Relative Abundance", x = "Time Point", colour = "Treatment")+
   scale_x_continuous(breaks = c(0,1), labels = c('TP 1', 'TP 2'))+
   facet_wrap(~mag_order, scales = "free", ncol = 5, labeller = labeller(mag_order = mag_labs))
 
-save_plot("relative_abundance_pulse1.jpeg", pulse_1_RA, dpi = 300, base_height = 2.5, base_width = 3, nrow = 2, ncol = 5)
+save_plot("relative_abundance_pulse1.svg", pulse_1_RA, base_height = 2.5, base_width = 3, nrow = 2, ncol = 5)
 
