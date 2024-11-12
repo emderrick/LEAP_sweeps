@@ -1,5 +1,6 @@
-## LEAP 2021
-This is a repository for all analyses of the 2021 LEAP experiement. In this experiment we collected samples for metagenomic sequencing.
+### analysis for the paper:
+A glyphosate-based herbicide selects for genetic changes while retaining within-species diversity in a freshwater bacterioplankton community
+https://doi.org/10.1101/2024.09.17.613573
 
 ### sequence processing 
 
@@ -31,5 +32,5 @@ final_pipeline.md
 3. grouped_heatmaps.R (Fig. 3, Fig. 4, S2)
 4. COG_summary.R (Fig. 5, S3)
 5. graphing_coverage.R (S1)
-6. gene_change_plot.R (S4?)
+
 
