@@ -5,7 +5,6 @@ library(reporter)
 library(tidyverse)
 library(svglite)
 
-
 setwd("/Users/Emma/Documents/manuscript version/")
 
 genome_files <- list.files("95_profiles//", recursive = T, pattern = ".*genome_info.tsv", full.names = T)
@@ -73,7 +72,7 @@ mag_scaf_SNV <- subset(mag_scaf_SNV, pos_from_end > 100)
 mag_scaf_SNV$full_group <- paste(mag_scaf_SNV$mag, mag_scaf_SNV$new_name)
 mag_scaf_SNV <- mag_scaf_SNV %>% subset(!(position_coverage > mag_coverage*3)) 
 mag_scaf_SNV <- mag_scaf_SNV %>% subset(!(position_coverage < mag_coverage/3))
-#write.csv(mag_scaf_SNV, "filtered_mag_SNVs_not_subsamp.csv", row.names = F)
+write.csv(mag_scaf_SNV, "filtered_mag_SNVs_not_subsamp.csv", row.names = F)
 
 
 mag_labs <- c(I4_MAG_00006 = "Burkholderiaceae 1", I4_MAG_00065 = "Roseomonas_A", L2_MAG_00052 = "Erythrobacter", 
@@ -93,18 +92,18 @@ snv_sum$mag_order = factor(snv_sum$mag, levels=c('I4_MAG_00006','L7_MAG_00028','
                                                  'L3_MAG_00058', 'L7_MAG_00020',  'L7_MAG_00043', 'L2_MAG_00052', 'L4_MAG_00099'))
 
 all_MAG_scaf_cov <- ggplot(snv_sum, aes(x = coverage, y = log10((count/length)*10^6), colour = name)) + 
-  geom_point(size = 1)+
+  geom_point(size = 0.5)+
   scale_colour_manual(values = c("#3b0043","#5d1c66","#7f3888","#c270ce", "#D9A5E0","#FFEA94","#ffd633","#ffc71f","#fdb721"))+
   #scale_colour_manual(values = c("#002C3D", "#005F73", "#0A9396", "#94D2BD", "#EE9B00", "#CA6702", "#BB3E03", "#AE2012", "#9B2226"))+
   labs(y = paste("log", {subsc('10')}, " SNVs / Mbp"), x="Coverage (X)", colour= "Pond") +
   theme_classic()+
-  theme(text = element_text(size = 12, colour = 'black'),
+  theme(text = element_text(size = 10, colour = 'black'),
         axis.text = element_text(colour = "black"),
         axis.ticks = element_line(colour = "black"),
         legend.position = "bottom",
         strip.text.x.top = element_text(face = "bold"))+
   scale_y_continuous(limits=c(0,5))+
-  guides(colour = guide_legend(nrow = 1, override.aes = list(size = 10)))+
+  guides(colour = guide_legend(nrow = 1, override.aes = list(size = 5)))+
   facet_wrap(~mag_order, ncol = 6, scales = "free", labeller = labeller(mag_order = mag_labs))
 
 save_plot("MAG_scaf_cov_SNV_sub.svg", all_MAG_scaf_cov, base_height = 3.5, base_width = 8.5)

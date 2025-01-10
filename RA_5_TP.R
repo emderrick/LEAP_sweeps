@@ -90,13 +90,15 @@ pulse_1_RA <- ggplot(subset(read_mag_info, pulse != 2 & mag != "L4_MAG_00099" & 
   geom_line(size = 1)+
   theme_classic()+
   scale_colour_manual(values = c("#3b0043","#5d1c66","#7f3888","#c270ce", "#D9A5E0","#FFEA94","#ffd633","#ffc71f","#fdb721"))+
-  theme(text = element_text(size = 12),
+  theme(text = element_text(size = 10),
         axis.text = element_text(colour = "black"),
         axis.ticks = element_line(colour = "black"),
+        legend.position = "bottom",
         strip.text.x.top = element_text(face = "bold"))+
   labs(y = "Relative Abundance", x = "Time Point", colour = "Treatment")+
   scale_x_continuous(breaks = c(0,1), labels = c('TP 1', 'TP 2'))+
+  guides(colour = guide_legend(nrow = 1, override.aes = list(size = 5)))+
   facet_wrap(~mag_order, scales = "free", ncol = 5, labeller = labeller(mag_order = mag_labs))
 
-save_plot("relative_abundance_pulse1.svg", pulse_1_RA, base_height = 2.5, base_width = 3, nrow = 2, ncol = 5)
+save_plot("relative_abundance_pulse1.svg", pulse_1_RA, base_height = 3.5, base_width = 8.5)
 
