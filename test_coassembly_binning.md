@@ -1,4 +1,4 @@
-### Complete workflow for raw reads to instrain output
+### Testing two coassembly methods for binning without anvi'o manual refinement 
 
 #### trim adaptors and low quality seqeunces with Trimmomatic
 
@@ -93,9 +93,20 @@ metabat2 -i metaspades_contigs_filt.fa -a spades_depth.txt -o spades_bins/bins -
 #### check quality and dereplicate MAGs with dREP and checkM
 
 ```bash
-checkm lineage_wf megahit_bins megahit_bin_quality -t 64 -x fa
-checkm lineage_wf spades_bins spades_bin_quality -t 64 -x fa
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate drep
+checkm lineage_wf megahit_bins megahit_bin_quality -t 64 -x fa --tab_table -f megahit_checkM.txt --pplacer_threads 16
+```
 
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate drep
+checkm lineage_wf spades_bins spades_bin_quality -t 64 -x fa --tab_table -f spades_checkM.txt --pplacer_threads 16
+```
+
+```bash
 dRep compare output_directory -g path/to/genomes/*.fasta
 dRep dereplicate output_directory -g path/to/genomes/*.fasta
 ```
