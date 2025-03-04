@@ -193,13 +193,6 @@ metabat2 -i T3_coassembly.fa -a T3_depth.txt -o T3_bins/bin -m 2500 -t 64
 #### check quality and dereplicate MAGs with dRep and checkM
 
 ```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate drep
-checkm lineage_wf T3_bins T3_bin_quality -t 64 -x fa --tab_table -f T3_checkM.txt --pplacer_threads 16
-```
-
-```bash
 dRep dereplicate drep_T3_bins -g T3_bins/*.fa -l 500000 -comp 70 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 64
 ```
 
@@ -212,8 +205,8 @@ bowtie2-build T3_MAGs.fa T3_MAGs --threads 64
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate bowtie2
-parallel -j 9 --plus 'bowtie2 -x T3_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --local --threads 16 | samtools sort -o {/R1.fastq.gz/T1_MAGs.bam} --write-index -@ 16' ::: *_1_R1.fastq.gz
-parallel -j 9 --plus 'bowtie2 -x T3_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --local --threads 16 | samtools sort -o {/R1.fastq.gz/T1_MAGs.bam} --write-index -@ 16' ::: *_3_R1.fastq.gz
+parallel -j 9 --plus 'bowtie2 -x T3_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --local --threads 16 | samtools sort -o {/R1.fastq.gz/T3_MAGs.bam} --write-index -@ 16' ::: *_1_R1.fastq.gz
+parallel -j 9 --plus 'bowtie2 -x T3_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --local --threads 16 | samtools sort -o {/R1.fastq.gz/T3_MAGs.bam} --write-index -@ 16' ::: *_3_R1.fastq.gz
 ```
 
 ```bash
