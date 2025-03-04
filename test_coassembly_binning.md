@@ -210,9 +210,5 @@ parallel -j 9 --plus 'bowtie2 -x T3_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --l
 ```
 
 ```bash
-conda create -n coverM
-conda activate coverM
-conda install coverM
-
 coverm genome -b *.bam -d T3_dereplicated_MAGs -o T3_MAGs_coverM.tsv -m mean variance covered_fraction relative_abundance -t 16 -x fa
 ```
