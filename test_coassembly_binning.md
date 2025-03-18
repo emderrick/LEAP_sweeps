@@ -125,6 +125,19 @@ for f in *.fa; do cp $f /mfs/ederrick/chapter_1/03_binning/megahit_${f%*}; done
 for f in *.fa; do cp $f /mfs/ederrick/chapter_1/03_binning/spades_${f%*}; done
 dRep dereplicate drep_all_bins -g all_bins/*.fa -l 500000 -comp 70 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 64
 ```
+#### bin with concoct and compare to metabat2 bins
+
+```bash
+cut_up_fasta.py T1_coassembly.fa -c 10000 -o 0 --merge_last -b T1_coassembly_10K.bed > T1_coassembly_10K.fa
+concoct_coverage_table.py T1_coassembly_10K.bed *.bam > T1_concoct_coverage.tsv
+concoct --composition_file T1_coassembly_10K.fa --coverage_file T1_concoct_coverage.tsv -b concoct_output
+merge_cutup_clustering.py concoct_output_clustering_gt1000.csv > clustering_merged.csv
+extract_fasta_bins.py T1_coassembly.fa clustering_merged.csv --output_path concoct_bins
+
+
+checkm lineage_wf concoct_bins concoct_bin_quality -t 64 -x fa --tab_table -f concoct_checkM.txt --pplacer_threads 32
+dRep dereplicate drep_concoct_bins -g concoct_bins/*.fa -l 500000 -comp 70 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 64
+```
 
 #### Map T1 and T3 to the MAG database to see how many MAGs are present in both at 1X (will hopefully be high enough to profile in reseq data)
 
