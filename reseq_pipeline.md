@@ -1,18 +1,28 @@
 ### Pipeline for resequenced samples
 
+#### rename fastq files
+
+```bash
+for f in *.gz; do mv $f ${f:0:13}${f:28}; done
+for f in *__R1_001.fastq.gz; do mv $f ${f%*__R1_001.fastq.gz}_R1.fastq.gz; done
+for f in *__R2_001.fastq.gz; do mv $f ${f%*__R2_001.fastq.gz}_R2.fastq.gz; done
+for f in *001.fastq.gz; do mv $f ${f%*_001.fastq.gz}.fastq.gz; done
+```
+
 #### trim adaptors and remove low quality seqeunces
 
 ```bash
 #!/usr/bin/bash
-source /mfs/ederrick/.bashrc
+source /mfs/ederrick/.bash_profile
 conda activate trimmomatic
 
-for f in *R1.fastq.gz
-do
-trimmomatic PE -threads 32 -phred33 $f ${f%*R1.fastq.gz}R2.fastq.gz \
-${f%*R1.fastq.gz}P_R1.fastq.gz ${f%*R1.fastq.gz}UP_R1.fastq.gz ${f%*R1.fastq.gz}P_R2.fastq.gz ${f%*R1.fastq.gz}UP_R2.fastq.gz \
-ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
-done
+parallel -j 18 --plus 'trimmomatic PE -threads 16 -phred33 {} {/R1.fastq.gz/R2.fastq.gz} {/R1.fastq.gz/QC_R1.fastq.gz} {/R1.fastq.gz/UP_R1.fastq.gz} {/R1.fastq.gz/QC_R2.fastq.gz} {/R1.fastq.gz/UP_R2.fastq.gz} ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36' ::: *R1.fastq.gz
+```
+
+#### check sequence quality
+
+```bash
+parallel -j 18 'fastqc {}  --threads 16' ::: *.fastq.gz
 ```
 
 #### coassemble all T1 samples
