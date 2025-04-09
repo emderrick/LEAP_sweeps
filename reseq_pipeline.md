@@ -31,11 +31,11 @@ parallel -j 18 'fastqc {}  --threads 16' ::: *.fastq.gz
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate megahit
-megahit -1 I4_1_R1.fastq.gz,I8_1_R1.fastq.gz,K1_1_R1.fastq.gz,L3_1_R1.fastq.gz,L4_1_R1.fastq.gz,L2_1_R1.fastq.gz,L6_1_R1.fastq.gz,L7_1_R1.fastq.gz,L8_1_R1.fastq.gz \
--2 I4_1_R2.fastq.gz,I8_1_R2.fastq.gz,K1_1_R2.fastq.gz,L3_1_R2.fastq.gz,L4_1_R2.fastq.gz,L2_1_R2.fastq.gz,L6_1_R2.fastq.gz,L7_1_R2.fastq.gz,L8_1_R2.fastq.gz \
+megahit -1 LEAP_META_01_QC_R1.fastq.gz,LEAP_META_02_QC_R1.fastq.gz,LEAP_META_03_QC_R1.fastq.gz,LEAP_META_04_QC_R1.fastq.gz,LEAP_META_05_QC_R1.fastq.gz,LEAP_META_06_QC_R1.fastq.gz,LEAP_META_07_QC_R1.fastq.gz,LEAP_META_08_QC_R1.fastq.gz,LEAP_META_09_QC_R1.fastq.gz \
+-2 LEAP_META_01_QC_R2.fastq.gz,LEAP_META_02_QC_R2.fastq.gz,LEAP_META_03_QC_R2.fastq.gz,LEAP_META_04_QC_R2.fastq.gz,LEAP_META_05_QC_R2.fastq.gz,LEAP_META_06_QC_R2.fastq.gz,LEAP_META_07_QC_R2.fastq.gz,LEAP_META_08_QC_R2.fastq.gz,LEAP_META_09_QC_R2.fastq.gz\
 -o T1_coassembly --min-contig-len 1000 -t 64 -m 1000000000000
 conda deactivate
-```
+``` 
 
 ```bash
 seqkit stats -a T1_coassembly.fa > T1_coassembly_stats.txt
