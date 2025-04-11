@@ -67,8 +67,9 @@ parallel -j 9 --plus 'bowtie2 -x T1_coassembly_2500 -1 {} -2 {/R1.fastq.gz/R2.fa
 #### bin contigs with metabat2 (with bam files from TP 1)
 
 ```bash
-jgi_summarize_bam_contig_depths --outputDepth T1_coassembly_depth.txt *.bam
-metabat2 -i T1_coassembly_2500.fa -a T1_coassembly_depth.txt -o T1_bins/bin -m 2500 -t 48
+docker pull metabat/metabat
+docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest jgi_summarize_bam_contig_depths --outputDepth T1_contigs_depth.txt *.bam
+docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest metabat2 -i T1_contigs_2500.fa -a T1_contigs_depth.txt -o T1_bins/bin -m 2500 -t 48
 ```
 
 #### check quality and then filter and dereplicate MAGs
@@ -81,6 +82,9 @@ checkm lineage_wf T1_bins T1_bins_quality -t 64 -x fa --tab_table -f T1_bins_che
 ```
 
 ```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate drep
 dRep dereplicate drep_T1_bins -g T1_bins/*.fa -l 500000 -comp 70 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 64
 ```
 
