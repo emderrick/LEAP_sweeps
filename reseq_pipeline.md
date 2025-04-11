@@ -16,7 +16,11 @@ for f in *001.fastq.gz; do mv $f ${f%*_001.fastq.gz}.fastq.gz; done
 source /mfs/ederrick/.bash_profile
 conda activate trimmomatic
 
-parallel -j 18 --plus 'trimmomatic PE -threads 16 -phred33 {} {/R1.fastq.gz/R2.fastq.gz} {/R1.fastq.gz/QC_R1.fastq.gz} {/R1.fastq.gz/UP_R1.fastq.gz} {/R1.fastq.gz/QC_R2.fastq.gz} {/R1.fastq.gz/UP_R2.fastq.gz} ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36' ::: *R1.fastq.gz
+for f in *R1.fastq.gz
+do
+trimmomatic PE -threads 64 -phred33 $f ${f%*R1.fastq.gz}R2.fastq.gz ${f%*R1.fastq.gz}QC_R1.fastq.gz ${f%*R1.fastq.gz}UP_R1.fastq.gz ${f%*R1.fastq.gz}QC_R2.fastq.gz ${f%*R1.fastq.gz}UP
+_R2.fastq.gz ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:12 MINLEN:36
+done
 ```
 
 #### check sequence quality
@@ -32,7 +36,8 @@ parallel -j 18 'fastqc {}  --threads 16' ::: *.fastq.gz
 source /mfs/ederrick/.bash_profile
 conda activate megahit
 megahit -1 LEAP_META_01_QC_R1.fastq.gz,LEAP_META_02_QC_R1.fastq.gz,LEAP_META_03_QC_R1.fastq.gz,LEAP_META_04_QC_R1.fastq.gz,LEAP_META_05_QC_R1.fastq.gz,LEAP_META_06_QC_R1.fastq.gz,LEAP_META_07_QC_R1.fastq.gz,LEAP_META_08_QC_R1.fastq.gz,LEAP_META_09_QC_R1.fastq.gz \
--2 LEAP_META_01_QC_R2.fastq.gz,LEAP_META_02_QC_R2.fastq.gz,LEAP_META_03_QC_R2.fastq.gz,LEAP_META_04_QC_R2.fastq.gz,LEAP_META_05_QC_R2.fastq.gz,LEAP_META_06_QC_R2.fastq.gz,LEAP_META_07_QC_R2.fastq.gz,LEAP_META_08_QC_R2.fastq.gz,LEAP_META_09_QC_R2.fastq.gz\
+-2 LEAP_META_01_QC_R2.fastq.gz,LEAP_META_02_QC_R2.fastq.gz,LEAP_META_03_QC_R2.fastq.gz,LEAP_META_04_QC_R2.fastq.gz,LEAP_META_05_QC_R2.fastq.gz,LEAP_META_06_QC_R2.fastq.gz,LEAP_META_07_QC_R2.fastq.gz,LEAP_META_08_QC_R2.fastq.gz,LEAP_META_09_QC_R2.fastq.gz \
+-r LEAP_META_01_UP_R1.fastq.gz,LEAP_META_02_UP_R1.fastq.gz,LEAP_META_03_UP_R1.fastq.gz,LEAP_META_04_UP_R1.fastq.gz,LEAP_META_05_UP_R1.fastq.gz,LEAP_META_06_UP_R1.fastq.gz,LEAP_META_07_UP_R1.fastq.gz,LEAP_META_08_UP_R1.fastq.gz,LEAP_META_09_UP_R1.fastq.gz
 -o T1_coassembly --min-contig-len 1000 -t 64 -m 1000000000000
 conda deactivate
 ``` 
@@ -41,24 +46,29 @@ conda deactivate
 seqkit stats -a T1_coassembly.fa > T1_coassembly_stats.txt
 ```
 
+```bash
+seqkit seq -m 2500 T1_coassembly.fa > T1_coassembly_2500.fa
+seqkit stats -a T1_coassembly_2500.fa > T1_coassembly_2500_stats.txt
+```
+
 #### Map metagenomic reads from each pond at T1 to the co-assembly
 
 ```bash
-bowtie2-build T1_coassembly.fa T1_coassembly --threads 64
+bowtie2-build T1_coassembly_2500.fa T1_coassembly_2500 --threads 64
 ```
 
 ```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate bowtie2
-parallel -j 9 --plus 'bowtie2 -x T1_coassembly -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --local --threads 16 | samtools sort -o {/_R1.fastq.gz/T1_coassembly.bam} --write-index -@ 16' ::: *1_R1.fastq.gz
+parallel -j 9 --plus 'bowtie2 -x T1_coassembly_2500 -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --threads 8 | samtools sort -o {/_R1.fastq.gz/T1_coassembly.bam} --write-index -@ 16' ::: *R1.fastq.gz
 ```
 
-#### bin contigs with metabat2 (bam files in their respective directories)
+#### bin contigs with metabat2 (with bam files from TP 1)
 
 ```bash
 jgi_summarize_bam_contig_depths --outputDepth T1_coassembly_depth.txt *.bam
-metabat2 -i T1_coassembly.fa -a T1_coassembly_depth.txt -o T1_bins/bin -m 2500 -t 64
+metabat2 -i T1_coassembly_2500.fa -a T1_coassembly_depth.txt -o T1_bins/bin -m 2500 -t 48
 ```
 
 #### check quality and then filter and dereplicate MAGs
