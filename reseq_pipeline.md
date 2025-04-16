@@ -61,15 +61,31 @@ bowtie2-build T1_coassembly_2500.fa T1_coassembly_2500 --threads 64
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate bowtie2
-parallel -j 9 --plus 'bowtie2 -x T1_coassembly_2500 -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --threads 8 | samtools sort -o {/_R1.fastq.gz/T1_coassembly.bam} --write-index -@ 16' ::: *R1.fastq.gz
+parallel -j 9 --plus 'bowtie2 -x T1_coassembly_2500 -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --threads 16 | samtools sort -o {/QC_R1.fastq.gz/T1_coassembly.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
+```
+#### run kraken2
+
+```bash
+kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 T1_coassembly_2500.fa --threads 8 --output T1_coassembly_2500.output.txt --report T1_coassembly_2500.report.txt
+```
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate kraken2
+
+for f in *R1.fastq.gz
+do
+kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 64 --output ${f*%_QC_R1.fastq.gz}output.txt --report ${f*%_QC_R1.fastq.gz}report.txt --paired $f ${f*%R1.fastq.gz}R2.fastq.gz
+done
 ```
 
 #### bin contigs with metabat2 (with bam files from TP 1)
 
 ```bash
 docker pull metabat/metabat
-docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest jgi_summarize_bam_contig_depths --outputDepth T1_contigs_depth.txt *.bam
-docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest metabat2 -i T1_contigs_2500.fa -a T1_contigs_depth.txt -o T1_bins/bin -m 2500 -t 48
+docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest jgi_summarize_bam_contig_depths --outputDepth T1_coassembly_depth.txt *.bam
+docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest metabat2 -i T1_coassembly_2500.fa -a T1_coassembly_depth.txt -o T1_bins/bin -m 2500 -t 48
 ```
 
 #### check quality and then filter and dereplicate MAGs
@@ -88,6 +104,13 @@ conda activate drep
 dRep dereplicate drep_T1_bins -g T1_bins/*.fa -l 500000 -comp 70 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 64
 ```
 
+#### simplify fasta headers
+
+```bash
+for f in *.fa; do cut -f1 $f > ${f%*.fa}_fix.fa; done
+for f in *.fa; do cut -f1 $f > ${f%*.fa}_fix.fa; done
+```
+
 #### Map T1 and T3 to the MAG database and calculate quick coverage stats
 
 ```bash
@@ -102,7 +125,7 @@ parallel -j 9 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --l
 ```
 
 ```bash
-coverm genome -b *T1_MAGs.bam -d T1_dereplicated_MAGs -o T1_MAGs_coverM.tsv -m mean variance covered_fraction relative_abundance -t 16 -x fa
+coverm genome -b *T1_MAGs.bam -d T1_dereplicated_MAGs -o T1_MAGs_coverM.tsv -m mean variance covered_fraction relative_abundance -t 64 -x fa -- 
 ```
 
 #### Annotate genes with prodigal
@@ -120,7 +143,7 @@ conda install instrain
 
 for f in *T1_MAGs.bam
 do
-inStrain profile $f T1_MAGS.fa -o ${f%*.bam}_instrain_profile} -p 128 -g T1_MAG_genes.fna -s genome_scaffold.stb --min_mapq 2 --min_read_ani 0.95
+inStrain profile $f T1_MAGS.fa -o ${f%*.bam}_instrain_profile} -p 128 -g T1_MAG_genes.fna -s genome_scaffold.stb --min_mapq 2 --min_read_ani 0.93
 done
 ```
 
@@ -172,3 +195,29 @@ parallel -j 9 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --l
 ```bash
 coverm genome -b *subsampled.bam -d T1_dereplicated_MAGs --min-read-percent-identity 95 -o subsampled_reads_coverM.tsv -m mean variance covered_bases covered_fraction relative_abundance -t 16 -x fa
 ```
+
+#### coassemble TP 3 to see if that is better
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate megahit
+megahit -1 LEAP_META_10_QC_R1.fastq.gz,LEAP_META_11_QC_R1.fastq.gz,LEAP_META_12_QC_R1.fastq.gz,LEAP_META_13_QC_R1.fastq.gz,LEAP_META_14_QC_R1.fastq.gz,LEAP_META_15_QC_R1.fastq.gz,LEAP_META_16_QC_R1.fastq.gz,LEAP_META_17_QC_R1.fastq.gz,LEAP_META_18_QC_R1.fastq.gz \
+-2 LEAP_META_10_QC_R2.fastq.gz,LEAP_META_11_QC_R2.fastq.gz,LEAP_META_12_QC_R2.fastq.gz,LEAP_META_13_QC_R2.fastq.gz,LEAP_META_14_QC_R2.fastq.gz,LEAP_META_15_QC_R2.fastq.gz,LEAP_META_16_QC_R2.fastq.gz,LEAP_META_17_QC_R2.fastq.gz,LEAP_META_18_QC_R2.fastq.gz \
+-r LEAP_META_10_UP_R1.fastq.gz,LEAP_META_11_UP_R1.fastq.gz,LEAP_META_12_UP_R1.fastq.gz,LEAP_META_13_UP_R1.fastq.gz,LEAP_META_14_UP_R1.fastq.gz,LEAP_META_15_UP_R1.fastq.gz,LEAP_META_16_UP_R1.fastq.gz,LEAP_META_17_UP_R1.fastq.gz,LEAP_META_18_UP_R1.fastq.gz \
+-o T3_coassembly --min-contig-len 1000 -t 128 -m 1000000000000
+conda deactivate
+``` 
+
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate megahit
+megahit -1 LEAP_META_01_QC_R1.fastq.gz,LEAP_META_02_QC_R1.fastq.gz,LEAP_META_03_QC_R1.fastq.gz,LEAP_META_04_QC_R1.fastq.gz,LEAP_META_05_QC_R1.fastq.gz,LEAP_META_06_QC_R1.fastq.gz,LEAP_META_07_QC_R1.fastq.gz,LEAP_META_08_QC_R1.fastq.gz,LEAP_META_09_QC_R1.fastq.gz \
+-2 LEAP_META_01_QC_R2.fastq.gz,LEAP_META_02_QC_R2.fastq.gz,LEAP_META_03_QC_R2.fastq.gz,LEAP_META_04_QC_R2.fastq.gz,LEAP_META_05_QC_R2.fastq.gz,LEAP_META_06_QC_R2.fastq.gz,LEAP_META_07_QC_R2.fastq.gz,LEAP_META_08_QC_R2.fastq.gz,LEAP_META_09_QC_R2.fastq.gz \
+-r LEAP_META_01_UP_R1.fastq.gz,LEAP_META_02_UP_R1.fastq.gz,LEAP_META_03_UP_R1.fastq.gz,LEAP_META_04_UP_R1.fastq.gz,LEAP_META_05_UP_R1.fastq.gz,LEAP_META_06_UP_R1.fastq.gz,LEAP_META_07_UP_R1.fastq.gz,LEAP_META_08_UP_R1.fastq.gz,LEAP_META_09_UP_R1.fastq.gz \
+-o T1_coassembly --min-contig-len 1000 -t 64 -m 1000000000000
+conda deactivate
+``` 
+
