@@ -117,10 +117,18 @@ bowtie2-build T1_MAGs.fa T1_MAGs --threads 64
 source /mfs/ederrick/.bash_profile
 conda activate bowtie2
 parallel -j 9 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --threads 16 | samtools sort -o {/R1.fastq.gz/T1_MAGs.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
+
+try local mapping
+
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate bowtie2
+parallel -j 9 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --local --threads 16 | samtools sort -o {/R1.fastq.gz/_local_T1_MAG.b
+am} --write-index -@ 16' ::: *QC_R1.fastq.gz
 ```
 
 ```bash
-coverm genome -b *T1_MAGs.bam -d T1_dereplicated_MAGs -o T1_MAGs_coverM.tsv -m mean variance covered_fraction relative_abundance -t 64 -x fa -- 
+coverm genome -b *T1_MAGs.bam -d T1_dereplicated_MAGs -o T1_MAGs_coverM.tsv -m mean variance covered_fraction relative_abundance -t 64 -x fa --output-format sparse
 ```
 
 #### Annotate genes with prodigal
