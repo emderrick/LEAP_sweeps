@@ -83,23 +83,6 @@ docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest jgi_su
 docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest metabat2 -i T1_coassembly_2500.fa -a T1_coassembly_depth.txt -o T1_bins/bin -m 2500 -t 48
 ```
 
-#### check quality and filter and dereplicate MAGs
-
-```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate drep
-checkm lineage_wf all_bins all_MAGs_checkM -t 64 -x fa --tab_table -f all_MAGs_checkM.tsv --pplacer_threads 64
-
-dRep dereplicate drep_T1_bins -g T1_bins/*.fa -l 500000 -comp 70 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 64
-```
-
-#### get stats of bins
-
-```bash
-seqkit stats -a * > bin_stats.txt
-```
-
 #### simplify fasta headers
 
 ```bash
@@ -107,19 +90,38 @@ for f in *.fa; do cut -f1 $f > ${f%*.fa}_fix.fa; done
 for f in *_fix.fa; do mv $f ${f%*_fix.fa}.fa; done
 ```
 
+#### check quality with checkM and filter and check that MAGs are all < 95% ANI
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate drep
+dRep dereplicate checkM_T1_bins -g T1_bins/*.fa -l 500000 -comp 70 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 64
+```
+
+#### get stats of bins
+
+```bash
+seqkit stats -a * > MAG_stats.txt
+```
+
 #### Map T1 and T3 to the MAG database and calculate quick coverage stats
 
 ```bash
 cat *.fa > T1_MAGs.fa
 bowtie2-build T1_MAGs.fa T1_MAGs --threads 64
+```
 
+```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate bowtie2
 parallel -j 9 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --threads 16 | samtools sort -o {/R1.fastq.gz/T1_MAGs.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
+```
 
 try local mapping
 
+```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate bowtie2
