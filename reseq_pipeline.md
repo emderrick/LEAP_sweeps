@@ -86,6 +86,7 @@ docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest metaba
 #### simplify fasta headers
 
 ```bash
+cp T1_bins/* all_bins
 for f in *.fa; do cut -f1 $f > ${f%*.fa}_fix.fa; done
 for f in *_fix.fa; do mv $f ${f%*_fix.fa}.fa; done
 ```
@@ -96,7 +97,7 @@ for f in *_fix.fa; do mv $f ${f%*_fix.fa}.fa; done
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate drep
-dRep dereplicate checkM_T1_bins -g T1_bins/*.fa -l 500000 -comp 70 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 64
+dRep dereplicate checkM_T1_bins -g all_bins/*.fa -l 500000 -comp 70 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 64
 ```
 
 #### get stats of bins
@@ -109,7 +110,7 @@ seqkit stats -a * > MAG_stats.txt
 
 ```bash
 cat *.fa > T1_MAGs.fa
-bowtie2-build T1_MAGs.fa T1_MAGs --threads 64
+bowtie2-build T1_MAGs.fa T1_MAGs --threads 128
 ```
 
 ```bash
