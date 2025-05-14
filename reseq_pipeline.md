@@ -26,7 +26,7 @@ done
 #### check sequence quality
 
 ```bash
-parallel -j 18 'fastqc {}  --threads 16' ::: *.fastq.gz
+parallel -j 4 'fastqc {}  --threads 16' ::: *.fastq.gz
 ```
 
 #### coassemble all T1 samples
@@ -117,7 +117,7 @@ bowtie2-build T1_MAGs.fa T1_MAGs --threads 128
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate bowtie2
-parallel -j 9 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --threads 16 | samtools sort -o {/R1.fastq.gz/T1_MAGs.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
+parallel -j 9 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --threads 16 | samtools sort -o {/R1.fastq.gz/T1_MAG.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
 ```
 
 try local mapping
@@ -126,31 +126,89 @@ try local mapping
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate bowtie2
-parallel -j 9 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --local --threads 16 | samtools sort -o {/R1.fastq.gz/_local_T1_MAG.b
-am} --write-index -@ 16' ::: *QC_R1.fastq.gz
+parallel -j 9 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --local --threads 16 | samtools sort -o {/R1.fastq.gz/_local_T1_MAG.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
 ```
 
 ```bash
-coverm genome -b *T1_MAGs.bam -d T1_dereplicated_MAGs -o T1_MAGs_coverM.tsv -m mean variance covered_fraction relative_abundance -t 64 -x fa --output-format sparse
+coverm genome -b *T1_MAG.bam -d all_MAGs -o T1_MAGs_coverM.tsv -m mean variance covered_fraction relative_abundance -t 64 -x fa --output-format sparse
 ```
 
 #### Annotate genes with prodigal
 
 ```bash
-prodigal -i T1_MAGs.fa -d T1_MAG_genes.fna -a T1_MAG_genes.faa -p anon
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate checkM
+prodigal -i T1_MAGs.fa -d T1_MAG_genes.fna -a T1_MAG_genes.faa -o T1_MAG_genes.gbk -p meta
+```
+
+### create .stb file for inStrain using script from dRep
+
+```bash
+conda activate drep
+parse_stb.py --reverse -f all_MAGs/*.fa -o T1_MAGs.stb
 ```
 
 #### calls SNVs with inStrain
 
-```bash
-conda create -n instrain
-conda activate instrain
-conda install instrain
+inStrain needs paired reads. Go back and trim reads to keep both pairs when they overlap and remap with those.
 
-for f in *T1_MAGs.bam
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate trimmomatic
+
+for f in *R1.fastq.gz
 do
-inStrain profile $f T1_MAGS.fa -o ${f%*.bam}_instrain_profile} -p 128 -g T1_MAG_genes.fna -s genome_scaffold.stb --min_mapq 2 --min_read_ani 0.93
+trimmomatic PE -threads 64 -phred33 $f ${f%*R1.fastq.gz}R2.fastq.gz ${f%*R1.fastq.gz}P_R1.fastq.gz ${f%*R1.fastq.gz}NP_R1.fastq.gz ${f%*R1.fastq.gz}P_R2.fastq.gz ${f%*R1.fastq.gz}NP
+_R2.fastq.gz ILLUMINACLIP:TruSeq3-PE.fa:2:30:10:8:TRUE LEADING:3 TRAILING:3 SLIDINGWINDOW:4:12 MINLEN:36
 done
+```
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate bowtie2
+parallel -j 4 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --threads 24 | samtools sort -o {/R1.fastq.gz/T1_MAGs.bam} --write-index -@ 24' ::: *P_R1.fastq.gz
+```
+
+```bash
+coverm genome -b *T1_MAGs.bam -d /mfs/ederrick/chapter_1/04_MAGs/all_MAGs -o paired_T1_MAGs_coverM.tsv -m mean variance covered_fraction relative_abundance -t 64 -x fa --output-format sparse
+```
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate instrain
+
+parallel -j 4 --plus 'inStrain profile {} T1_MAGs.fa -o {/.bam/_inStrain} -p 24 -g T1_MAG_genes.fna -s T1_MAGs.stb --min_read_ani 0.92 --min_mapq 2 --min_genome_coverage 1' ::: *P_T1_MAGs.bam
+```
+
+#### try coassembling both timepoints together
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate megahit
+megahit -1 LEAP_META_01_QC_R1.fastq.gz,LEAP_META_02_QC_R1.fastq.gz,LEAP_META_03_QC_R1.fastq.gz,LEAP_META_04_QC_R1.fastq.gz,LEAP_META_05_QC_R1.fastq.gz,LEAP_META_06_QC_R1.fastq.gz,LEAP_META_07_QC_R1.fastq.gz,LEAP_META_08_QC_R1.fastq.gz,LEAP_META_09_QC_R1.fastq.gz,LEAP_META_10_QC_R1.fastq.gz,LEAP_META_11_QC_R1.fastq.gz,LEAP_META_12_QC_R1.fastq.gz,LEAP_META_13_QC_R1.fastq.gz,LEAP_META_14_QC_R1.fastq.gz,LEAP_META_15_QC_R1.fastq.gz,LEAP_META_16_QC_R1.fastq.gz,LEAP_META_17_QC_R1.fastq.gz,LEAP_META_18_QC_R1.fastq.gz \
+-2 LEAP_META_01_QC_R2.fastq.gz,LEAP_META_02_QC_R2.fastq.gz,LEAP_META_03_QC_R2.fastq.gz,LEAP_META_04_QC_R2.fastq.gz,LEAP_META_05_QC_R2.fastq.gz,LEAP_META_06_QC_R2.fastq.gz,LEAP_META_07_QC_R2.fastq.gz,LEAP_META_08_QC_R2.fastq.gz,LEAP_META_09_QC_R2.fastq.gz,LEAP_META_10_QC_R2.fastq.gz,LEAP_META_11_QC_R2.fastq.gz,LEAP_META_12_QC_R2.fastq.gz,LEAP_META_13_QC_R2.fastq.gz,LEAP_META_14_QC_R2.fastq.gz,LEAP_META_15_QC_R2.fastq.gz,LEAP_META_16_QC_R2.fastq.gz,LEAP_META_17_QC_R2.fastq.gz,LEAP_META_18_QC_R2.fastq.gz \
+-r LEAP_META_01_UP_R1.fastq.gz,LEAP_META_02_UP_R1.fastq.gz,LEAP_META_03_UP_R1.fastq.gz,LEAP_META_04_UP_R1.fastq.gz,LEAP_META_05_UP_R1.fastq.gz,LEAP_META_06_UP_R1.fastq.gz,LEAP_META_07_UP_R1.fastq.gz,LEAP_META_08_UP_R1.fastq.gz,LEAP_META_09_UP_R1.fastq.gz,LEAP_META_10_UP_R1.fastq.gz,LEAP_META_11_UP_R1.fastq.gz,LEAP_META_12_UP_R1.fastq.gz,LEAP_META_13_UP_R1.fastq.gz,LEAP_META_14_UP_R1.fastq.gz,LEAP_META_15_UP_R1.fastq.gz,LEAP_META_16_UP_R1.fastq.gz,LEAP_META_17_UP_R1.fastq.gz,LEAP_META_18_UP_R1.fastq.gz,LEAP_META_01_UP_R2.fastq.gz,LEAP_META_02_UP_R2.fastq.gz,LEAP_META_03_UP_R2.fastq.gz,LEAP_META_04_UP_R2.fastq.gz,LEAP_META_05_UP_R2.fastq.gz,LEAP_META_06_UP_R2.fastq.gz,LEAP_META_07_UP_R2.fastq.gz,LEAP_META_08_UP_R2.fastq.gz,LEAP_META_09_UP_R2.fastq.gz,LEAP_META_10_UP_R2.fastq.gz,LEAP_META_11_UP_R2.fastq.gz,LEAP_META_12_UP_R2.fastq.gz,LEAP_META_13_UP_R2.fastq.gz,LEAP_META_14_UP_R2.fastq.gz,LEAP_META_15_UP_R2.fastq.gz,LEAP_META_16_UP_R2.fastq.gz,LEAP_META_17_UP_R2.fastq.gz,LEAP_META_18_UP_R2.fastq.gz \
+-o full_coassembly --min-contig-len 1000 -t 128 -m 1000000000000
+conda deactivate
+```
+
+
+### MISC things
+
+#### classify MAGs with GTDB
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate gtdbtk
+
+export GTDBTK_DATA_PATH=/mfs/ederrick/release220
+gtdbtk classify_wf --genome_dir all_MAGs --pplacer_cpus 8 --cpus 8 --extension fa --out_dir GTDB_T1_MAGs --skip_ani_screen
 ```
 
 #### Annotation of MAGs with bakta
@@ -158,52 +216,6 @@ done
 ```bash
 parallel -j 32 'bakta {} --db /mfs/ederrick/db --out {}_bakta --threads 8' ::: *.fasta
 ```
-
-#### calculate RA of MAGs present at TP 1 and TP 3
-
-subsample reads to pond with least sequences. Set same seed for R1 and R2.
-could maybe just subsample bam file based on proportion of total reads.
-
-```bash
-seqkit sample -p ? -s 100 I4_1_R1.fastq.gz  -o subsamp_I4_1_R1.fastq.gz
-seqkit sample -p ? -s 100 I8_1_R1.fastq.gz  -o subsamp_I8_1_R1.fastq.gz
-seqkit sample -p ? -s 100 K1_1_R1.fastq.gz  -o subsamp_K1_1_R1.fastq.gz
-seqkit sample -p ? -s 100 L2_1_R1.fastq.gz  -o subsamp_L2_1_R1.fastq.gz
-seqkit sample -p ? -s 100 L3_1_R1.fastq.gz  -o subsamp_L3_1_R1.fastq.gz
-seqkit sample -p ? -s 100 L4_1_R1.fastq.gz  -o subsamp_L4_1_R1.fastq.gz
-seqkit sample -p ? -s 100 L6_1_R1.fastq.gz  -o subsamp_L6_1_R1.fastq.gz
-seqkit sample -p ? -s 100 L7_1_R1.fastq.gz  -o subsamp_L7_1_R1.fastq.gz
-seqkit sample -p ? -s 100 L8_1_R1.fastq.gz  -o subsamp_L8_1_R1.fastq.gz
-
-seqkit sample -p ? -s 100 I4_3_R2.fastq.gz  -o subsamp_I4_3_R2.fastq.gz
-seqkit sample -p ? -s 100 I8_3_R2.fastq.gz  -o subsamp_I8_3_R2.fastq.gz
-seqkit sample -p ? -s 100 K1_3_R2.fastq.gz  -o subsamp_K1_3_R2.fastq.gz
-seqkit sample -p ? -s 100 L2_3_R2.fastq.gz  -o subsamp_L2_3_R2.fastq.gz
-seqkit sample -p ? -s 100 L3_3_R2.fastq.gz  -o subsamp_L3_3_R2.fastq.gz
-seqkit sample -p ? -s 100 L4_3_R2.fastq.gz  -o subsamp_L4_3_R2.fastq.gz
-seqkit sample -p ? -s 100 L6_3_R2.fastq.gz  -o subsamp_L6_3_R2.fastq.gz
-seqkit sample -p ? -s 100 L7_3_R2.fastq.gz  -o subsamp_L7_3_R2.fastq.gz
-seqkit sample -p ? -s 100 L8_3_R2.fastq.gz  -o subsamp_L8_3_R2.fastq.gz
-```
-
-confirm number of subsampled reads
-
-```bash
-seqkit stats *subsamp* > subsampled_read_count.txt
-```
-
-map subsampled reads to MAG database
-
-```bash
-parallel -j 9 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --local --threads 16 | samtools sort -o {/R1.fastq.gz/subsampled.bam} --write-index -@ 16' ::: *R1.fastq.gz
-```
-
-```bash
-coverm genome -b *subsampled.bam -d T1_dereplicated_MAGs --min-read-percent-identity 95 -o subsampled_reads_coverM.tsv -m mean variance covered_bases covered_fraction relative_abundance -t 16 -x fa
-```
-
-
-### MISC things
 
 #### run kraken2
 
