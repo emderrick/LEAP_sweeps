@@ -197,6 +197,18 @@ megahit -1 LEAP_META_01_QC_R1.fastq.gz,LEAP_META_02_QC_R1.fastq.gz,LEAP_META_03_
 conda deactivate
 ```
 
+#### run kraken2
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate kraken2
+
+for f in *_P_R1.fastq.gz
+do
+kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 24 --output ${f%*_P_R1.fastq.gz}kraken_output.txt --report ${f%*_P_R1.fastq.gz}kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
+done
+```
 
 ### MISC things
 
@@ -215,22 +227,5 @@ gtdbtk classify_wf --genome_dir all_MAGs --pplacer_cpus 8 --cpus 8 --extension f
 
 ```bash
 parallel -j 32 'bakta {} --db /mfs/ederrick/db --out {}_bakta --threads 8' ::: *.fasta
-```
-
-#### run kraken2
-
-```bash
-kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 T1_coassembly_2500.fa --threads 8 --output T1_coassembly_2500.output.txt --report T1_coassembly_2500.report.txt
-```
-
-```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate kraken2
-
-for f in *R1.fastq.gz
-do
-kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 64 --output ${f*%_QC_R1.fastq.gz}output.txt --report ${f*%_QC_R1.fastq.gz}report.txt --paired $f ${f*%R1.fastq.gz}R2.fastq.gz
-done
 ```
 
