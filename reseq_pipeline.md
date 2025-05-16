@@ -184,6 +184,20 @@ conda activate instrain
 parallel -j 4 --plus 'inStrain profile {} T1_MAGs.fa -o {/.bam/_inStrain} -p 24 -g T1_MAG_genes.fna -s T1_MAGs.stb --min_read_ani 0.92 --min_mapq 2 --min_genome_coverage 1' ::: *P_T1_MAGs.bam
 ```
 
+
+#### run kraken2
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate kraken2
+
+for f in *_P_R1.fastq.gz
+do
+kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 24 --output ${f%*_P_R1.fastq.gz}kraken_output.txt --report ${f%*_P_R1.fastq.gz}kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
+done
+```
+
 #### try coassembling both timepoints together
 
 ```bash
@@ -197,17 +211,75 @@ megahit -1 LEAP_META_01_QC_R1.fastq.gz,LEAP_META_02_QC_R1.fastq.gz,LEAP_META_03_
 conda deactivate
 ```
 
-#### run kraken2
+```bash
+seqkit stats -a full_coassembly.fa > full_coassembly_stats.txt
+```
+
+```bash
+seqkit seq -m 2500 full_coassembly.fa > full_coassembly_2500.fa
+seqkit stats -a full_coassembly_2500.fa > full_coassembly_2500_stats.txt
+```
+
+#### Map metagenomic reads from each pond at T1 to the co-assembly
+
+```bash
+bowtie2-build full_coassembly_2500.fa full_coassembly_2500 --threads 64
+```
 
 ```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
-conda activate kraken2
+conda activate bowtie2
+parallel -j 9 --plus 'bowtie2 -x full_coassembly_2500 -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --threads 16 | samtools sort -o {/QC_R1.fastq.gz/T1_coassembly.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
+```
 
-for f in *_P_R1.fastq.gz
-do
-kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 24 --output ${f%*_P_R1.fastq.gz}kraken_output.txt --report ${f%*_P_R1.fastq.gz}kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
-done
+#### bin contigs with metabat2 (with bam files from TP 1)
+
+```bash
+docker pull metabat/metabat
+docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest jgi_summarize_bam_contig_depths --outputDepth full_coassembly_depth.txt *.bam
+docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest metabat2 -i full_coassembly_2500.fa -a full_coassembly_depth.txt -o full_bins/bin -m 2500 -t 48
+```
+
+#### simplify fasta headers
+
+```bash
+cp full_bins/* combined_bins
+for f in *.fa; do cut -f1 $f > ${f%*.fa}_fix.fa; done
+for f in *_fix.fa; do mv $f ${f%*_fix.fa}.fa; done
+```
+
+#### check quality with checkM and filter and check that MAGs are all < 95% ANI
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate drep
+dRep dereplicate checkM_combined_bins -g combined_bins/*.fa -l 500000 -comp 50 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 64
+```
+
+#### get stats of bins
+
+```bash
+seqkit stats -a * > combined_MAG_stats.txt
+```
+
+#### Map T1 and T3 to the MAG database and calculate quick coverage stats
+
+```bash
+cat *.fa > combined_MAGs.fa
+bowtie2-build combined_MAGs.fa combined_MAGs --threads 128
+```
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate bowtie2
+parallel -j 9 --plus 'bowtie2 -x combined_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --threads 16 | samtools sort -o {/R1.fastq.gz/combined_MAGs.bam} --write-index -@ 16' ::: *P_R1.fastq.gz
+```
+
+```bash
+coverm genome -b *combined_MAGs.bam -d combined_MAGs -o combined_MAGs_coverM.tsv -m mean variance covered_fraction relative_abundance -t 64 -x fa --output-format sparse
 ```
 
 ### MISC things
