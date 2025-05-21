@@ -78,7 +78,6 @@ Not a huge difference. Use end-to-end mapping
 #### bin contigs with metabat2 (with bam files from TP 1)
 
 ```bash
-docker pull metabat/metabat
 docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest jgi_summarize_bam_contig_depths --outputDepth T1_coassembly_depth.txt *.bam
 docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest metabat2 -i T1_coassembly_2500.fa -a T1_coassembly_depth.txt -o T1_bins/bin -m 2500 -t 48
 ```
@@ -169,7 +168,7 @@ done
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate bowtie2
-parallel -j 4 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --threads 24 | samtools sort -o {/R1.fastq.gz/T1_MAGs.bam} --write-index -@ 24' ::: *P_R1.fastq.gz
+parallel -j 4 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --threads 24 | samtools sort -o {/R1.fastq.gz/T1_MAGs.bam} --write-index -@ 24' ::: *_P_R1.fastq.gz
 ```
 
 ```bash
@@ -184,7 +183,6 @@ conda activate instrain
 parallel -j 4 --plus 'inStrain profile {} T1_MAGs.fa -o {/.bam/_inStrain} -p 24 -g T1_MAG_genes.fna -s T1_MAGs.stb --min_read_ani 0.92 --min_mapq 2 --min_genome_coverage 1' ::: *P_T1_MAGs.bam
 ```
 
-
 #### run kraken2
 
 ```bash
@@ -194,7 +192,7 @@ conda activate kraken2
 
 for f in *_P_R1.fastq.gz
 do
-kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 24 --output ${f%*_P_R1.fastq.gz}kraken_output.txt --report ${f%*_P_R1.fastq.gz}kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
+kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 24 --output ${f%*P_R1.fastq.gz}kraken_output.txt --report ${f%*P_R1.fastq.gz}kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
 done
 ```
 
@@ -220,31 +218,30 @@ seqkit seq -m 2500 full_coassembly.fa > full_coassembly_2500.fa
 seqkit stats -a full_coassembly_2500.fa > full_coassembly_2500_stats.txt
 ```
 
-#### Map metagenomic reads from each pond at T1 to the co-assembly
+#### Map metagenomic reads from each pond to the co-assembly
 
 ```bash
-bowtie2-build full_coassembly_2500.fa full_coassembly_2500 --threads 64
+bowtie2-build full_coassembly_2500.fa full_coassembly_2500 --threads 64 --large-index
 ```
 
 ```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate bowtie2
-parallel -j 9 --plus 'bowtie2 -x full_coassembly_2500 -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --threads 16 | samtools sort -o {/QC_R1.fastq.gz/T1_coassembly.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
+parallel -j 4 --plus 'bowtie2 -x full_coassembly_2500 -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --threads 16 | samtools sort -o {/QC_R1.fastq.gz/full_coassembly.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
 ```
 
-#### bin contigs with metabat2 (with bam files from TP 1)
+#### bin contigs with metabat2 (with bam files from TP 1 and TP 3)
 
 ```bash
-docker pull metabat/metabat
 docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest jgi_summarize_bam_contig_depths --outputDepth full_coassembly_depth.txt *.bam
-docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest metabat2 -i full_coassembly_2500.fa -a full_coassembly_depth.txt -o full_bins/bin -m 2500 -t 48
+docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest metabat2 -i full_coassembly_2500.fa -a full_coassembly_depth.txt -o full_bins/bin -m 2500
 ```
 
 #### simplify fasta headers
 
 ```bash
-cp full_bins/* combined_bins
+cp -r full_bins combined_bins
 for f in *.fa; do cut -f1 $f > ${f%*.fa}_fix.fa; done
 for f in *_fix.fa; do mv $f ${f%*_fix.fa}.fa; done
 ```
@@ -275,7 +272,7 @@ bowtie2-build combined_MAGs.fa combined_MAGs --threads 128
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate bowtie2
-parallel -j 9 --plus 'bowtie2 -x combined_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --threads 16 | samtools sort -o {/R1.fastq.gz/combined_MAGs.bam} --write-index -@ 16' ::: *P_R1.fastq.gz
+parallel -j 4 --plus 'bowtie2 -x combined_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --threads 24 | samtools sort -o {/R1.fastq.gz/combined_MAGs.bam} --write-index -@ 24' ::: *_P_R1.fastq.gz
 ```
 
 ```bash
