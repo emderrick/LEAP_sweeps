@@ -29,6 +29,8 @@ done
 parallel -j 4 'fastqc {}  --threads 16' ::: *.fastq.gz
 ```
 
+### using a MAG database built from timepoint 1 only
+
 #### coassemble all T1 samples
 
 ```bash
@@ -57,23 +59,12 @@ seqkit stats -a T1_coassembly_2500.fa > T1_coassembly_2500_stats.txt
 bowtie2-build T1_coassembly_2500.fa T1_coassembly_2500 --threads 64
 ```
 
-Try with local and end-to-end alignment and compare
- 
-```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate bowtie2
-parallel -j 9 --plus 'bowtie2 -x T1_coassembly_2500 -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --local --threads 16 | samtools sort -o {/QC_R1.fastq.gz/local_T1_coass.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
-```
-
 ```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate bowtie2
 parallel -j 9 --plus 'bowtie2 -x T1_coassembly_2500 -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --threads 16 | samtools sort -o {/QC_R1.fastq.gz/T1_coassembly.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
 ```
-
-Not a huge difference. Use end-to-end mapping
 
 #### bin contigs with metabat2 (with bam files from TP 1)
 
@@ -117,15 +108,6 @@ bowtie2-build T1_MAGs.fa T1_MAGs --threads 128
 source /mfs/ederrick/.bash_profile
 conda activate bowtie2
 parallel -j 9 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --threads 16 | samtools sort -o {/R1.fastq.gz/T1_MAG.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
-```
-
-try local mapping
-
-```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate bowtie2
-parallel -j 9 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --local --threads 16 | samtools sort -o {/R1.fastq.gz/_local_T1_MAG.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
 ```
 
 ```bash
@@ -183,20 +165,7 @@ conda activate instrain
 parallel -j 4 --plus 'inStrain profile {} T1_MAGs.fa -o {/.bam/_inStrain} -p 24 -g T1_MAG_genes.fna -s T1_MAGs.stb --min_read_ani 0.92 --min_mapq 2 --min_genome_coverage 1' ::: *P_T1_MAGs.bam
 ```
 
-#### run kraken2
-
-```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate kraken2
-
-for f in *_P_R1.fastq.gz
-do
-kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 24 --output ${f%*P_R1.fastq.gz}kraken_output.txt --report ${f%*P_R1.fastq.gz}kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
-done
-```
-
-#### try coassembling both timepoints together
+### using a MAG database built from both timepoints
 
 ```bash
 #!/usr/bin/bash
@@ -279,7 +248,37 @@ parallel -j 4 --plus 'bowtie2 -x combined_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.g
 coverm genome -b *combined_MAGs.bam -d combined_MAGs -o combined_MAGs_coverM.tsv -m mean variance covered_fraction relative_abundance -t 64 -x fa --output-format sparse
 ```
 
+```bash
+prodigal -i combined_MAGs.fa -d combined_MAG_genes.fna -a combined_MAG_genes.faa -o combined_MAG_genes.gbk -p meta
+```
+
+```bash
+conda activate drep
+parse_stb.py --reverse -f combined_MAGs/*.fa -o combined_MAGs.stb
+```
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate instrain
+
+parallel -j 4 --plus 'inStrain profile {} combined_MAGs.fa -o {/.bam/_inStrain} -p 24 -g combined_MAG_genes.fna -s combined_MAGs.stb --min_read_ani 0.92 --min_mapq 2 --min_genome_coverage 1' ::: *P_combined_MAGs.bam
+```
+
 ### MISC things
+
+###$ run kraken2 on paired reads
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate kraken2
+
+for f in *_P_R1.fastq.gz
+do
+kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 24 --output ${f%*P_R1.fastq.gz}kraken_output.txt --report ${f%*P_R1.fastq.gz}kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
+done
+```
 
 #### classify MAGs with GTDB
 
