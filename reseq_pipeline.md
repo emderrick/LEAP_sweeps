@@ -265,9 +265,66 @@ conda activate instrain
 parallel -j 4 --plus 'inStrain profile {} combined_MAGs.fa -o {/.bam/_inStrain} -p 24 -g combined_MAG_genes.fna -s combined_MAGs.stb --min_read_ani 0.92 --min_mapq 2 --min_genome_coverage 1' ::: *P_combined_MAGs.bam
 ```
 
-### MISC things
+### Using a 50% completion cutoff for MAGs
 
-###$ run kraken2 on paired reads
+#### check quality with checkM and filter and check that MAGs are all < 95% ANI
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate drep
+dRep dereplicate checkM_T1_50_bins -g all_bins/*.fa -l 500000 -comp 50 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 64
+```
+
+#### get stats of bins
+
+```bash
+seqkit stats -a * > T1_MAGs_50_stats.txt
+```
+
+#### Map T1 and T3 to the MAG database and calculate quick coverage stats
+
+```bash
+cat *.fa > T1_50_MAGs.fa
+bowtie2-build T1_50_MAGs.fa T1_50_MAGs --threads 64
+```
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate bowtie2
+parallel -j 9 --plus 'bowtie2 -x T1_50_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --threads 24 | samtools sort -o {/R1.fastq.gz/T1_50_MAGs.bam} --write-index -@ 24' ::: *_P_R1.fastq.gz
+```
+
+```bash
+coverm genome -b *T1_50_MAGs.bam -d /mfs/ederrick/chapter_1/03_T1_binning/T1_50_MAG_stuff/T1_50_MAGs -o T1_50_MAGs_coverM.tsv -m mean variance covered_fraction relative_abundance -t 64 -x fa --output-format sparse
+```
+
+#### Annotate genes with prodigal
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate checkM
+prodigal -i T1_50_MAGs.fa -d T1_50_MAG_genes.fna -a T1_50_MAG_genes.faa -o T1_50_MAG_genes.gbk -p meta
+```
+
+### create .stb file for inStrain using script from dRep
+
+```bash
+conda activate drep
+parse_stb.py --reverse -f T1_50_MAGs/*.fa -o T1_50_MAGs.stb
+```
+
+#### calls SNVs with inStrain
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate instrain
+parallel -j 4 --plus 'inStrain profile {} T1_50_MAGs.fa -o {/P_T1_50_MAGs.bam/T1_50_inStrain} -p 24 -g T1_50_MAG_genes.fna -s T1_50_MAGs.stb --min_read_ani 0.92 --min_mapq 2 --min_genome_coverage 1' ::: *T1_50_MAGs.bam
+```
+
+#### run kraken2 on paired reads
 
 ```bash
 #!/usr/bin/bash
@@ -288,12 +345,12 @@ source /mfs/ederrick/.bash_profile
 conda activate gtdbtk
 
 export GTDBTK_DATA_PATH=/mfs/ederrick/release220
-gtdbtk classify_wf --genome_dir all_MAGs --pplacer_cpus 8 --cpus 8 --extension fa --out_dir GTDB_T1_MAGs --skip_ani_screen
+gtdbtk classify_wf --genome_dir T1_50_MAGs --pplacer_cpus 64 --cpus 64 --extension fa --out_dir GTDB_T1_50_MAGs --skip_ani_screen
 ```
 
 #### Annotation of MAGs with bakta
 
 ```bash
-parallel -j 32 'bakta {} --db /mfs/ederrick/db --out {}_bakta --threads 8' ::: *.fasta
+parallel -j 32 'bakta {} --db /mfs/ederrick/db --out {}_bakta --threads 8' ::: *.fa
 ```
 
