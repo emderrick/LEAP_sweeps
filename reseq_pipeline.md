@@ -288,6 +288,7 @@ seqkit stats -a * > T1_MAGs_50_stats.txt
 cat *.fa > T1_50_MAGs.fa
 bowtie2-build T1_50_MAGs.fa T1_50_MAGs --threads 64
 ```
+
 ```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
@@ -324,19 +325,6 @@ conda activate instrain
 parallel -j 4 --plus 'inStrain profile {} T1_50_MAGs.fa -o {/P_T1_50_MAGs.bam/T1_50_inStrain} -p 24 -g T1_50_MAG_genes.fna -s T1_50_MAGs.stb --min_read_ani 0.92 --min_mapq 2 --min_genome_coverage 1' ::: *T1_50_MAGs.bam
 ```
 
-#### run kraken2 on paired reads
-
-```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate kraken2
-
-for f in *_P_R1.fastq.gz
-do
-kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 24 --output ${f%*P_R1.fastq.gz}kraken_output.txt --report ${f%*P_R1.fastq.gz}kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
-done
-```
-
 #### classify MAGs with GTDB
 
 ```bash
@@ -354,3 +342,43 @@ gtdbtk classify_wf --genome_dir T1_50_MAGs --pplacer_cpus 64 --cpus 64 --extensi
 parallel -j 32 'bakta {} --db /mfs/ederrick/db --out {}_bakta --threads 8' ::: *.fa
 ```
 
+
+### community composition stuff
+
+```bash
+seqkit stats -j 18 *.gz -a -T > paired_read_stats.tsv
+```
+
+#### downsample fastq reads to lowest sample depth
+
+```bash
+parallel -j 18 --plus 'seqtk sample -s100 {} 87942340 | gzip > {/R1.fastq.gz/sub_R1.fastq.gz}' ::: *R1.fastq.gz
+parallel -j 18 --plus 'seqtk sample -s100 {} 87942340 | gzip > {/R2.fastq.gz/sub_R2.fastq.gz}' ::: *R2.fastq.gz
+```
+
+```bash
+seqkit stats -j 18 *sub* -a -T > subsamp_read_stats.tsv
+```
+
+#### try metaphlan
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate metaphlan
+
+parallel -j 9 --plus 'metaphlan {},{/R1_fastq.gz/R2.fastq.gz} --bowtie2out {/_R1.fastq.gz/.bowtie2.bz2} --nproc 24 --input_type fastq --unclassified_estimation -o {/R1.fastq.gz/metaphlan.txt}' ::: *sub_R1.fastq.gz
+```
+
+#### try kraken2
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate kraken2
+
+for f in *sub_R1.fastq.gz
+do
+kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 24 --output ${f%*R1.fastq.gz}kraken_output.txt --report ${f%*R1.fastq.gz}kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
+done
+```
