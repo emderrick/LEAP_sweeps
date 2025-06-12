@@ -1,4 +1,4 @@
-### Pipeline for resequenced samples
+## Pipeline for resequenced samples
 
 #### rename fastq files
 
@@ -43,7 +43,7 @@ done
 parallel -j 4 'fastqc {}  --threads 16' ::: *.fastq.gz
 ```
 
-## Timepoint 1 MAG database
+### Timepoint 1 MAG database
 
 #### coassemble all T1 samples
 
@@ -198,7 +198,7 @@ conda activate checkM
 prodigal -i T1_50_MAGs.fa -d T1_50_MAG_genes.fna -a T1_50_MAG_genes.faa -o T1_50_MAG_genes.gbk -p meta
 ```
 
-### create .stb file for inStrain using script from dRep
+#### create .stb file for inStrain using script from dRep
 
 ```bash
 conda activate drep
@@ -214,7 +214,7 @@ conda activate instrain
 parallel -j 4 --plus 'inStrain profile {} T1_50_MAGs.fa -o {/P_T1_50_MAGs.bam/T1_50_inStrain} -p 24 -g T1_50_MAG_genes.fna -s T1_50_MAGs.stb --min_read_ani 0.92 --min_mapq 2 --min_genome_coverage 1' ::: *T1_50_MAGs.bam
 ```
 
-## Build TP 1 and TP 2 MAG database
+### Build TP 1 and TP 2 MAG database
 
 ```bash
 #!/usr/bin/bash
@@ -314,7 +314,7 @@ conda activate instrain
 parallel -j 4 --plus 'inStrain profile {} combined_MAGs.fa -o {/.bam/_inStrain} -p 24 -g combined_MAG_genes.fna -s combined_MAGs.stb --min_read_ani 0.92 --min_mapq 2 --min_genome_coverage 1' ::: *P_combined_MAGs.bam
 ```
 
-## TP 3 MAG database
+### TP 3 MAG database
 
 ```bash
 #!/usr/bin/bash
@@ -359,7 +359,7 @@ for f in *.fa; do cut -f1 $f > ${f%*.fa}_fix.fa; done
 for f in *_fix.fa; do mv $f ${f%*_fix.fa}.fa; done
 ```
 
-### filter T3 bins
+#### filter T3 bins
 
 ```bash
 #!/usr/bin/bash
@@ -387,7 +387,7 @@ parallel -j 9 --plus 'bowtie2 -x T3_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U 
 coverm genome -b *T3_MAGs.bam -d T3_MAGs -o T3_MAGs_coverM.tsv -m mean variance covered_fraction relative_abundance -t 64 -x fa --output-format sparse
 ```
 
-## dereplicate T1 MAG database and T3 MAG database to get list of duplicate species. Then manually create non-overlapping database while selecting T1 MAGs over T3 MAGs.
+### dereplicate T1 MAG database and T3 MAG database to get list of duplicate species. Then manually create non-overlapping database while selecting T1 MAGs over T3 MAGs.
 
 in T1 dereplicated MAGs
 
@@ -405,7 +405,7 @@ for f in *.fa; do cp $f T3_$f; done
 dRep dereplicate drep_T1_T3_MAGs -g T1_T3_MAGs/*.fa -comp 50 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 64
 ```
 
-## community composition stuff
+### community composition stuff
 
 ```bash
 seqkit stats -j 18 *.gz -a -T > paired_read_stats.tsv
