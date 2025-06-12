@@ -137,7 +137,7 @@ conda activate checkM
 prodigal -i T1_MAGs.fa -d T1_MAG_genes.fna -a T1_MAG_genes.faa -o T1_MAG_genes.gbk -p meta
 ```
 
-### create .stb file for inStrain using script from dRep
+#### create .stb file for inStrain using script from dRep
 
 ```bash
 conda activate drep
