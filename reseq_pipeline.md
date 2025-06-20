@@ -240,62 +240,68 @@ calls SNVs with inStrain
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate instrain
-parallel -j 4 --plus 'inStrain profile {} nonred_T1_T3.fa -o {/MAGs.bam/inStrain} -p 24 -g nonred_T1_T3_genes.fna -s nonred_T1_T3_MAGs.stb --min_read_ani 0.92 --min_mapq 2 --min_genome_coverage 1' ::: *nonred_T1_T3_MAGs.bam
+
+parallel -j 6 --plus 'inStrain profile {} nonred_T1_T3.fa -o {/.bam/_inStrain} -p 24 -g nonred_T1_T3_genes.fna -s nonred_T1_T3_MAGs.stb --min_read_ani 0.92 --min_mapq 2 --min_genome_coverage 
+1' ::: *nonred_T1_T3.bam
 ```
 
 
 ### community composition of ponds
 
-```bash
-seqkit stats -j 18 *.gz -a -T > paired_read_stats.tsv
-```
+#### use reads with stricter filtering. Subsample first.
 
-#### downsample fastq reads to lowest sample depth
+find lowest read depth
 
 ```bash
-parallel -j 18 --plus 'seqtk sample -s100 {} 87942340 | gzip > {/R1.fastq.gz/sub_R1.fastq.gz}' ::: *R1.fastq.gz
-parallel -j 18 --plus 'seqtk sample -s100 {} 87942340 | gzip > {/R2.fastq.gz/sub_R2.fastq.gz}' ::: *R2.fastq.gz
+seqkit stats -j 18 *.gz -a -T > QC_read_stats.tsv
 ```
+
+subsample
 
 ```bash
-seqkit stats -j 18 *sub* -a -T > subsamp_read_stats.tsv
+parallel -j 18 --plus 'seqtk sample -s100 {} 68107586 | gzip > {/R1.fastq.gz/sub_R1.fastq.gz}' ::: *QC_R1.fastq.gz
+parallel -j 18 --plus 'seqtk sample -s100 {} 68107586 | gzip > {/R2.fastq.gz/sub_R2.fastq.gz}' ::: *QC_R2.fastq.gz
+parallel -j 18 --plus 'seqtk sample -s100 {} 20194431 | gzip > {/R1.fastq.gz/sub_R1.fastq.gz}' ::: *UP_R1.fastq.gz
 ```
 
-#### try metaphlan
+#### run metaphlan with paired reads and unpaired
 
 ```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate metaphlan
 
-parallel -j 9 --plus 'metaphlan {},{/R1_fastq.gz/R2.fastq.gz} --bowtie2out {/_R1.fastq.gz/.bowtie2.bz2} --nproc 24 --input_type fastq --unclassified_estimation -o {/R1.fastq.gz/metaphlan.txt}' ::: *sub_R1.fastq.gz
+parallel -j 18 --plus 'metaphlan {},{/R1_fastq.gz/R2.fastq.gz},{/QC_sub_R1.fastq.gz/UP_sub_R1.fastq.gz} --bowtie2out {/_R1.fastq.gz/.bowtie2.bz2} --nproc 12 --input_type fastq --unclassified_estimation -o {/R1.fastq.gz/metaphlan.txt}' ::: *QC_sub_R1.fastq.gz
 ```
 
 ```bash
-merge_metaphlan_tables.py *metaphlan.txt > merged_metaphlan_abundance_table.tsv
+merge_metaphlan_tables.py *metaphlan.txt > QC_merged_metaphlan_abundance_table.tsv
 ```
 
-#### try kraken2
+see without unclassified 
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate metaphlan
+
+parallel -j 6 --plus 'metaphlan {},{/R1_fastq.gz/R2.fastq.gz},{/QC_sub_R1.fastq.gz/UP_sub_R1.fastq.gz} --bowtie2out {/R1.fastq.gz/nounclass.bowtie2.bz2} --nproc 12 --input_type fastq -o {/R1.fastq.gz/no_unclass_metaphlan.txt}' ::: *QC_sub_R1.fastq.gz
+```
+
+```bash
+merge_metaphlan_tables.py *metaphlan.txt > QC_merged_metaphlan_abundance_table.tsv
+```
+
+#### one last try kraken with the QC reads. Does not support the SE library with the paired.
 
 ```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate kraken2
 
-for f in *sub_R1.fastq.gz
+for f in *QC_sub_R1.fastq.gz
 do
-kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 128 --output ${f%*R1.fastq.gz}kraken_output.txt --report ${f%*R1.fastq.gz}kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
-done
-```
-
-```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate bracken
-
-for f in *report.txt
-do
-bracken -d /mfs/databases/kraken-core-nt-dec-28-2024 -i $f -o ${f%*_kraken_report.txt}.bracken -r 100 -l S -t 10
+kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --confidence 0.1 --threads 72 --output ${f%*R1.fastq.gz}kraken_output.txt --report ${f%*R1.fastq.gz}kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
 done
 ```
 
@@ -306,57 +312,19 @@ extract only bacterial reads
 source /mfs/ederrick/.bash_profile
 conda activate kraken2
 
-parallel -j 18 'python /mfs/ederrick/miniconda3/envs/kraken2/bin/filter_bracken.out.py -i LEAP_META_{}_P_sub_P.bracken -o LEAP_META_{}_P_bacterial.bracken --include 2' ::: {01..18}
+parallel -j 6 'python /mfs/ederrick/miniconda3/envs/kraken2/bin/extract_kraken_reads.py -k LEAP_META_{}_QC_sub_kraken_output.txt -r LEAP_META_{}_QC_sub_kraken_report.txt -s LEAP_META_{}_QC_sub_R1.fastq.gz -s2 LEAP_META_{}_QC_sub_R2.fastq.gz -o LEAP_META_{}_QC_bac_R1.fastq.gz -o2 LEAP_META_{}_QC_bac_R2.fastq.gz -t 2 --include-children' ::: {01..18}
 ```
 
-#### try mOTUs
+run bracken
 
 ```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
-conda activate motu
+conda activate bracken
 
-parallel -j 18 'motus profile -f LEAP_META_{}_P_sub_R1.fastq.gz -r LEAP_META_{}_P_sub_R1.fastq.gz -n LEAP_META_{} -o LEAP_META_{}_P_sub.motus -t 8 -k phylum' ::: {01..18}
-```
-
-```bash
-motus merge -d -o merged_sub.motus
-```
-
-#### use other reads with stricter filtering. Subsample first.
-
-```bash
-parallel -j 18 --plus 'seqtk sample -s100 {} 68107586 | gzip > {/R1.fastq.gz/sub_R1.fastq.gz}' ::: *QC_R1.fastq.gz
-parallel -j 18 --plus 'seqtk sample -s100 {} 68107586 | gzip > {/R2.fastq.gz/sub_R2.fastq.gz}' ::: *QC_R2.fastq.gz
-parallel -j 18 --plus 'seqtk sample -s100 {} 20194431 | gzip > {/R1.fastq.gz/sub_R1.fastq.gz}' ::: *UP_R1.fastq.gz
-```
-
-#### rerun metaphlan
-
-```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate metaphlan
-
-parallel -j 18 --plus 'metaphlan {},{/R1_fastq.gz/R2.fastq.gz},{/QC_sub_R1.fastq.gz/UP_sub_R2.fastq.gz} --bowtie2out {/_R1.fastq.gz/.bowtie2.bz2} --nproc 12 --input_type fastq --unclassified_estimation -o {/R1.fastq.gz/metaphlan.txt}' ::: *QC_sub_R1.fastq.gz
-```
-
-```bash
-merge_metaphlan_tables.py *metaphlan.txt > QC_merged_metaphlan_abundance_table.tsv
-```
-
-#### one last try kraken with the QC reads. Does not support the SE library with the paired.
-
-```bash
-k2 classify --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 64 --output LEAP_META_04_QC_sub_kraken_output.txt --report LEAP_META_04_QC_sub_kraken_report.txt --paired LEAP_META_04_QC_sub_R1.fastq.gz LEAP_META_04_QC_sub_R2.fastq.gz
-
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate kraken2
-
-for f in *QC_sub_R1.fastq.gz
+for f in *report.txt
 do
-kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 72 --output ${f%*R1.fastq.gz}kraken_output.txt --report ${f%*R1.fastq.gz}kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
+bracken -d /mfs/databases/kraken-core-nt-dec-28-2024 -i $f -o ${f%*kraken_report.txt}phylum.bracken -r 100 -l P -t 10
 done
 ```
 
@@ -367,6 +335,55 @@ conda activate bracken
 
 for f in *report.txt
 do
-bracken -d /mfs/databases/kraken-core-nt-dec-28-2024 -i $f -o ${f%*_kraken_report.txt}.bracken -r 100 -l S -t 10
+bracken -d /mfs/databases/kraken-core-nt-dec-28-2024 -i $f -o ${f%*kraken_report.txt}class.bracken -r 100 -l C -t 10
 done
 ```
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate bracken
+
+for f in *report.txt
+do
+bracken -d /mfs/databases/kraken-core-nt-dec-28-2024 -i $f -o ${f%*kraken_report.txt}genus.bracken -r 100 -l G -t 10
+done
+```
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate bracken
+
+for f in *report.txt
+do
+bracken -d /mfs/databases/kraken-core-nt-dec-28-2024 -i $f -o ${f%*kraken_report.txt}species.bracken -r 100 -l S -t 10
+done
+```
+
+```bash
+for f in *.bracken; do  python /mfs/ederrick/miniconda3/envs/kraken2/bin/alpha_diversity.py -f $f -a Si; done
+```
+
+
+#### try with no confidence threshold
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate kraken2
+
+parallel -j 4 'kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 24 --output LEAP_META_{}_QC_sub_kraken_output.txt --report LEAP_META_{}_QC_sub_kraken_report.txt --paired LEAP_META_{}_QC_sub_R1.fastq.gz LEAP_META_{}_QC_sub_R2.fastq.gz' ::: {01..18}
+```
+
+extract only bacterial reads
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate kraken2
+
+parallel -j 6 'python /mfs/ederrick/miniconda3/envs/kraken2/bin/extract_kraken_reads.py -k LEAP_META_{}_QC_sub_kraken_output.txt -r LEAP_META_{}_QC_sub_kraken_report.txt -s LEAP_META_{}_QC_sub_R1.fastq.gz -s2 LEAP_META_{}_QC_sub_R2.fastq.gz -o LEAP_META_{}_QC_bac_R1.fastq.gz -o2 LEAP_META_{}_QC_bac_R2.fastq.gz -t 2 --include-children' ::: {01..18}
+```
+
+
