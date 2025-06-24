@@ -252,7 +252,7 @@ get depth of each position
 source /mfs/ederrick/.bash_profile
 conda activate instrain
 
-parallel -j 9 --plus 'samtools depth -a -Q 1 LEAP_META_{}_P_nonred_T1_T3.bam -o LEAP_META_{}_nonred_depth.txt' ::: *nonred_T1_T3.bam
+parallel -j 18 'samtools depth -a -Q 1 LEAP_META_{}_P_nonred_T1_T3.bam -o LEAP_META_{}_nonred_depth.txt' ::: {01..18}
 ```
 
 ```bash
