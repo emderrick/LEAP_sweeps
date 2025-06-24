@@ -245,6 +245,19 @@ parallel -j 6 --plus 'inStrain profile {} nonred_T1_T3.fa -o {/.bam/_inStrain} -
 1' ::: *nonred_T1_T3.bam
 ```
 
+get depth of each position
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate instrain
+
+parallel -j 9 --plus 'samtools depth -a -Q 1 LEAP_META_{}_P_nonred_T1_T3.bam -o LEAP_META_{}_nonred_depth.txt' ::: *nonred_T1_T3.bam
+```
+
+```bash
+Rscript get_depth.R
+```
 
 ### community composition of ponds
 
