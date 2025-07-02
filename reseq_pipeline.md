@@ -259,6 +259,18 @@ parallel -j 18 'samtools depth -a -Q 1 LEAP_META_{}_P_nonred_T1_T3.bam -o LEAP_M
 Rscript get_depth.R
 ```
 
+#### annotate genes with eggnog to get COG categories
+
+```bash
+emapper.py -m diamond --itype CDS -i T1_50_MAG_genes.fna -o eggnog_genes --output_dir /mfs/ederrick/chapter_1/06_inStrain/T1_50_inStrain/ --cpu 72
+```
+
+#### also annotate with bakta?
+
+```bash
+for f in *.fa; do bakta --db /mfs/ederrick/db $f ${f%*.fa}_bakta --threads 8; done
+```
+
 ### community composition of ponds
 
 #### use reads with stricter filtering. Subsample first.
