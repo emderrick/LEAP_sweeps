@@ -1,36 +1,51 @@
 library(tidyverse)
-setwd("/Users/emma/Documents/")
+library(ggplot2)
 
-T1_bin_stats <- read_csv("bin_stats.csv")
-colnames(T1_bin_stats)[1] <- "Bin"
-T1_bin_stats$Bin <- str_remove(T1_bin_stats$Bin, ".fa")
-bins_checkm <- read_tsv("MAGs_checkM.tsv")
-colnames(bins_checkm)[1] <- "Bin"
-T1_bins <- full_join(T1_bin_stats, bins_checkm)
+setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 
-good_bins <- subset(T1_bin_stats, Completeness >= 70 & Contamination < 10)
-ggplot(T1_bin_stats, aes(y = Contamination, x = Completeness))+
-  geom_point()
+mag_pres <- read_csv("data files/T1_SNV_summary_MAG.csv")
+mag_pres$coverage <- as.integer(mag_pres$mag_coverage)
+mag_pres_5x <- subset(mag_pres, mag_coverage >= 5 & mag_breadth >= 0.5)
 
-
-MAG_abun <- read_tsv("T1_MAGs_coverM.tsv")
-sample_names <- read_csv("chapter_1_sample_names.csv")
-MAG_abun$Sample <- MAG_abun$Sample %>% substr(1,12)
-MAG_abun <- left_join(MAG_abun, sample_names)
-
-MAG_abun$Pond <- MAG_abun$Pond_Time %>% substr(1,2)
-MAG_abun$Time <- MAG_abun$Pond_Time %>% substr(4,4)
-MAG_abun$present <- with(MAG_abun, ifelse(Mean >= 5 & `Covered Fraction` >= 0.7, 1, 0))
-MAG_abun$Treatment <- ifelse(grepl("CTRL", MAG_abun$Name), "1", "2")
-MAG_abun$Coverage <- as.integer(MAG_abun$Mean)
-
-mag_pres <- ggplot(subset(MAG_abun, present == 1), aes(x = Time, y = fct_reorder(Name, desc(Treatment)), colour = Treatment))+
-  geom_text(aes(label=Coverage), size = 8)+
+mag_pres_plot <- ggplot(mag_pres_5x, aes(x = Time, y = fct_reorder(Name, desc(Treatment)), colour = Treatment))+
+  geom_text(aes(label = coverage), size = 6)+
   scale_colour_manual(values = c("darkgreen", "darkmagenta"))+
+  theme_bw()+
   theme(axis.title.x=element_blank(),
         axis.title.y=element_blank(),
         axis.text = element_text(size = 12),
         legend.position = "none")+
-  facet_wrap(~Genome)
-ggsave("T1_MAG_pres_0.7.pdf", limitsize = F, width=48, height=48)
+  facet_wrap(~mag)
+ggsave("figures/T1_MAG_pres.pdf", mag_pres_plot, limitsize = F, width=48, height=48)
+
+mag_pres_5x <- mag_pres_5x[order(mag_pres_5x$Name_Time),]
+mag_pres_5x <- mag_pres_5x[order(mag_pres_5x$Time),]
+present_MAGs <- mag_pres_5x[, c(1,2,13)]
+present_MAGs_wide <- pivot_wider(present_MAGs, names_from = Name_Time, values_from = coverage)
+present_MAGs_wide$T1_CTRL_present <- 5 - rowSums(is.na(present_MAGs_wide[2:6]))
+present_MAGs_wide$T1_GBH_present <- 4 - rowSums(is.na(present_MAGs_wide[7:10]))
+present_MAGs_wide$T3_CTRL_present <- 5 - rowSums(is.na(present_MAGs_wide[11:15]))
+present_MAGs_wide$T3_GBH_present <- 4 - rowSums(is.na(present_MAGs_wide[16:19]))
+
+good_examples <- subset(present_MAGs_wide, (T3_CTRL_present >= 1 & T3_GBH_present >= 1 & T1_CTRL_present >= 1 & T1_GBH_present >= 1))
+good_MAGs <- pivot_longer(good_examples, cols = c(2:19), names_to = "Sample", values_to = "Coverage")
+good_MAGs$Name <- good_MAGs$Sample %>% str_sub(end = -2)
+good_MAGs$Time <- ifelse(grepl("1", good_MAGs$Sample), "Day 0", "Day 28")
+good_MAGs$Treatment <- ifelse(grepl("CTRL", good_MAGs$Name), "Control", "GBH")
+good_MAGs$plot_order <- order(good_MAGs$Name, good_MAGs$Name)
+good_MAGs$plot_order <- order(good_MAGs$plot_order, good_MAGs$Treatment)
+  
+good_mag_pres <- ggplot(good_MAGs, aes(x = Time, y = fct_reorder(Name, plot_order, .desc = T), colour = Treatment))+
+  geom_text(aes(label = Coverage), size = 5)+
+  scale_colour_manual(values = c("darkgreen", "darkmagenta"))+
+  theme_bw()+
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text = element_text(size = 12),
+        legend.position = "none")+
+  facet_wrap(~mag)
+ggsave("figures/T1_one_one_MAG_pres.pdf", good_mag_pres, width = 8, height = 8)
+
+
+
 
