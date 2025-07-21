@@ -1,4 +1,4 @@
-### Pipeline for resequenced samples
+## Pipeline for resequenced samples
 
 #### rename fastq files
 
@@ -23,13 +23,29 @@ _R2.fastq.gz ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWIND
 done
 ```
 
+inStrain needs paired reads. Trim reads to keep both pairs when they overlap and use these reads with inStrain
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate trimmomatic
+
+for f in *R1.fastq.gz
+do
+trimmomatic PE -threads 64 -phred33 $f ${f%*R1.fastq.gz}R2.fastq.gz ${f%*R1.fastq.gz}P_R1.fastq.gz ${f%*R1.fastq.gz}NP_R1.fastq.gz ${f%*R1.fastq.gz}P_R2.fastq.gz ${f%*R1.fastq.gz}NP
+_R2.fastq.gz ILLUMINACLIP:TruSeq3-PE.fa:2:30:10:8:TRUE LEADING:3 TRAILING:3 SLIDINGWINDOW:4:12 MINLEN:36
+done
+```
+
 #### check sequence quality
 
 ```bash
-parallel -j 18 'fastqc {}  --threads 16' ::: *.fastq.gz
+parallel -j 4 'fastqc {}  --threads 16' ::: *.fastq.gz
 ```
 
-#### coassemble all T1 samples
+### Timepoint 1 MAG database
+
+#### Coassemble all T1 samples
 
 ```bash
 #!/usr/bin/bash
@@ -51,19 +67,12 @@ seqkit seq -m 2500 T1_coassembly.fa > T1_coassembly_2500.fa
 seqkit stats -a T1_coassembly_2500.fa > T1_coassembly_2500_stats.txt
 ```
 
-#### Map metagenomic reads from each pond at T1 to the co-assembly
+#### bin contigs with metabat2 (with bam files from TP 1)
+
+Map metagenomic reads from each pond at T1 to the co-assembly
 
 ```bash
 bowtie2-build T1_coassembly_2500.fa T1_coassembly_2500 --threads 64
-```
-
-Try with local and end-to-end alignment and compare
- 
-```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate bowtie2
-parallel -j 9 --plus 'bowtie2 -x T1_coassembly_2500 -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --local --threads 16 | samtools sort -o {/QC_R1.fastq.gz/local_T1_coass.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
 ```
 
 ```bash
@@ -73,152 +82,333 @@ conda activate bowtie2
 parallel -j 9 --plus 'bowtie2 -x T1_coassembly_2500 -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --threads 16 | samtools sort -o {/QC_R1.fastq.gz/T1_coassembly.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
 ```
 
-Not a huge difference. Use end-to-end mapping
-
-#### bin contigs with metabat2 (with bam files from TP 1)
-
 ```bash
-docker pull metabat/metabat
 docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest jgi_summarize_bam_contig_depths --outputDepth T1_coassembly_depth.txt *.bam
 docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest metabat2 -i T1_coassembly_2500.fa -a T1_coassembly_depth.txt -o T1_bins/bin -m 2500 -t 48
 ```
 
-#### simplify fasta headers
+simplify fasta headers
 
 ```bash
-cp T1_bins/* all_bins
+cp T1_bins/* all_T1_bins
 for f in *.fa; do cut -f1 $f > ${f%*.fa}_fix.fa; done
 for f in *_fix.fa; do mv $f ${f%*_fix.fa}.fa; done
 ```
 
-#### check quality with checkM and filter and check that MAGs are all < 95% ANI
+#### filter T1 bins
 
 ```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate drep
-dRep dereplicate checkM_T1_bins -g all_bins/*.fa -l 500000 -comp 70 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 64
+dRep dereplicate checkM_T1_50_bins -g all_T1_bins/*.fa -comp 50 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 64
 ```
-
-#### get stats of bins
 
 ```bash
-seqkit stats -a * > MAG_stats.txt
+seqkit stats -a *.fa > T1_MAGs_50_stats.txt
 ```
 
-#### Map T1 and T3 to the MAG database and calculate quick coverage stats
+### Timepoint 3 MAG database
 
 ```bash
-cat *.fa > T1_MAGs.fa
-bowtie2-build T1_MAGs.fa T1_MAGs --threads 128
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate megahit
+megahit -1 LEAP_META_10_QC_R1.fastq.gz,LEAP_META_11_QC_R1.fastq.gz,LEAP_META_12_QC_R1.fastq.gz,LEAP_META_13_QC_R1.fastq.gz,LEAP_META_14_QC_R1.fastq.gz,LEAP_META_15_QC_R1.fastq.gz,LEAP_META_16_QC_R1.fastq.gz,LEAP_META_17_QC_R1.fastq.gz,LEAP_META_18_QC_R1.fastq.gz \
+-2 LEAP_META_10_QC_R2.fastq.gz,LEAP_META_11_QC_R2.fastq.gz,LEAP_META_12_QC_R2.fastq.gz,LEAP_META_13_QC_R2.fastq.gz,LEAP_META_14_QC_R2.fastq.gz,LEAP_META_15_QC_R2.fastq.gz,LEAP_META_16_QC_R2.fastq.gz,LEAP_META_17_QC_R2.fastq.gz,LEAP_META_18_QC_R2.fastq.gz \
+-r LEAP_META_10_UP_R1.fastq.gz,LEAP_META_11_UP_R1.fastq.gz,LEAP_META_12_UP_R1.fastq.gz,LEAP_META_13_UP_R1.fastq.gz,LEAP_META_14_UP_R1.fastq.gz,LEAP_META_15_UP_R1.fastq.gz,LEAP_META_16_UP_R1.fastq.gz,LEAP_META_17_UP_R1.fastq.gz,LEAP_META_18_UP_R1.fastq.gz,LEAP_META_10_UP_R2.fastq.gz,LEAP_META_11_UP_R2.fastq.gz,LEAP_META_12_UP_R2.fastq.gz,LEAP_META_13_UP_R2.fastq.gz,LEAP_META_14_UP_R2.fastq.gz,LEAP_META_15_UP_R2.fastq.gz,LEAP_META_16_UP_R2.fastq.gz,LEAP_META_17_UP_R2.fastq.gz,LEAP_META_18_UP_R2.fastq.gz \
+-o T3_coassembly --min-contig-len 1000 -t 128 -m 1000000000000
+conda deactivate
 ```
+
+```bash
+seqkit stats -a T3_coassembly.fa > T3_coassembly_stats.txt
+seqkit seq -m 2500 T3_coassembly.fa > T3_coassembly_2500.fa
+seqkit stats -a T3_coassembly_2500.fa > T3_coassembly_2500_stats.txt
+```
+
+```bash
+bowtie2-build T3_coassembly_2500.fa T3_coassembly_2500 --threads 64
+```
+
+with T3 reads do
 
 ```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate bowtie2
-parallel -j 9 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --threads 16 | samtools sort -o {/R1.fastq.gz/T1_MAGs.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
+parallel -j 9 --plus 'bowtie2 -x T3_coassembly_2500 -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --threads 16 | samtools sort -o {/QC_R1.fastq.gz/T3_coassembly.bam} --write-index -@ 16' ::: *QC_R1.fastq.gz
 ```
 
-try local mapping
+#### bin contigs
+
+```bash
+docker pull metabat/metabat
+docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest jgi_summarize_bam_contig_depths --outputDepth T3_coassembly_depth.txt *.bam
+docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest metabat2 -i T3_coassembly_2500.fa -a T3_coassembly_depth.txt -o T3_bins/bin -m 2500 -t 48
+```
+
+```bash
+cp T3_bins/* all_T3_bins
+for f in *.fa; do cut -f1 $f > ${f%*.fa}_fix.fa; done
+for f in *_fix.fa; do mv $f ${f%*_fix.fa}.fa; done
+```
+
+#### filter T3 bins
 
 ```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
+conda activate drep
+dRep dereplicate checkM_T3_bins -g all_T3_bins/*.fa -comp 50 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 64
+
+seqkit stats -a * > T3_MAG_stats.txt
+```
+
+### dereplicate T1 MAG database and T3 MAG database
+
+in T1 dereplicated MAGs
+
+```bash
+for f in *.fa; do cp $f T1_$f; done
+```
+
+in T3 dereplicated MAGs
+
+```bash
+for f in *.fa; do cp $f T3_$f; done
+```
+
+```bash
+dRep dereplicate drep_T1_T3_MAGs -g T1_T3_MAGs/*.fa -comp 50 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 64
+```
+
+Then I went through drep_T1_T3_MAGs/figures/secondary_clustering_dendrograms.pdf and made a list of all the T3 MAGs that clustered with a T1 MAG
+
+Then remove those MAGs to make a non-redundant MAG database
+
+```bash
+cp -r T1_T3_MAGs nonred_T1_T3_MAGs
+cat to_remove.txt | xargs -I {} mv {} ..
+```
+
+```bash
+seqkit stats -a *.fa > nonred_T1_T3_stats.txt
+```
+
+Then add T1 or T3 to the start of contig names to make sure they are all unique
+
+```bash
+for f in *T1*; do sed 's/>/>T1_/' $f > ${f%*.fa}_fix.fa; done
+for f in *T3*; do sed 's/>/>T3_/' $f > ${f%*.fa}_fix.fa; done
+for f in *fix.fa; do mv $f ${f%*_fix.fa}.fa; done
+```
+
+#### profile MAGs with inStrain
+
+map to nonredundant MAGs
+
+```bash
+cat *.fa > nonred_T1_T3.fa
+bowtie2-build nonred_T1_T3.fa nonred_T1_T3 --threads 128
+
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
 conda activate bowtie2
-parallel -j 9 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} -U {/QC_R1.fastq.gz/UP_R1.fastq.gz},{/QC_R2.fastq.gz/UP_R2.fastq.gz} --local --threads 16 | samtools sort -o {/R1.fastq.gz/_local_T1_MAG.b
-am} --write-index -@ 16' ::: *QC_R1.fastq.gz
+parallel -j 6 --plus 'bowtie2 -x nonred_T1_T3 -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --threads 24 | samtools sort -o {/R1.fastq.gz/nonred_T1_T3.bam} --write-index -@ 24' ::: *_P_R1.fastq.gz
 ```
 
+Annotate genes with prodigal
+
 ```bash
-coverm genome -b *T1_MAGs.bam -d T1_dereplicated_MAGs -o T1_MAGs_coverM.tsv -m mean variance covered_fraction relative_abundance -t 64 -x fa --output-format sparse
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate checkM
+prodigal -i nonred_T1_T3.fa -d nonred_T1_T3_genes.fna -a nonred_T1_T3_genes.faa -o nonred_T1_T3_genes.gbk -p meta
 ```
 
-#### Annotate genes with prodigal
+create .stb file for inStrain using script from dRep
 
 ```bash
-prodigal -i T1_MAGs.fa -d T1_MAG_genes.fna -a T1_MAG_genes.faa -p anon
+conda activate drep
+parse_stb.py --reverse -f nonred_T1_T3_MAGs/*.fa -o nonred_T1_T3_MAGs.stb
 ```
 
-#### calls SNVs with inStrain
+calls SNVs with inStrain
 
 ```bash
-conda create -n instrain
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
 conda activate instrain
-conda install instrain
 
-for f in *T1_MAGs.bam
-do
-inStrain profile $f T1_MAGS.fa -o ${f%*.bam}_instrain_profile} -p 128 -g T1_MAG_genes.fna -s genome_scaffold.stb --min_mapq 2 --min_read_ani 0.93
-done
+parallel -j 6 --plus 'inStrain profile {} nonred_T1_T3.fa -o {/.bam/_inStrain} -p 24 -g nonred_T1_T3_genes.fna -s nonred_T1_T3_MAGs.stb --min_read_ani 0.92 --min_mapq 2 --min_genome_coverage 
+1' ::: *nonred_T1_T3.bam
 ```
 
-#### Annotation of MAGs with bakta
+get depth of each position
 
 ```bash
-parallel -j 32 'bakta {} --db /mfs/ederrick/db --out {}_bakta --threads 8' ::: *.fasta
-```
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate instrain
 
-#### calculate RA of MAGs present at TP 1 and TP 3
-
-subsample reads to pond with least sequences. Set same seed for R1 and R2.
-could maybe just subsample bam file based on proportion of total reads.
-
-```bash
-seqkit sample -p ? -s 100 I4_1_R1.fastq.gz  -o subsamp_I4_1_R1.fastq.gz
-seqkit sample -p ? -s 100 I8_1_R1.fastq.gz  -o subsamp_I8_1_R1.fastq.gz
-seqkit sample -p ? -s 100 K1_1_R1.fastq.gz  -o subsamp_K1_1_R1.fastq.gz
-seqkit sample -p ? -s 100 L2_1_R1.fastq.gz  -o subsamp_L2_1_R1.fastq.gz
-seqkit sample -p ? -s 100 L3_1_R1.fastq.gz  -o subsamp_L3_1_R1.fastq.gz
-seqkit sample -p ? -s 100 L4_1_R1.fastq.gz  -o subsamp_L4_1_R1.fastq.gz
-seqkit sample -p ? -s 100 L6_1_R1.fastq.gz  -o subsamp_L6_1_R1.fastq.gz
-seqkit sample -p ? -s 100 L7_1_R1.fastq.gz  -o subsamp_L7_1_R1.fastq.gz
-seqkit sample -p ? -s 100 L8_1_R1.fastq.gz  -o subsamp_L8_1_R1.fastq.gz
-
-seqkit sample -p ? -s 100 I4_3_R2.fastq.gz  -o subsamp_I4_3_R2.fastq.gz
-seqkit sample -p ? -s 100 I8_3_R2.fastq.gz  -o subsamp_I8_3_R2.fastq.gz
-seqkit sample -p ? -s 100 K1_3_R2.fastq.gz  -o subsamp_K1_3_R2.fastq.gz
-seqkit sample -p ? -s 100 L2_3_R2.fastq.gz  -o subsamp_L2_3_R2.fastq.gz
-seqkit sample -p ? -s 100 L3_3_R2.fastq.gz  -o subsamp_L3_3_R2.fastq.gz
-seqkit sample -p ? -s 100 L4_3_R2.fastq.gz  -o subsamp_L4_3_R2.fastq.gz
-seqkit sample -p ? -s 100 L6_3_R2.fastq.gz  -o subsamp_L6_3_R2.fastq.gz
-seqkit sample -p ? -s 100 L7_3_R2.fastq.gz  -o subsamp_L7_3_R2.fastq.gz
-seqkit sample -p ? -s 100 L8_3_R2.fastq.gz  -o subsamp_L8_3_R2.fastq.gz
-```
-
-confirm number of subsampled reads
-
-```bash
-seqkit stats *subsamp* > subsampled_read_count.txt
-```
-
-map subsampled reads to MAG database
-
-```bash
-parallel -j 9 --plus 'bowtie2 -x T1_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --local --threads 16 | samtools sort -o {/R1.fastq.gz/subsampled.bam} --write-index -@ 16' ::: *R1.fastq.gz
+parallel -j 18 'samtools depth -a -Q 1 LEAP_META_{}_P_nonred_T1_T3.bam -o LEAP_META_{}_nonred_depth.txt' ::: {01..18}
 ```
 
 ```bash
-coverm genome -b *subsampled.bam -d T1_dereplicated_MAGs --min-read-percent-identity 95 -o subsampled_reads_coverM.tsv -m mean variance covered_bases covered_fraction relative_abundance -t 16 -x fa
+Rscript get_depth.R
 ```
 
-
-### MISC things
-
-#### run kraken2
+#### annotate genes with eggnog to get COG categories
 
 ```bash
-kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 T1_coassembly_2500.fa --threads 8 --output T1_coassembly_2500.output.txt --report T1_coassembly_2500.report.txt
+emapper.py -m diamond --itype CDS -i T1_50_MAG_genes.fna -o eggnog_genes --output_dir /mfs/ederrick/chapter_1/06_inStrain/T1_50_inStrain/ --cpu 72
 ```
+
+#### also annotate with bakta?
+
+```bash
+for f in *.fa; do bakta --db /mfs/ederrick/db $f ${f%*.fa}_bakta --threads 8; done
+```
+
+### community composition of ponds
+
+#### use reads with stricter filtering. Subsample first.
+
+find lowest read depth
+
+```bash
+seqkit stats -j 18 *.gz -a -T > QC_read_stats.tsv
+```
+
+subsample
+
+```bash
+parallel -j 18 --plus 'seqtk sample -s100 {} 68107586 | gzip > {/R1.fastq.gz/sub_R1.fastq.gz}' ::: *QC_R1.fastq.gz
+parallel -j 18 --plus 'seqtk sample -s100 {} 68107586 | gzip > {/R2.fastq.gz/sub_R2.fastq.gz}' ::: *QC_R2.fastq.gz
+parallel -j 18 --plus 'seqtk sample -s100 {} 20194431 | gzip > {/R1.fastq.gz/sub_R1.fastq.gz}' ::: *UP_R1.fastq.gz
+```
+
+#### run metaphlan with paired reads and unpaired
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate metaphlan
+
+parallel -j 18 --plus 'metaphlan {},{/R1_fastq.gz/R2.fastq.gz},{/QC_sub_R1.fastq.gz/UP_sub_R1.fastq.gz} --bowtie2out {/_R1.fastq.gz/.bowtie2.bz2} --nproc 12 --input_type fastq --unclassified_estimation -o {/R1.fastq.gz/metaphlan.txt}' ::: *QC_sub_R1.fastq.gz
+```
+
+```bash
+merge_metaphlan_tables.py *metaphlan.txt > QC_merged_metaphlan_abundance_table.tsv
+```
+
+see without unclassified 
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate metaphlan
+
+parallel -j 6 --plus 'metaphlan {},{/R1_fastq.gz/R2.fastq.gz},{/QC_sub_R1.fastq.gz/UP_sub_R1.fastq.gz} --bowtie2out {/R1.fastq.gz/nounclass.bowtie2.bz2} --nproc 12 --input_type fastq -o {/R1.fastq.gz/no_unclass_metaphlan.txt}' ::: *QC_sub_R1.fastq.gz
+```
+
+```bash
+merge_metaphlan_tables.py *metaphlan.txt > QC_merged_metaphlan_abundance_table.tsv
+```
+
+#### one last try kraken with the QC reads. Does not support the SE library with the paired.
 
 ```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate kraken2
 
-for f in *R1.fastq.gz
+for f in *QC_sub_R1.fastq.gz
 do
-kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 64 --output ${f*%_QC_R1.fastq.gz}output.txt --report ${f*%_QC_R1.fastq.gz}report.txt --paired $f ${f*%R1.fastq.gz}R2.fastq.gz
+kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --confidence 0.1 --threads 72 --output ${f%*R1.fastq.gz}kraken_output.txt --report ${f%*R1.fastq.gz}kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
 done
 ```
+
+extract only bacterial reads
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate kraken2
+
+parallel -j 6 'python /mfs/ederrick/miniconda3/envs/kraken2/bin/extract_kraken_reads.py -k LEAP_META_{}_QC_sub_kraken_output.txt -r LEAP_META_{}_QC_sub_kraken_report.txt -s LEAP_META_{}_QC_sub_R1.fastq.gz -s2 LEAP_META_{}_QC_sub_R2.fastq.gz -o LEAP_META_{}_QC_bac_R1.fastq.gz -o2 LEAP_META_{}_QC_bac_R2.fastq.gz -t 2 --include-children' ::: {01..18}
+```
+
+run bracken
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate bracken
+
+for f in *report.txt
+do
+bracken -d /mfs/databases/kraken-core-nt-dec-28-2024 -i $f -o ${f%*kraken_report.txt}phylum.bracken -r 100 -l P -t 10
+done
+```
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate bracken
+
+for f in *report.txt
+do
+bracken -d /mfs/databases/kraken-core-nt-dec-28-2024 -i $f -o ${f%*kraken_report.txt}class.bracken -r 100 -l C -t 10
+done
+```
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate bracken
+
+for f in *report.txt
+do
+bracken -d /mfs/databases/kraken-core-nt-dec-28-2024 -i $f -o ${f%*kraken_report.txt}genus.bracken -r 100 -l G -t 10
+done
+```
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate bracken
+
+for f in *report.txt
+do
+bracken -d /mfs/databases/kraken-core-nt-dec-28-2024 -i $f -o ${f%*kraken_report.txt}species.bracken -r 100 -l S -t 10
+done
+```
+
+```bash
+for f in *.bracken; do  python /mfs/ederrick/miniconda3/envs/kraken2/bin/alpha_diversity.py -f $f -a Si; done
+```
+
+
+#### try with no confidence threshold
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate kraken2
+
+parallel -j 4 'kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 24 --output LEAP_META_{}_QC_sub_kraken_output.txt --report LEAP_META_{}_QC_sub_kraken_report.txt --paired LEAP_META_{}_QC_sub_R1.fastq.gz LEAP_META_{}_QC_sub_R2.fastq.gz' ::: {01..18}
+```
+
+extract only bacterial reads
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate kraken2
+
+parallel -j 6 'python /mfs/ederrick/miniconda3/envs/kraken2/bin/extract_kraken_reads.py -k LEAP_META_{}_QC_sub_kraken_output.txt -r LEAP_META_{}_QC_sub_kraken_report.txt -s LEAP_META_{}_QC_sub_R1.fastq.gz -s2 LEAP_META_{}_QC_sub_R2.fastq.gz -o LEAP_META_{}_QC_bac_R1.fastq.gz -o2 LEAP_META_{}_QC_bac_R2.fastq.gz -t 2 --include-children' ::: {01..18}
+```
+
 

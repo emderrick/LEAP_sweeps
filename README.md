@@ -1,12 +1,12 @@
-### analysis for the paper:
+### the folder "original sequencing" contains the analysis for the preprint
 A glyphosate-based herbicide selects for genetic changes while retaining within-species diversity in a freshwater bacterioplankton community
 https://doi.org/10.1101/2024.09.17.613573
 
-### sequence processing 
+#### sequence processing 
 
 final_pipeline.md
 
-### analysis files in order of use
+#### analysis files in order of use
 
 1. combine_filter_mag_files.R
 2. instrain_coverage.py
@@ -25,12 +25,23 @@ final_pipeline.md
 15. COG enrichment test.R
 
 
-### graphing files
+#### graphing files
 
 1. mag_overview_plot.R (Fig. 1)
 2. species_diversity.R (Fig. 2)
 3. grouped_heatmaps.R (Fig. 3, Fig. 4, S2)
 4. COG_summary.R (Fig. 5, S3)
 5. graphing_coverage.R (S1)
+
+### To improve the analysis we did deep sequencing on two timepoints (pre and post GBH)
+
+
+#### sequence processing
+
+reseq_pipeline.md
+
+#### analysis files
+
+1. MAG_Presence.R
 
 
