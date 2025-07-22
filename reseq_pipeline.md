@@ -271,6 +271,38 @@ emapper.py -m diamond --itype CDS -i T1_50_MAG_genes.fna -o eggnog_genes --outpu
 for f in *.fa; do bakta --db /mfs/ederrick/db $f ${f%*.fa}_bakta --threads 8; done
 ```
 
+### MAGs kind of suck. run anvi'o pipeline to manually check and refine MAGs
+
+```bash
+cut -d" " -f1 T1_coassembly_2500.fa > T1_coassembly_anvio.fa
+anvi-gen-contigs-database -f T1_coassembly_anvio.fa -o T1_coassembly_anvio.db -T 74
+```
+
+```bash
+bowtie2-build T1_coassembly_anvio.fa T1_coassembly_anvio --threads 72
+parallel -j 9 'bowtie2 -x T1_coassembly_anvio -1 LEAP_META_{}_QC_R1.fastq.gz -2 LEAP_META_{}_QC_R2.fastq.gz -U LEAP_META_{}_UP_R1.fastq.gz,LEAP_META_{}_UP_R2.fastq.gz --threads 12 | samtools sort -o LEAP_META_{}_T1_anvio.bam --write-index -@ 12' ::: {01..09}
+```
+
+```bash
+for f in *T1_anvio.bam; do anvi-profile -i $f -c T1_coassembly_anvio.db -o ${f%*.bam}_profile --min-coverage-for-variability 5 -T 72; done
+```
+
+```bash
+anvi-merge -c T1_coassembly_anvio.db LEAP_META_01_T1_anvio_profile LEAP_META_02_T1_anvio_profile LEAP_META_03_T1_anvio_profile LEAP_META_04_T1_anvio_profile LEAP_META_05_T1_anvio_profile LEAP_META_06_T1_anvio_profile LEAP_META_07_T1_anvio_profile LEAP_META_08_T1_anvio_profile LEAP_META_09_T1_anvio_profile --enforce-hierarchical-clustering -o T1_merged_profile -T 72
+```
+
+```bash
+anvi-import-collection vamb_scaffold_bins.txt -p T1_merged_profile/PROFILE.db -c T1_coassembly_anvio.db -C vamb_bins
+```
+
+```bash
+anvi-summarize -c T1_coassembly_anvio.db -p T1_merged_profile/PROFILE.db -o all_vamb_bins -C vamb_bin_collection
+```
+
+```bash
+anvi-refine -p T1_merged_profile/PROFILE.db -c T1_coassembly_anvio.db -C vamb_bin_collection -b vbin.XX
+```
+
 ### community composition of ponds
 
 #### use reads with stricter filtering. Subsample first.
