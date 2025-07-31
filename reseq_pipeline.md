@@ -361,6 +361,12 @@ for f in *.fa; do mv $f MAG${f#ex_mbat_Bin}; done
 for f in *.fa; do mv $f ${f%*-contigs.fa}.fa; done
 ```
 
+check quality and dereplicate
+
+```bash
+dRep dereplicate refined_T1_MAGs -g refined_MAGs/*.fa -comp 50 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 128
+```
+
 map to refined MAGs
 
 ```bash
