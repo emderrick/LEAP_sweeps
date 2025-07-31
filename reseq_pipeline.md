@@ -349,6 +349,18 @@ anvi-rename-bins -c T1_coassembly_anvio.db -p T1_merged_nclu_profile/PROFILE.db 
 anvi-summarize -c T1_coassembly_anvio.db -p T1_merged_nclu_profile/PROFILE.db -o extra_metabat_refined_bins -C extra_metabat2_bins
 ```
 
+in first set of refined MAGs
+```bash
+for f in *.fa; do mv $f ${f#mbat_}; done
+for f in *.fa; do mv $f ${f%*-contigs.fa}.fa; done
+```
+
+in second set of refined MAGs. then move to one directory refined_MAGs
+```bash
+for f in *.fa; do mv $f MAG${f#ex_mbat_Bin}; done
+for f in *.fa; do mv $f ${f%*-contigs.fa}.fa; done
+```
+
 map to refined MAGs
 
 ```bash
