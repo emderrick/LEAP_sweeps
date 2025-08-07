@@ -405,6 +405,50 @@ conda activate instrain
 parallel -j 18 --plus 'inStrain profile {} T1_refined.fa -o {/P_T1_refined.bam/T1_refined_inStrain} -p 12 -g T1_refined_genes.fna -s T1_refined.stb  --min_read_ani 0.92 --min_mapq 1 --min_genome_coverage 1' ::: *T1_refined.bam
 ```
 
+run eggnog
+```bash
+emapper.py -m diamond --itype CDS -i T1_refined_genes.fna -o eggnog_genes --output_dir /mfs/ederrick/chapter_1/09_anvio_binning/ --cpu 72
+```
+
+also annotate with bakta?
+
+```bash
+parallel -j 9 --plus 'bakta --db /mfs/ederrick/db {} -o {/.fa/_bakta} --threads 8' ::: *.fa
+```
+
+check MAGs with checkM2?
+
+```bash
+checkm2 predict --threads 64 --input refined_good_MAGs/ --output-directory T1_refined_checkm2 -x fa
+```
+
+#### calculate relative abundance of MAGs
+
+with coverM
+
+```bash
+conda activate coverM
+coverm genome --bam-files *.bam --genome-fasta-directory refined_good_MAGs --min-read-percent-identity 0.95 -m relative_abundance mean covered_bases count reads_per_base rpkm -o T1_refined_coverM.tsv --output-format sparse --min-covered-fraction 0 -tmx fa -t 64
+```
+
+with inStrain but profile all MAGs regardless of coverage
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate instrain
+
+parallel -j 18 --plus 'inStrain profile {} T1_refined.fa -o {/P_T1_refined.bam/T1_refined_all_inStrain} -p 12 -g T1_refined_genes.fna -s T1_refined.stb  --min_read_ani 0.95 --min_mapq 1' ::: *T1_refined.bam
+```
+
+#### annotate ARGs
+
+```bash
+
+
+```
+
+
 ### community composition of ponds
 
 #### use reads with stricter filtering. Subsample first.
