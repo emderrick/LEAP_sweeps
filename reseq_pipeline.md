@@ -410,24 +410,24 @@ parallel -j 18 --plus 'inStrain profile {} T1_refined.fa -o {/P_T1_refined.bam/T
 merge mags back together by timepoint
 
 ```bash
-samtools merge -o LEAP_META_01_sub.bam *LEAP_META_01* --threads 24
-samtools merge -o LEAP_META_02_sub.bam *LEAP_META_02* --threads 24
-samtools merge -o LEAP_META_03_sub.bam *LEAP_META_03* --threads 24
-samtools merge -o LEAP_META_04_sub.bam *LEAP_META_04* --threads 24
-samtools merge -o LEAP_META_05_sub.bam *LEAP_META_05* --threads 24
-samtools merge -o LEAP_META_06_sub.bam *LEAP_META_06* --threads 24
-samtools merge -o LEAP_META_07_sub.bam *LEAP_META_07* --threads 24
-samtools merge -o LEAP_META_08_sub.bam *LEAP_META_08* --threads 24
-samtools merge -o LEAP_META_09_sub.bam *LEAP_META_09* --threads 24
-samtools merge -o LEAP_META_10_sub.bam *LEAP_META_10* --threads 24
-samtools merge -o LEAP_META_11_sub.bam *LEAP_META_11* --threads 24
-samtools merge -o LEAP_META_12_sub.bam *LEAP_META_12* --threads 24
-samtools merge -o LEAP_META_13_sub.bam *LEAP_META_13* --threads 24
-samtools merge -o LEAP_META_14_sub.bam *LEAP_META_14* --threads 24
-samtools merge -o LEAP_META_15_sub.bam *LEAP_META_15* --threads 24
-samtools merge -o LEAP_META_16_sub.bam *LEAP_META_16* --threads 24
-samtools merge -o LEAP_META_17_sub.bam *LEAP_META_17* --threads 24
-samtools merge -o LEAP_META_18_sub.bam *LEAP_META_18* --threads 24
+samtools merge LEAP_META_01_sub.bam *LEAP_META_01*
+samtools merge LEAP_META_02_sub.bam *LEAP_META_02*
+samtools merge LEAP_META_03_sub.bam *LEAP_META_03*
+samtools merge LEAP_META_04_sub.bam *LEAP_META_04*
+samtools merge LEAP_META_05_sub.bam *LEAP_META_05*
+samtools merge LEAP_META_06_sub.bam *LEAP_META_06*
+samtools merge LEAP_META_07_sub.bam *LEAP_META_07*
+samtools merge LEAP_META_08_sub.bam *LEAP_META_08*
+samtools merge LEAP_META_09_sub.bam *LEAP_META_09*
+samtools merge LEAP_META_10_sub.bam *LEAP_META_10*
+samtools merge LEAP_META_11_sub.bam *LEAP_META_11*
+samtools merge LEAP_META_12_sub.bam *LEAP_META_12*
+samtools merge LEAP_META_13_sub.bam *LEAP_META_13*
+samtools merge LEAP_META_14_sub.bam *LEAP_META_14*
+samtools merge LEAP_META_15_sub.bam *LEAP_META_15*
+samtools merge LEAP_META_16_sub.bam *LEAP_META_16*
+samtools merge LEAP_META_17_sub.bam *LEAP_META_17*
+samtools merge LEAP_META_18_sub.bam *LEAP_META_18*
 ```
 
 rerun instrain
