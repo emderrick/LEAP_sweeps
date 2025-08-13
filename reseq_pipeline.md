@@ -428,6 +428,7 @@ samtools merge -o LEAP_META_15_sub.bam *LEAP_META_15* --threads 24
 samtools merge -o LEAP_META_16_sub.bam *LEAP_META_16* --threads 24
 samtools merge -o LEAP_META_17_sub.bam *LEAP_META_17* --threads 24
 samtools merge -o LEAP_META_18_sub.bam *LEAP_META_18* --threads 24
+```
 
 rerun instrain
 
@@ -442,6 +443,7 @@ parallel -j 18 --plus 'inStrain profile {} T1_refined.fa -o {/sub.bam/T1_subsamp
 #### annotate MAGs 
 
 run eggnog
+
 ```bash
 emapper.py -m diamond --itype CDS -i T1_refined_genes.fna -o eggnog_genes --output_dir /mfs/ederrick/chapter_1/09_anvio_binning/ --cpu 72
 ```
