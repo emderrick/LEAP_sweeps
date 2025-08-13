@@ -405,6 +405,42 @@ conda activate instrain
 parallel -j 18 --plus 'inStrain profile {} T1_refined.fa -o {/P_T1_refined.bam/T1_refined_inStrain} -p 12 -g T1_refined_genes.fna -s T1_refined.stb  --min_read_ani 0.92 --min_mapq 1 --min_genome_coverage 1' ::: *T1_refined.bam
 ```
 
+#### subsample to 5x (R script subsampling.R to get list of samtools commands to run (each mag x pond combination) and rerun instrain for some analyses. 
+
+merge mags back together by timepoint
+
+```bash
+samtools merge -o LEAP_META_01_sub.bam *LEAP_META_01* --threads 24
+samtools merge -o LEAP_META_02_sub.bam *LEAP_META_02* --threads 24
+samtools merge -o LEAP_META_03_sub.bam *LEAP_META_03* --threads 24
+samtools merge -o LEAP_META_04_sub.bam *LEAP_META_04* --threads 24
+samtools merge -o LEAP_META_05_sub.bam *LEAP_META_05* --threads 24
+samtools merge -o LEAP_META_06_sub.bam *LEAP_META_06* --threads 24
+samtools merge -o LEAP_META_07_sub.bam *LEAP_META_07* --threads 24
+samtools merge -o LEAP_META_08_sub.bam *LEAP_META_08* --threads 24
+samtools merge -o LEAP_META_09_sub.bam *LEAP_META_09* --threads 24
+samtools merge -o LEAP_META_10_sub.bam *LEAP_META_10* --threads 24
+samtools merge -o LEAP_META_11_sub.bam *LEAP_META_11* --threads 24
+samtools merge -o LEAP_META_12_sub.bam *LEAP_META_12* --threads 24
+samtools merge -o LEAP_META_13_sub.bam *LEAP_META_13* --threads 24
+samtools merge -o LEAP_META_14_sub.bam *LEAP_META_14* --threads 24
+samtools merge -o LEAP_META_15_sub.bam *LEAP_META_15* --threads 24
+samtools merge -o LEAP_META_16_sub.bam *LEAP_META_16* --threads 24
+samtools merge -o LEAP_META_17_sub.bam *LEAP_META_17* --threads 24
+samtools merge -o LEAP_META_18_sub.bam *LEAP_META_18* --threads 24
+
+rerun instrain
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate instrain
+
+parallel -j 18 --plus 'inStrain profile {} T1_refined.fa -o {/sub.bam/T1_subsamp_inStrain} -p 12 -g T1_refined_genes.fna -s T1_refined.stb  --min_read_ani 0.92 --min_mapq 1' ::: *sub.bam
+```
+
+#### annotate MAGs 
+
 run eggnog
 ```bash
 emapper.py -m diamond --itype CDS -i T1_refined_genes.fna -o eggnog_genes --output_dir /mfs/ederrick/chapter_1/09_anvio_binning/ --cpu 72
@@ -413,13 +449,37 @@ emapper.py -m diamond --itype CDS -i T1_refined_genes.fna -o eggnog_genes --outp
 also annotate with bakta?
 
 ```bash
-parallel -j 9 --plus 'bakta --db /mfs/ederrick/db {} -o {/.fa/_bakta} --threads 8' ::: *.fa
+parallel -j 24 --plus 'bakta --db /mfs/ederrick/db {} -o {/.fa/_bakta} --threads 8' ::: *.fa
 ```
 
-check MAGs with checkM2?
+get EPSPS gene from annotation
 
 ```bash
-checkm2 predict --threads 64 --input refined_good_MAGs/ --output-directory T1_refined_checkm2 -x fa
+#!/usr/bin/bash
+for f in *_bakta
+do
+cd $f
+sed -n '/3-phosphoshikimate 1-carboxyvinyltransferase/,/[^>]/p' ${f%*_bakta}.faa > ${f%*bakta}EPSPS.faa
+cd ..
+done
+```
+
+make fasta of all EPSPS then classify on webserver
+
+```bash
+for f in *.faa; do sed "s/>/>${f%*_EPSPS.faa}_/" $f > ${f%*.faa}_fix.faa; done
+for f in *_fix.faa; do mv $f ${f%*_fix.faa}.faa; done
+cat *.faa > MAG_EPSPS_genes.faa
+```
+
+annotate ARGs
+
+```bash
+wget https://card.mcmaster.ca/latest/data
+tar -xvf data ./card.json
+rgi load --card_json /mfs/ederrick/card.json --local
+parallel -j 12 --plus 'rgi main -i {} -n 8 --low_quality --clean -o {/.fa/_RGI}' ::: *.fa
+parallel -j 12 --plus 'rgi main -i {} -n 8 --low_quality --clean --include_loose -o {/.fa/_loose_RGI}' ::: *.fa
 ```
 
 #### calculate relative abundance of MAGs
@@ -440,14 +500,6 @@ conda activate instrain
 
 parallel -j 18 --plus 'inStrain profile {} T1_refined.fa -o {/P_T1_refined.bam/T1_refined_all_inStrain} -p 12 -g T1_refined_genes.fna -s T1_refined.stb  --min_read_ani 0.95 --min_mapq 1' ::: *T1_refined.bam
 ```
-
-#### annotate ARGs
-
-```bash
-
-
-```
-
 
 ### community composition of ponds
 
