@@ -108,7 +108,57 @@ dRep dereplicate checkM_T1_50_bins -g all_T1_bins/*.fa -comp 50 -con 10 --checkM
 seqkit stats -a *.fa > T1_MAGs_50_stats.txt
 ```
 
-### Timepoint 3 MAG database
+map to T1 MAGs
+
+```bash
+cat *.fa > T1_50_MAGs.fa
+bowtie2-build T1_50_MAGs.fa T1_50_MAGs --threads 128
+
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate bowtie2
+parallel -j 6 --plus 'bowtie2 -x T1_50_MAGs -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --threads 24 | samtools sort -o {/R1.fastq.gz/T1_50_MAGs.bam} --write-index -@ 24' ::: *_P_R1.fastq.gz
+```
+
+Annotate genes with prodigal
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate checkM
+prodigal -i T1_50_MAGs.fa -d T1_50_MAG_genes.fna -a T1_50_MAG_genes.faa -o T1_50_MAG_genes.gbk -p meta
+```
+
+create .stb file for inStrain using script from dRep
+
+```bash
+conda activate drep
+parse_stb.py --reverse -f T1_50_MAGs/*.fa -o T1_50_MAGs.stb
+```
+
+calls SNVs with inStrain
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate instrain
+
+parallel -j 18 --plus 'inStrain profile {} T1_50_MAGs.fa -o {/P_T1_50_MAGs.bam/T1_95_inStrain} -p 12 -g T1_50_MAG_genes.fna -s T1_50_MAGs.stb  --min_read_ani 0.92 --min_mapq 1' ::: *T1_50_MAGs.bam
+```
+
+#### annotate genes with eggnog to get COG categories
+
+```bash
+emapper.py -m diamond --itype CDS -i T1_50_MAG_genes.fna -o eggnog_genes --output_dir /mfs/ederrick/chapter_1/06_inStrain/T1_50_inStrain/ --cpu 72
+```
+
+#### also annotate with bakta?
+
+```bash
+for f in *.fa; do bakta --db /mfs/ederrick/db $f ${f%*.fa}_bakta --threads 8; done
+```
+
+### Try with adding in Timepoint 3 MAGs
 
 ```bash
 #!/usr/bin/bash
@@ -259,16 +309,198 @@ parallel -j 18 'samtools depth -a -Q 1 LEAP_META_{}_P_nonred_T1_T3.bam -o LEAP_M
 Rscript get_depth.R
 ```
 
-#### annotate genes with eggnog to get COG categories
+### MAGs kind of suck. run anvi'o pipeline to manually check and refine MAGs
 
 ```bash
-emapper.py -m diamond --itype CDS -i T1_50_MAG_genes.fna -o eggnog_genes --output_dir /mfs/ederrick/chapter_1/06_inStrain/T1_50_inStrain/ --cpu 72
+cut -d" " -f1 T1_coassembly_2500.fa > T1_coassembly_anvio.fa
+anvi-gen-contigs-database -f T1_coassembly_anvio.fa -o T1_coassembly_anvio.db -T 74
 ```
 
-#### also annotate with bakta?
+```bash
+bowtie2-build T1_coassembly_anvio.fa T1_coassembly_anvio --threads 72
+parallel -j 9 'bowtie2 -x T1_coassembly_anvio -1 LEAP_META_{}_QC_R1.fastq.gz -2 LEAP_META_{}_QC_R2.fastq.gz -U LEAP_META_{}_UP_R1.fastq.gz,LEAP_META_{}_UP_R2.fastq.gz --threads 12 | samtools sort -o LEAP_META_{}_T1_anvio.bam --write-index -@ 12' ::: {01..09}
+```
 
 ```bash
-for f in *.fa; do bakta --db /mfs/ederrick/db $f ${f%*.fa}_bakta --threads 8; done
+for f in *T1_anvio.bam; do anvi-profile -i $f -c T1_coassembly_anvio.db -o ${f%*.bam}_profile --min-coverage-for-variability 5 -T 72; done
+```
+
+```bash
+anvi-merge -c T1_coassembly_anvio.db LEAP_META_01_T1_anvio_profile/PROFILE.db LEAP_META_02_T1_anvio_profile/PROFILE.db LEAP_META_03_T1_anvio_profile/PROFILE.db LEAP_META_04_T1_anvio_profile/PROFILE.db LEAP_META_05_T1_anvio_profile/PROFILE.db LEAP_META_06_T1_anvio_profile/PROFILE.db LEAP_META_07_T1_anvio_profile/PROFILE.db LEAP_META_08_T1_anvio_profile/PROFILE.db LEAP_META_09_T1_anvio_profile/PROFILE.db --enforce-hierarchical-clustering -o T1_merged_profile -T 64
+```
+
+```bash
+anvi-import-collection metabat2_bins.txt -p T1_merged_nclu_profile/PROFILE.db -c T1_coassembly_anvio.db -C metabat2_bin_collection --contigs-mode
+anvi-import-collection vamb_scaffold_bins.txt -p T1_merged_nclu_profile/PROFILE.db -c T1_coassembly_anvio.db -C vamb_bins --contigs-mode
+```
+
+```bash
+anvi-rename-bins -c T1_coassembly_anvio.db -p T1_merged_nclu_profile/PROFILE.db --prefix mbat --collection-to-read metabat2_bin_collection --collection-to-write metabat2_50_bins --report-file rename_mbat50.txt --call-MAGs --min-completion-for-MAG 50 --max-redundancy-for-MAG 100 --exclude-bins
+
+ssh -L localhost:8080:localhost:8080 ederrick@10.140.2.26
+anvi-refine -p T1_merged_nclu_profile/PROFILE.db -c T1_coassembly_anvio.db -C metabat2_50_bins -b bin_XX
+anvi-summarize -c T1_coassembly_anvio.db -p T1_merged_nclu_profile/PROFILE.db -o metabat_refined_bins -C metabat2_50_bins
+```
+
+realized this was missing some MAGs that checkM thought were fine
+
+```bash
+anvi-rename-bins -c T1_coassembly_anvio.db -p T1_merged_nclu_profile/PROFILE.db --prefix ex_mbat --collection-to-read metabat2_bin_collection --collection-to-write extra_metabat2_bins --report-file extra_mbat.txt --call-MAGs --min-completion-for-MAG 50 --max-redundancy-for-MAG 100
+anvi-summarize -c T1_coassembly_anvio.db -p T1_merged_nclu_profile/PROFILE.db -o extra_metabat_refined_bins -C extra_metabat2_bins
+```
+
+in first set of refined MAGs
+```bash
+for f in *.fa; do mv $f ${f#mbat_}; done
+for f in *.fa; do mv $f ${f%*-contigs.fa}.fa; done
+```
+
+in second set of refined MAGs. then move to one directory refined_MAGs
+```bash
+for f in *.fa; do mv $f MAG${f#ex_mbat_Bin}; done
+for f in *.fa; do mv $f ${f%*-contigs.fa}.fa; done
+```
+
+check quality and dereplicate
+
+```bash
+dRep dereplicate refined_T1_MAGs -g refined_MAGs/*.fa -comp 50 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 128
+```
+
+map to refined MAGs
+
+```bash
+cat *.fa > T1_refined.fa
+bowtie2-build T1_refined.fa T1_refined --threads 128
+
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate bowtie2
+parallel -j 6 --plus 'bowtie2 -x T1_refined -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --threads 24 | samtools sort -o {/R1.fastq.gz/T1_refined.bam} --write-index -@ 24' ::: *_P_R1.fastq.gz
+```
+
+Annotate genes with prodigal
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate checkM
+prodigal -i T1_refined.fa -d T1_refined_genes.fna -a T1_refined_genes.faa -o T1_refined_genes.gbk -p meta
+```
+
+create .stb file for inStrain using script from dRep
+
+```bash
+conda activate drep
+parse_stb.py --reverse -f T1_refined_MAGs/*.fa -o T1_refined.stb
+```
+
+calls SNVs with inStrain
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate instrain
+
+parallel -j 18 --plus 'inStrain profile {} T1_refined.fa -o {/P_T1_refined.bam/T1_refined_inStrain} -p 12 -g T1_refined_genes.fna -s T1_refined.stb  --min_read_ani 0.92 --min_mapq 1 --min_genome_coverage 1' ::: *T1_refined.bam
+```
+
+#### subsample to 5x (R script subsampling.R to get list of samtools commands to run (each mag x pond combination) and rerun instrain for some analyses. 
+
+merge mags back together by timepoint
+
+```bash
+samtools merge LEAP_META_01_sub.bam *LEAP_META_01*
+samtools merge LEAP_META_02_sub.bam *LEAP_META_02*
+samtools merge LEAP_META_03_sub.bam *LEAP_META_03*
+samtools merge LEAP_META_04_sub.bam *LEAP_META_04*
+samtools merge LEAP_META_05_sub.bam *LEAP_META_05*
+samtools merge LEAP_META_06_sub.bam *LEAP_META_06*
+samtools merge LEAP_META_07_sub.bam *LEAP_META_07*
+samtools merge LEAP_META_08_sub.bam *LEAP_META_08*
+samtools merge LEAP_META_09_sub.bam *LEAP_META_09*
+samtools merge LEAP_META_10_sub.bam *LEAP_META_10*
+samtools merge LEAP_META_11_sub.bam *LEAP_META_11*
+samtools merge LEAP_META_12_sub.bam *LEAP_META_12*
+samtools merge LEAP_META_13_sub.bam *LEAP_META_13*
+samtools merge LEAP_META_14_sub.bam *LEAP_META_14*
+samtools merge LEAP_META_15_sub.bam *LEAP_META_15*
+samtools merge LEAP_META_16_sub.bam *LEAP_META_16*
+samtools merge LEAP_META_17_sub.bam *LEAP_META_17*
+samtools merge LEAP_META_18_sub.bam *LEAP_META_18*
+```
+
+rerun instrain
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate instrain
+
+parallel -j 18 --plus 'inStrain profile {} T1_refined.fa -o {/sub.bam/T1_subsamp_inStrain} -p 12 -g T1_refined_genes.fna -s T1_refined.stb  --min_read_ani 0.92 --min_mapq 1' ::: *sub.bam
+```
+
+#### annotate MAGs 
+
+run eggnog
+
+```bash
+emapper.py -m diamond --itype CDS -i T1_refined_genes.fna -o eggnog_genes --output_dir /mfs/ederrick/chapter_1/09_anvio_binning/ --cpu 72
+```
+
+also annotate with bakta?
+
+```bash
+parallel -j 24 --plus 'bakta --db /mfs/ederrick/db {} -o {/.fa/_bakta} --threads 8' ::: *.fa
+```
+
+get EPSPS gene from annotation
+
+```bash
+#!/usr/bin/bash
+for f in *_bakta
+do
+cd $f
+sed -n '/3-phosphoshikimate 1-carboxyvinyltransferase/,/[^>]/p' ${f%*_bakta}.faa > ${f%*bakta}EPSPS.faa
+cd ..
+done
+```
+
+make fasta of all EPSPS then classify on webserver
+
+```bash
+for f in *.faa; do sed "s/>/>${f%*_EPSPS.faa}_/" $f > ${f%*.faa}_fix.faa; done
+for f in *_fix.faa; do mv $f ${f%*_fix.faa}.faa; done
+cat *.faa > MAG_EPSPS_genes.faa
+```
+
+annotate ARGs
+
+```bash
+wget https://card.mcmaster.ca/latest/data
+tar -xvf data ./card.json
+rgi load --card_json /mfs/ederrick/card.json --local
+parallel -j 12 --plus 'rgi main -i {} -n 8 --low_quality --clean -o {/.fa/_RGI}' ::: *.fa
+parallel -j 12 --plus 'rgi main -i {} -n 8 --low_quality --clean --include_loose -o {/.fa/_loose_RGI}' ::: *.fa
+```
+
+#### calculate relative abundance of MAGs
+
+with coverM
+
+```bash
+conda activate coverM
+coverm genome --bam-files *.bam --genome-fasta-directory refined_good_MAGs --min-read-percent-identity 0.95 -m relative_abundance mean covered_bases count reads_per_base rpkm -o T1_refined_coverM.tsv --output-format sparse --min-covered-fraction 0 -tmx fa -t 64
+```
+
+with inStrain but profile all MAGs regardless of coverage
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate instrain
+
+parallel -j 18 --plus 'inStrain profile {} T1_refined.fa -o {/P_T1_refined.bam/T1_refined_all_inStrain} -p 12 -g T1_refined_genes.fna -s T1_refined.stb  --min_read_ani 0.95 --min_mapq 1' ::: *T1_refined.bam
 ```
 
 ### community composition of ponds
