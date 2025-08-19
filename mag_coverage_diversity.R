@@ -5,10 +5,10 @@ setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 mag_list <- c("bin.305", "bin.609", "bin.676")
 
 mag_pres <- read_csv("data files/T1_SNV_summary_MAG.csv")
-mag_pres <- subset(mag_pres, mag_coverage >= 5 & mag_breadth >= 0.5)
+mag_pres <- subset(mag_pres, med_cov >= 5 & mag_breadth >= 0.5)
+mag_pres$Treatment_Time <- paste(mag_pres$Time, mag_pres$Treatment, sep = " ")
 
 mag_pres <- subset(mag_pres, mag %in% mag_list)
-mag_pres$Treatment_Time <- paste(mag_pres$Time, mag_pres$Treatment, sep = " ")
 
 mag_coverage <- ggplot(mag_pres, aes(x = mag_coverage, y = SNVs_Mbp, colour = Treatment))+
   geom_point(size = 2)+

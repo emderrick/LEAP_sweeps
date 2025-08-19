@@ -3,16 +3,15 @@ library(dplyr)
 
 setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 
-depth_files <- list.files("data files/T1_50_depth/", recursive = T, pattern = "depth_info.csv", full.names = T)
-mag_scaffold_info <- read_tsv("data files/T1_50_MAGs.stb", col_names = F)
+depth_files <- list.files("refined data files/refined_mag_depth/", recursive = T, pattern = "depth_info.csv", full.names = T)
+mag_scaffold_info <- read_tsv("refined data files/T1_refined.stb", col_names = F)
 colnames(mag_scaffold_info) <-  c("scaffold", "mag")
-mag_SNVs <- read_csv("data files/good_MAG_SNVs.csv")
+mag_SNVs <- read_csv("refined data files/good_refined_MAG_SNVs.csv")
 
 all_depth <- data_frame()
 for(i in 1:length(depth_files)){
-  sample <- depth_files[i] %>% substr(25,36)
   sample_depth <- read_csv(depth_files[i])
-  sample_depth$Sample <- sample
+  sample_depth$Sample <- depth_files[i] %>% substr(39,50)
   sample_depth <- left_join(sample_depth, mag_scaffold_info)
   sample_depth$position <- str_pad(sample_depth$position, 7, pad = "0")
   sample_depth$mag <- sample_depth$mag %>% str_remove(".fa")
@@ -22,7 +21,7 @@ for(i in 1:length(depth_files)){
   all_depth <- rbind(all_depth, snv_depth)
 }
 
-write.csv(all_depth, "data files/T1_mag_depth_info.csv", row.names = F)
+write.csv(all_depth, "refined data files/T1_refined_mag_depth_info.csv", row.names = F)
 
 mag_SNV_depth <- full_join(mag_SNVs, all_depth)
 mag_SNV_depth$new_ref_freq <- with(mag_SNV_depth, ifelse(depth >= 5, 1, NA))
@@ -32,6 +31,6 @@ mag_SNV_depth <- mag_SNV_depth %>% group_by(Sample) %>% fill(Name, time, .direct
 mag_SNV_depth <- mag_SNV_depth %>% group_by(Sample, mag) %>% fill(mag_coverage, mag_breadth, .direction = "updown")
 mag_SNV_depth <- mag_SNV_depth %>% ungroup()
 mag_SNV_depth <- subset(mag_SNV_depth, !(is.na(mag_coverage)))
-write.csv(mag_SNV_depth, "data files/mag_SNV_depth_info.csv", row.names = F)
+write.csv(mag_SNV_depth, "refined data files/refined_mag_SNV_depth_info.csv", row.names = F)
 
 
