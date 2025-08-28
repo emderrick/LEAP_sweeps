@@ -3,11 +3,10 @@ library(dplyr)
 
 setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 
-mag_list <- c("MAG_00097_1", "MAG_00103_1", "MAG_00110_1", "MAG_00179_1",
-              "MAG_00194_1", "MAG_00197_1", "MAG_00201_1","MAG_00647_1")
+mag_list <- c("MAG_00097_1", "MAG_00103_1","MAG_00110_1", "MAG_00179_1",
+              "MAG_00194_1", "MAG_00197_1", "MAG_00201_1","MAG_00674_1")
 
-all_mag_SNVs <- read_csv("refined data files/refined_mag_SNV_depth_info.csv")
-all_mag_SNVs <- subset(all_mag_SNVs, mag %in% mag_list)
+all_mag_SNVs <- read_csv("data files/MAG_SNV_depth_info.csv")
 
 all_mag_SNVs$time <- with(all_mag_SNVs, ifelse(time == "1", "Day 0", "Day 28"))
 all_mag_SNVs$pond_time <- paste(all_mag_SNVs$time, all_mag_SNVs$Name, sep = " ")
@@ -27,4 +26,4 @@ mag_snvs_wide$GBH_28 <- rowMeans(mag_snvs_wide[, grep("Day 28 GBH", colnames(mag
 mag_snvs_wide <- mag_snvs_wide %>% mutate_all(function(x) ifelse(is.nan(x), NA, x))
 mag_snvs_wide <- mag_snvs_wide[, c("mag", "gene", "group", "mutation_type", "CTRL_0", "GBH_0", "CTRL_28", "GBH_28")]
 
-write.csv(mag_snvs_wide, "refined data files/refined_all_frequency.csv", row.names = F)
+write.csv(mag_snvs_wide, "data files/all_snv_frequency.csv", row.names = F)

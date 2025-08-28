@@ -2,7 +2,7 @@ library(tidyverse)
 
 setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 
-SNV_files <- list.files("subsamp data files/", recursive = T, pattern = "filt_SNVs", full.names = T)
+SNV_files <- list.files("data files/", recursive = T, pattern = "T1_filt_SNVs", full.names = T)
 
 SNV_count <- data.frame()
 for(i in 1:length(SNV_files)){
@@ -14,7 +14,7 @@ for(i in 1:length(SNV_files)){
   SNV_count <- rbind(SNV_count, SNV_sample)
 }
 
-write.csv(SNV_count, "subsamp data files/T1_subsamp_limited_SNV_info.csv", row.names = F)
+write.csv(SNV_count, "data files/T1_limited_SNV_info.csv", row.names = F)
 
 mutation_counts <- SNV_count %>% group_by(mag, Name_Time, mag_coverage, med_cov, mag_breadth, mag_length, mutation_type)  %>% count(class)
 mutation_counts <- pivot_wider(mutation_counts, values_from = n, names_from = mutation_type)
@@ -27,7 +27,7 @@ mutation_counts$SNSs_Mbp <- (mutation_counts$total_SNS/ mutation_counts$mag_leng
 mutation_counts$SNVs_Mbp <- (mutation_counts$total_SNV / mutation_counts$mag_length) * 10^6
 mutation_counts$N_SNSs_Mbp <- (mutation_counts$N_SNS/ mutation_counts$mag_length) * 10^6
 mutation_counts$N_SNVs_Mbp <- (mutation_counts$N_SNV / mutation_counts$mag_length) * 10^6
-mag_info <- read_csv("subsamp data files/T1_subsamp_mag_info.csv")
+mag_info <- read_csv("data files/T1_mag_info.csv")
 mag_info$Name_Time <- paste(mag_info$Name, mag_info$time, sep = " ")
 mag_info <- mag_info[, c(1,2,9,10)]
 mutation_counts <- full_join(mutation_counts, mag_info)
@@ -35,4 +35,4 @@ mutation_counts$Treatment <- ifelse(grepl("CTRL", mutation_counts$Name_Time), "C
 mutation_counts$Name <- mutation_counts$Name_Time %>% str_sub(end = -2)
 mutation_counts$Time <- ifelse(grepl("1", mutation_counts$Name_Time), "Day 0", "Day 28")
 mutation_counts$Treatment_Time <- paste(mutation_counts$Treatment, mutation_counts$Time, sep = " ")
-write.csv(mutation_counts, "subsamp data files/T1_subsamp_SNV_summary_MAG.csv", row.names = F)
+write.csv(mutation_counts, "data files/T1_SNV_summary_MAG.csv", row.names = F)

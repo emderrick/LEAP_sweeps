@@ -3,13 +3,12 @@ library(ggplot2)
 
 setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 
-mag_pres <- read_csv("refined data files/T1_refined_mag_info.csv")
+mag_pres <- read_csv("data files/T1_mag_info.csv")
 mag_pres$Treatment <- ifelse(grepl("CTRL", mag_pres$Name), "Control", "GBH")
 mag_pres$Name_Time <- paste(mag_pres$Name, mag_pres$time, sep = " ")
-mag_pres$coverage <- as.integer(mag_pres$mag_coverage)
+mag_pres$coverage <- round(mag_pres$mag_coverage)
 
 mag_pres <- subset(mag_pres, mag_coverage >= 5 & mag_breadth >= 0.5)
-mag_pres <- subset(mag_pres, !(Name == "CTRL E"))
 
 
 mag_pres_plot <- ggplot(mag_pres, aes(x = as.character(time), y = fct_reorder(Name, desc(Treatment)), colour = Treatment))+
@@ -21,7 +20,7 @@ mag_pres_plot <- ggplot(mag_pres, aes(x = as.character(time), y = fct_reorder(Na
         axis.text = element_text(size = 12),
         legend.position = "none")+
   facet_wrap(~mag)
-ggsave("refined figures/T1_refined_MAG_pres.pdf", mag_pres_plot, limitsize = F, width=48, height=48)
+ggsave("figures/T1_MAG_pres.pdf", mag_pres_plot, limitsize = F, width=48, height=48)
 
 mag_pres <- mag_pres[order(mag_pres$Name),]
 mag_pres <- mag_pres[order(mag_pres$time),]
@@ -49,7 +48,7 @@ good_mag_pres <- ggplot(good_MAGs, aes(x = Time, y = fct_reorder(Name, plot_orde
         axis.text = element_text(size = 12),
         legend.position = "none")+
   facet_wrap(~mag)
-ggsave("refined figures/good_refined_T1_MAG_pres.pdf", good_mag_pres, width = 8, height = 8)
+ggsave("figures/good_T1_MAG_pres.pdf", good_mag_pres, width = 8, height = 8)
 
 
 

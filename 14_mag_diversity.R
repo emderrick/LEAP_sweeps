@@ -7,9 +7,11 @@ options(scipen=999)
 setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 
 mag_SNVs <- read_csv("subsamp data files/T1_subsamp_SNV_summary_MAG.csv")
-mag_SNVs <- subset(mag_SNVs, med_cov >= 4)
+#mag_SNVs <- subset(mag_SNVs, mag_coverage >= 5 & mag_breadth >= 0.5)
+mag_SNVs <- subset(mag_SNVs, !(Name == "CTRL E"))
 
 mag_SNVs <- mag_SNVs %>% mutate(across(c(7,8,11:16), ~ replace_na(., 0)))
+mag_SNVs$NS_ratio_SNS <- with(mag_SNVs , ifelse(NS_ratio_SNS == "Inf", NA, NS_ratio_SNS))
 
 ggplot(mag_SNVs, aes(x = mag_coverage, y = SNVs_Mbp))+
   geom_point()
@@ -36,8 +38,11 @@ snv_5x <- dunn_test(mag_SNVs, SNVs_Mbp ~ Treatment_Time, p.adjust.method = "BH",
 sns_5x <- dunn_test(mag_SNVs, SNSs_Mbp ~ Treatment_Time, p.adjust.method = "BH", detailed = FALSE)
 n_snv_5x <- dunn_test(mag_SNVs, N_SNVs_Mbp ~ Treatment_Time, p.adjust.method = "BH", detailed = FALSE)
 n_sns_5x <- dunn_test(mag_SNVs, N_SNSs_Mbp ~ Treatment_Time, p.adjust.method = "BH", detailed = FALSE)
-NS_SNV_5x <- dunn_test(mag_SNVs, NS_ratio_SNV ~ Treatment_Time, p.adjust.method = "BH", detailed = FALSE)
-NS_SNS_5x <- dunn_test(mag_SNVs, NS_ratio_SNS ~ Treatment_Time, p.adjust.method = "BH", detailed = FALSE)
+#NS_SNV_5x <- dunn_test(mag_SNVs, NS_ratio_SNV ~ Treatment_Time, p.adjust.method = "BH", detailed = FALSE)
+#NS_SNS_5x <- dunn_test(mag_SNVs, NS_ratio_SNS ~ Treatment_Time, p.adjust.method = "BH", detailed = FALSE)
+
+snvs_glm <- glm(SNSs_Mbp ~ Treatment + Time, data = mag_SNVs)
+summary(snvs_glm)
 
 treatment_vs_SNV_boxplot <- ggplot(mag_SNVs, aes(x = Time, y = SNVs_Mbp, fill = Treatment, colour = Treatment))+
   geom_boxplot(outliers = F)+
@@ -47,7 +52,7 @@ treatment_vs_SNV_boxplot <- ggplot(mag_SNVs, aes(x = Time, y = SNVs_Mbp, fill = 
   labs(x = "", y = "Polymorphic sites per Mbp")+  
   theme_bw()+
   theme(text = element_text(size = 12), axis.title.y = element_text(m= margin(10, 10, 10, 10)), axis.text = element_text(colour = "black"))
-ggsave("subsamp figures/treatment_vs_SNVs_boxplot.pdf", treatment_vs_SNV_boxplot, limitsize = F, width = 5, height = 4)
+ggsave("figures/treatment_vs_SNVs_boxplot.pdf", treatment_vs_SNV_boxplot, limitsize = F, width = 5, height = 4)
 
 treatment_vs_SNS_boxplot <- ggplot(mag_SNVs, aes(x = Time, y = SNSs_Mbp, fill = Treatment, colour = Treatment))+
   geom_boxplot(outliers = F)+
@@ -57,7 +62,7 @@ treatment_vs_SNS_boxplot <- ggplot(mag_SNVs, aes(x = Time, y = SNSs_Mbp, fill = 
   labs(x = "", y = "Fixed substitutions per Mbp")+  
   theme_bw()+
   theme(text = element_text(size = 12), axis.title.y = element_text(m= margin(10, 10, 10, 10)), axis.text = element_text(colour = "black"))
-ggsave("subsamp figures/treatment_vs_SNSs_boxplot.pdf", treatment_vs_SNS_boxplot, limitsize = F, width = 5, height = 4)
+ggsave("figures/treatment_vs_SNSs_boxplot.pdf", treatment_vs_SNS_boxplot, limitsize = F, width = 5, height = 4)
 
 treatment_vs_N_SNV_boxplot <- ggplot(mag_SNVs, aes(x = Time, y = N_SNVs_Mbp, fill = Treatment, colour = Treatment))+
   geom_boxplot(outliers = F)+
@@ -67,7 +72,7 @@ treatment_vs_N_SNV_boxplot <- ggplot(mag_SNVs, aes(x = Time, y = N_SNVs_Mbp, fil
   labs(x = "", y = "nonsyn polymorphic sites per Mbp")+  
   theme_bw()+
   theme(text = element_text(size = 12), axis.title.y = element_text(m= margin(10, 10, 10, 10)), axis.text = element_text(colour = "black"))
-ggsave("subsamp figures/treatment_vs_N_SNVs_boxplot.pdf", treatment_vs_N_SNV_boxplot, limitsize = F, width = 5, height = 4)
+ggsave("figures/treatment_vs_N_SNVs_boxplot.pdf", treatment_vs_N_SNV_boxplot, limitsize = F, width = 5, height = 4)
 
 treatment_vs_N_SNS_boxplot <- ggplot(mag_SNVs, aes(x = Time, y = N_SNSs_Mbp, fill = Treatment, colour = Treatment))+
   geom_boxplot(outliers = F)+
@@ -77,27 +82,27 @@ treatment_vs_N_SNS_boxplot <- ggplot(mag_SNVs, aes(x = Time, y = N_SNSs_Mbp, fil
   labs(x = "", y = "nonsyn fixed substitutions per Mbp")+  
   theme_bw()+
   theme(text = element_text(size = 12), axis.title.y = element_text(m= margin(10, 10, 10, 10)), axis.text = element_text(colour = "black"))
-ggsave("subsamp figures/treatment_vs_N_SNSs_boxplot.pdf", treatment_vs_N_SNS_boxplot, limitsize = F, width = 5, height = 4)
+ggsave("figures/treatment_vs_N_SNSs_boxplot.pdf", treatment_vs_N_SNS_boxplot, limitsize = F, width = 5, height = 4)
 
 treatment_vs_NS_boxplot <- ggplot(mag_SNVs, aes(x = Time, y = NS_ratio_SNV, fill = Treatment, colour = Treatment))+
   geom_boxplot(outliers = F)+
   geom_point(aes(colour = Treatment), size = 0.25, position = position_jitterdodge(jitter.width = 0.25))+
   scale_fill_manual(values = c("white", "white"))+
   scale_colour_manual(values = c("darkgreen", "darkmagenta"))+
-  labs(x = "", y = "N:S ratio")+  
+  labs(x = "", y = "N:S ratio polymorphic sites")+  
   theme_bw()+
   theme(text = element_text(size = 12), axis.title.y = element_text(m= margin(10, 10, 10, 10)), axis.text = element_text(colour = "black"))
-ggsave("subsamp figures/treatment_vs_NS_SNV_boxplot.pdf", treatment_vs_NS_boxplot, limitsize = F, width = 4.75, height = 4)
+ggsave("figures/treatment_vs_NS_SNV_boxplot.pdf", treatment_vs_NS_boxplot, limitsize = F, width = 4.75, height = 4)
 
 treatment_vs_NS_SNS_boxplot <- ggplot(mag_SNVs, aes(x = Time, y = NS_ratio_SNS, fill = Treatment, colour = Treatment))+
   geom_boxplot(outliers = F)+
   geom_point(aes(colour = Treatment), size = 0.25, position = position_jitterdodge(jitter.width = 0.25))+
   scale_fill_manual(values = c("white", "white"))+
   scale_colour_manual(values = c("darkgreen", "darkmagenta"))+
-  labs(x = "", y = "N:S ratio")+  
+  labs(x = "", y = "N:S ratio fixed substitutions")+  
   theme_bw()+
   theme(text = element_text(size = 12), axis.title.y = element_text(m= margin(10, 10, 10, 10)), axis.text = element_text(colour = "black"))
-ggsave("subsamp figures/treatment_vs_NS_SNS_boxplot.pdf", treatment_vs_NS_SNS_boxplot, limitsize = F, width = 4.75, height = 4)
+ggsave("figures/treatment_vs_NS_SNS_boxplot.pdf", treatment_vs_NS_SNS_boxplot, limitsize = F, width = 4.75, height = 4)
 
 pond_vs_SNV_boxplot <- ggplot(mag_SNVs, aes(x = Name, y = SNVs_Mbp, fill = Time, colour = Time))+
   geom_boxplot(outliers = F)+
@@ -107,7 +112,7 @@ pond_vs_SNV_boxplot <- ggplot(mag_SNVs, aes(x = Name, y = SNVs_Mbp, fill = Time,
   labs(x = "", y = "Polymorphic sites per Mbp")+  
   theme_bw()+
   theme(text = element_text(size = 12), axis.title.y = element_text(m= margin(10, 10, 10, 10)), axis.text = element_text(colour = "black"))
-ggsave("subsamp figures/pond_vs_SNV_boxplot.pdf", pond_vs_SNV_boxplot, limitsize = F, width = 10, height = 4)
+ggsave("figures/pond_vs_SNV_boxplot.pdf", pond_vs_SNV_boxplot, limitsize = F, width = 10, height = 4)
 
 pond_vs_SNS_boxplot <- ggplot(mag_SNVs, aes(x = Name, y = SNSs_Mbp, fill = Time, colour = Time))+
   geom_boxplot(outliers = F)+
@@ -117,7 +122,7 @@ pond_vs_SNS_boxplot <- ggplot(mag_SNVs, aes(x = Name, y = SNSs_Mbp, fill = Time,
   labs(x = "", y = "Fixed substiturions per Mbp")+  
   theme_bw()+
   theme(text = element_text(size = 12), axis.title.y = element_text(m= margin(10, 10, 10, 10)), axis.text = element_text(colour = "black"))
-ggsave("subsamp figures/pond_vs_SNS_boxplot.pdf", pond_vs_SNS_boxplot, limitsize = F, width = 10, height = 4)
+ggsave("figures/pond_vs_SNS_boxplot.pdf", pond_vs_SNS_boxplot, limitsize = F, width = 10, height = 4)
 
 pond_vs_N_SNV_boxplot <- ggplot(mag_SNVs, aes(x = Name, y = N_SNVs_Mbp, fill = Time, colour = Time))+
   geom_boxplot(outliers = F)+
@@ -127,7 +132,7 @@ pond_vs_N_SNV_boxplot <- ggplot(mag_SNVs, aes(x = Name, y = N_SNVs_Mbp, fill = T
   labs(x = "", y = "nonsyn polymorphic sites per Mbp")+  
   theme_bw()+
   theme(text = element_text(size = 12), axis.title.y = element_text(m= margin(10, 10, 10, 10)), axis.text = element_text(colour = "black"))
-ggsave("subsamp figures/pond_vs_N_SNV_boxplot.pdf", pond_vs_N_SNV_boxplot, limitsize = F, width = 10, height = 4)
+ggsave("figures/pond_vs_N_SNV_boxplot.pdf", pond_vs_N_SNV_boxplot, limitsize = F, width = 10, height = 4)
 
 pond_vs_N_SNS_boxplot <- ggplot(mag_SNVs, aes(x = Name, y = N_SNSs_Mbp, fill = Time, colour = Time))+
   geom_boxplot(outliers = F)+
@@ -137,7 +142,7 @@ pond_vs_N_SNS_boxplot <- ggplot(mag_SNVs, aes(x = Name, y = N_SNSs_Mbp, fill = T
   labs(x = "", y = "nonsyn fixed substiturions per Mbp")+  
   theme_bw()+
   theme(text = element_text(size = 12), axis.title.y = element_text(m= margin(10, 10, 10, 10)), axis.text = element_text(colour = "black"))
-ggsave("subsamp figures/pond_vs_N_SNS_boxplot.pdf", pond_vs_N_SNS_boxplot, limitsize = F, width = 10, height = 4)
+ggsave("figures/pond_vs_N_SNS_boxplot.pdf", pond_vs_N_SNS_boxplot, limitsize = F, width = 10, height = 4)
 
 # treatment_vs_coverage <- ggplot(mag_SNVs, aes(x = Treatment_Time, y = med_cov, colour = Treatment))+
 #   geom_point(size = 0.5, position = position_jitterdodge(jitter.width = 0.25))+

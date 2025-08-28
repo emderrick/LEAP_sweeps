@@ -73,10 +73,10 @@ identify_enriched_categories <- function(genes,
 }
 
 
-COG_categories <- read.table('refined data files/COG_category_descrip.tsv', header = FALSE, row.names = 1, stringsAsFactors = FALSE, sep = '\t')
+COG_categories <- read.table('data files/COG_category_descrip.tsv', header = FALSE, row.names = 1, stringsAsFactors = FALSE, sep = '\t')
 
 # Read in mapping of which COGs are in which COG category (and convert this to list of COG category mappings to COG gene families).
-COG_gene_to_category <- read.table("refined data files/cog-20.to_category.tsv", header = FALSE, sep = "\t")
+COG_gene_to_category <- read.table("data files/cog-20.to_category.tsv", header = FALSE, sep = "\t")
 COG_category_to_COG <- list()
 for (category in unique(COG_gene_to_category$V2)) {
   COG_category_to_COG[[category]] <- COG_gene_to_category[which(COG_gene_to_category$V2 == category), "V1"]
@@ -84,24 +84,30 @@ for (category in unique(COG_gene_to_category$V2)) {
 
 categories_to_ignore <- c('A', 'B', 'Y', 'Z')
 
-all_background_genes <- read_csv("refined data files/refined_cog_background_genes.csv")
+all_background_genes <- read_csv("data files/cog_background_genes.csv")
 
-significant_genes_df <- read_csv("refined data files/refined_syn_allele_shifts_significant_genes.csv")
-significant_genes <- significant_genes_df[, c("COG_ID")] %>% na.omit()
-significant_genes <- significant_genes[['COG_ID']]
-background_genes_df <- all_background_genes %>% subset(!(gene %in% significant_genes_df$gene))
-background_genes <- background_genes_df[, c("COG_ID")] %>% na.omit()
-background_genes <- background_genes[['COG_ID']] 
+gene_files <- list.files("data files", pattern = "significant_genes.csv", full.names = T)
+
+for(i in 1: length(gene_files)){
+  file_name <- gene_files[i] %>% str_remove("data files/")
+  file_name <- file_name %>% str_remove("_significant_genes.csv")
+
+  significant_genes_df <- read_csv(gene_files[i])
+  significant_genes <- significant_genes_df[, c("COG_ID")] %>% na.omit()
+  significant_genes <- significant_genes[['COG_ID']]
+  background_genes_df <- all_background_genes %>% subset(!(gene %in% significant_genes_df$gene))
+  background_genes <- background_genes_df[, c("COG_ID")] %>% na.omit()
+  background_genes <- background_genes[['COG_ID']] 
+    
+  COG_enrichment_output <- identify_enriched_categories(genes = significant_genes,
+                                                        background = background_genes,
+                                                        gene_to_category_map = COG_category_to_COG,
+                                                        min_category_count = 10, #categories without at least 10 COG gene families in the sig set and background are ignored
+                                                        to_ignore = categories_to_ignore)
+    
   
-COG_enrichment_output <- identify_enriched_categories(genes = significant_genes,
-                                                      background = background_genes,
-                                                      gene_to_category_map = COG_category_to_COG,
-                                                      min_category_count = 10, #categories without at least 10 COG gene families in the sig set and background are ignored
-                                                      to_ignore = categories_to_ignore)
-  
-
-write.csv(COG_enrichment_output, "refined data files/refined_syn_COG_enrichment_T1_MAG_SNVs.csv", row.names = F)
-
+  write.csv(COG_enrichment_output, paste("data files/", file_name, "_COG_enrichment.csv", sep = ""), row.names = F)
+}
 
 #COG_gene_to_pathway <- read.table("refined data files/cog-24.pathways.tsv", header = FALSE, sep = "\t")
 #COG_category_to_COG <- list()

@@ -1,12 +1,12 @@
 library(tidyverse)
 setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 
-arg_files <- list.files("refined data files/refined_MAG_RGI/strict_RGI/", recursive = T, pattern = ".*RGI.txt", full.names = T)
+arg_files <- list.files("data files/refined_MAG_RGI/strict_RGI/", recursive = T, pattern = ".*RGI.txt", full.names = T)
 
 arg_genes <- data.frame()
 for(i in 1:length(arg_files)){
   mag_args <- read_tsv(arg_files[i])
-  mag_args$mag <- arg_files[i] %>% substr(48,58)
+  mag_args$mag <- arg_files[i] %>% substr(40,50)
   arg_genes <- rbind(arg_genes, mag_args)
 }
 
@@ -17,4 +17,4 @@ arg_gene_sum <- pivot_wider(arg_gene_sum, names_from = `Resistance Mechanism`, v
 arg_gene_sum[is.na(arg_gene_sum)] <- 0
 arg_gene_sum$total_hits <- rowSums(arg_gene_sum[, c(2:4)])
 
-write.csv(arg_gene_sum, "refined data files/arg_hits.csv", row.names = F)
+write.csv(arg_gene_sum, "data files/arg_hits.csv", row.names = F)
