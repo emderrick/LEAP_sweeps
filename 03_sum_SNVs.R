@@ -23,14 +23,12 @@ mutation_counts$NS_ratio <- mutation_counts$N / mutation_counts$S
 mutation_counts$total <- rowSums(mutation_counts[, c("I","M","N","S","NA")], na.rm = T)
 mutation_counts <- mutation_counts[, c(1:6,7,10,14,13)]
 mutation_counts <- pivot_wider(mutation_counts, names_from = class, values_from = c(total, NS_ratio, N))
+mutation_counts$total_SNS[is.na(mutation_counts$total_SNS)] <- 0
+mutation_counts$N_SNS[is.na(mutation_counts$N_SNS)] <- 0
 mutation_counts$SNSs_Mbp <- (mutation_counts$total_SNS/ mutation_counts$mag_length) * 10^6
 mutation_counts$SNVs_Mbp <- (mutation_counts$total_SNV / mutation_counts$mag_length) * 10^6
 mutation_counts$N_SNSs_Mbp <- (mutation_counts$N_SNS/ mutation_counts$mag_length) * 10^6
 mutation_counts$N_SNVs_Mbp <- (mutation_counts$N_SNV / mutation_counts$mag_length) * 10^6
-mag_info <- read_csv("data files/T1_mag_info.csv")
-mag_info$Name_Time <- paste(mag_info$Name, mag_info$time, sep = " ")
-mag_info <- mag_info[, c(1,2,9,10)]
-mutation_counts <- full_join(mutation_counts, mag_info)
 mutation_counts$Treatment <- ifelse(grepl("CTRL", mutation_counts$Name_Time), "Control", "GBH")
 mutation_counts$Name <- mutation_counts$Name_Time %>% str_sub(end = -2)
 mutation_counts$Time <- ifelse(grepl("1", mutation_counts$Name_Time), "Day 0", "Day 28")

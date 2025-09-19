@@ -9,7 +9,7 @@ mag_list <- (unique(mag_contigs$mag))
 for(i in 1:length(mag_list)){
   contigs <- subset(mag_contigs, mag == mag_list[i])
   contigs <- contigs[, c(1)]
-  write_tsv(contigs, paste("data files/", mag_list[i], "_contigs.txt", sep = ""), col_names = F)
+  write_tsv(contigs, paste("data files/mag contig lists/", mag_list[i], "_contigs.txt", sep = ""), col_names = F)
 }
 
 sample_names <- read_csv("data files/chapter_1_sample_names.csv")

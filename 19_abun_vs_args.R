@@ -1,72 +1,80 @@
 library(tidyverse)
-library(gghalves)
 library(rstatix)
-library(mgcv)
 library(patchwork)
 
 rel_abun <- read_csv("data files/MAG_avg_abun.csv")
 rel_abun$avg_change <- rel_abun$Day_28_avg - rel_abun$Day_0_avg
 
-all_efflux_abun <- ggplot(rel_abun, aes(x = as.factor(`antibiotic efflux`), y = log10(Day_28_avg), fill = Treatment))+
-  geom_half_violin(side = "r")+
-  geom_half_boxplot(side = "l")+
-  scale_fill_manual(values = c("darkgreen", "darkmagenta"))+
+all_efflux_abun <- ggplot(rel_abun, aes(x = as.factor(`antibiotic efflux`), y = log10(Day_28_avg)))+
+  geom_boxplot(aes(colour = Treatment), outliers = F)+
+  geom_point(aes(colour = Treatment), position = position_jitterdodge(jitter.width = 0.2), size = 0.5)+
+  scale_colour_manual(values = c("darkgreen", "darkmagenta"))+
   labs(x = " # Efflux ARGs", y = "log10(AVG MAG Abundance Day 28)")+
   theme_classic()+
-  theme(axis.text = element_text(size = 12, colour = "black"),
-        axis.title = element_text(size = 12, colour = "black"),
-        text = element_text(size = 12, colour = "black"),
+  theme(axis.text = element_text(size = 10, colour = "black"),
+        axis.title = element_text(size = 10, colour = "black"),
         legend.position = "none")
-ggsave("figures/all_efflux_rel_abun.pdf", all_efflux_abun, limitsize = F, width = 5, height = 4)
+ggsave("figures/all_efflux_rel_abun.pdf", all_efflux_abun, units = "cm", width = 17, height = 7)
 
 all_epsps_abun <- ggplot(rel_abun, aes(x = EPSPS_allele, y = log10(Day_28_avg)))+
-  geom_half_violin(side = "r")+
-  geom_half_boxplot(side = "l")+
-  scale_fill_manual(values = c("darkgreen", "darkmagenta"))+
+  geom_boxplot(aes(colour = Treatment), outliers = F)+
+  geom_point(aes(colour = Treatment), position = position_jitterdodge(jitter.width = 0.2), size = 0.5)+
+  scale_colour_manual(values = c("darkgreen", "darkmagenta"))+
   labs(x = "", y = "")+
   theme_classic()+
-  theme(axis.text = element_text(size = 12, colour = "black"),
-        axis.title = element_text(size = 12, colour = "black"),
-        text = element_text(size = 12, colour = "black"))
+  theme(axis.text = element_text(size = 10, colour = "black"),
+        axis.title = element_text(size = 10, colour = "black"))
 
-ggsave("figures/all_epsps_rel_abun.pdf", all_epsps_abun, limitsize = F, width = 3.5, height = 4)
+ggsave("figures/all_epsps_rel_abun.pdf", all_epsps_abun, units = "cm", width = 17, height = 7)
 
 all_efflux_epsps <- all_efflux_abun + all_epsps_abun
-ggsave("figures/all_efflux_epsps_abun.pdf", all_efflux_epsps, limitsize = F, width = 8.5, height = 4)
+ggsave("figures/all_efflux_epsps_abun.pdf", all_efflux_epsps, units = "cm", width = 17, height = 7)
+
+rel_abun$EPSPS_releveled <- factor(rel_abun$EPSPS_allele, levels = c("Sensitive","Unclassified","Resistant"))
+levels(rel_abun$EPSPS_releveled)
+
+rel_abun$Treatment_releveled <- factor(rel_abun$Treatment, levels = c("Control", "GBH"))
+levels(rel_abun$Treatment_releveled)
+
+epsps_abun_stats <- glm(Day_28_avg ~ Treatment_releveled * EPSPS_releveled, data = rel_abun)
+summary(epsps_abun_stats)
+
+efflux_abun_stats <- glm(Day_28_avg ~ Treatment * `antibiotic efflux`, data = rel_abun)
+summary(efflux_abun_stats)
 
 epsps_efflux_abun_stats <- glm(Day_28_avg ~ Treatment + EPSPS_allele + `antibiotic efflux`, data = rel_abun)
 summary(epsps_efflux_abun_stats)
 
+
 ### change in abundance
 
 all_efflux_change <- ggplot(rel_abun, aes(x = as.factor(`antibiotic efflux`), y = avg_change))+
-  geom_half_violin(side = "r")+
-  geom_half_boxplot(side = "l")+
-  scale_fill_manual(values = c("darkgreen", "darkmagenta"))+
+  geom_boxplot(aes(colour = Treatment), outliers = F)+
+  geom_point(aes(colour = Treatment), position = position_jitterdodge(jitter.width = 0.2), size = 0.5)+
+  scale_colour_manual(values = c("darkgreen", "darkmagenta"))+
   labs(x = " # Efflux ARGs", y = "MAG abundance change")+
   theme_classic()+
-  theme(axis.text = element_text(size = 12, colour = "black"),
-        axis.title = element_text(size = 12, colour = "black"),
-        text = element_text(size = 12, colour = "black"),
-        legend.position = "none")
-ggsave("figures/all_efflux_change.pdf", all_efflux_change, limitsize = F, width = 5, height = 4)
+  theme(axis.text = element_text(size = 10, colour = "black"),
+        axis.title = element_text(size = 10, colour = "black"),
+        legend.position = "none"))
+ggsave("figures/all_efflux_change.pdf", all_efflux_change, units = "cm", width = 17, height = 7)
 
 all_epsps_change <- ggplot(rel_abun, aes(x = EPSPS_allele, y = avg_change))+
-  geom_half_violin(side = "r")+
-  geom_half_boxplot(side = "l")+
-  scale_fill_manual(values = c("darkgreen", "darkmagenta"))+
+  geom_boxplot(aes(colour = Treatment), outliers = F)+
+  geom_point(aes(colour = Treatment), position = position_jitterdodge(jitter.width = 0.2), size = 0.5)+
+  scale_colour_manual(values = c("darkgreen", "darkmagenta"))+
   labs(x = "", y = "")+
   theme_classic()+
-  theme(axis.text = element_text(size = 12, colour = "black"),
-        axis.title = element_text(size = 12, colour = "black"),
-        text = element_text(size = 12, colour = "black"))
-ggsave("figures/all_epsps_change.pdf", all_epsps_change, limitsize = F, width = 3.5, height = 4)
+  theme(axis.text = element_text(size = 10, colour = "black"),
+        axis.title = element_text(size = 10, colour = "black"))
+ggsave("figures/all_epsps_change.pdf", all_epsps_change, units = "cm", width = 17, height = 7)
 
 all_efflux_epsps_change <- all_efflux_change + all_epsps_change
-ggsave("figures/all_efflux_epsps_change.pdf", all_efflux_epsps_change, limitsize = F, width = 8.5, height = 4)
+ggsave("figures/all_efflux_epsps_change.pdf", all_efflux_epsps_change, units = "cm", width = 17, height = 7)
 
-epsps_efflux_change_stats <- glm(avg_change ~ Treatment + EPSPS_allele + `antibiotic efflux`, data = rel_abun)
+epsps_efflux_change_stats <- glm(avg_change ~ Treatment * EPSPS_allele * `antibiotic efflux`, data = rel_abun)
 summary(epsps_efflux_change_stats)
+
 #plot(epsps_efflux_change_stats)
 
 

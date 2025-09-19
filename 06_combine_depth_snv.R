@@ -3,7 +3,7 @@ library(dplyr)
 
 setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 
-depth_files <- list.files("data files/refined_mag_depth/", recursive = T, pattern = "depth_info.csv", full.names = T)
+depth_files <- list.files("data files/refined_mag_depth", recursive = T, pattern = "depth_info.csv", full.names = T)
 mag_scaffold_info <- read_tsv("data files/T1_refined.stb", col_names = F)
 colnames(mag_scaffold_info) <-  c("scaffold", "mag")
 mag_SNVs <- read_csv("data files/good_refined_MAG_SNVs.csv")
@@ -11,7 +11,7 @@ mag_SNVs <- read_csv("data files/good_refined_MAG_SNVs.csv")
 all_depth <- data_frame()
 for(i in 1:length(depth_files)){
   sample_depth <- read_csv(depth_files[i])
-  sample_depth$Sample <- depth_files[i] %>% substr(31,42)
+  sample_depth$Sample <- depth_files[i] %>% substr(30,41)
   sample_depth <- left_join(sample_depth, mag_scaffold_info)
   sample_depth$position <- str_pad(sample_depth$position, 7, pad = "0")
   sample_depth$mag <- sample_depth$mag %>% str_remove(".fa")
