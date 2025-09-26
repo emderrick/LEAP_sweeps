@@ -365,11 +365,13 @@ check quality and dereplicate
 
 ```bash
 dRep dereplicate refined_T1_MAGs -g refined_MAGs/*.fa -comp 50 -con 10 --checkM_method lineage_wf --warn_aln 0.50 -p 128
+checkm lineage_wf refined_good_MAGs/ refined_mags_checkM/ -t 64 -x fa
 ```
 
 map to refined MAGs
 
 ```bash
+cd refined_good_MAGs
 cat *.fa > T1_refined.fa
 bowtie2-build T1_refined.fa T1_refined --threads 128
 
