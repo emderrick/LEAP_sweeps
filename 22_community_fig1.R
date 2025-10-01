@@ -19,8 +19,6 @@ T1_species_beta <- T1_species_beta[, c(2:9)]
 T1_species_beta <- t(T1_species_beta)
 T1_species_bray <- as.dist(T1_species_beta)
 
-adonis2(T1_species_bray ~ Treatment, data = T1_samples, permutations = 9999)
-
 T1_species_pcoa <- pcoa(T1_species_bray, correction="none", rn=NULL)
 T1_relative_eig_species <- T1_species_pcoa$values$Relative_eig
 T1_species_pcoa_coords <- as.data.frame(T1_species_pcoa$vectors)
@@ -37,7 +35,7 @@ T1_species <- ggplot(T1_species_pcoa_coords, aes(x = Axis.1, y = Axis.2, colour 
   ylim(-0.35, 0.35)+
   theme_classic()+
   theme(title = element_text(size = 10),
-        axis.text = element_text(size = 12, colour = "black"),
+        axis.text = element_text(size = 10, colour = "black"),
         axis.title = element_text(size = 12, colour = "black"),
         legend.text = element_text(size = 12, colour = "black"),
         legend.title = element_text(size = 12, colour = "black"))
@@ -48,8 +46,6 @@ rownames(T2_species_beta) <- T2_species_beta$x
 T2_species_beta <- T2_species_beta[, c(2:9)]
 T2_species_beta <- t(T2_species_beta)
 T2_species_bray <- as.dist(T2_species_beta)
-
-adonis2(T2_species_bray ~ Treatment, data = T2_samples, permutations = 9999)
 
 T2_species_pcoa <- pcoa(T2_species_bray, correction="none", rn=NULL)
 T2_relative_eig_species <- T2_species_pcoa$values$Relative_eig
@@ -67,7 +63,7 @@ T2_species <- ggplot(T2_species_pcoa_coords, aes(x = Axis.1, y = Axis.2, colour 
   ylim(-0.35, 0.35)+
   theme_classic()+
   theme(title = element_text(size = 10),
-        axis.text = element_text(size = 12, colour = "black"),
+        axis.text = element_text(size = 10, colour = "black"),
         axis.title = element_text(size = 12, colour = "black"),
         legend.text = element_text(size = 12, colour = "black"),
         legend.title = element_text(size = 12, colour = "black"))
@@ -97,7 +93,7 @@ mag_community <- ggplot(pond_community, aes(x = Treatment, group = Treatment_Tim
   scale_colour_manual(values = c("darkgreen", "#0B4F02", "darkmagenta", "#5E0069"))+
   theme_classic()+
   theme(strip.text.x = element_text(size = 12),
-        axis.text = element_text(size = 12, colour = "black"),
+        axis.text = element_text(size = 10, colour = "black"),
         axis.title = element_text(size = 12, colour = "black"),
         plot.margin = unit(c(0.5, 0.25, 0.5, 0.25), "cm"),
         legend.margin=margin(-10, 0, 0, 0),
@@ -108,12 +104,12 @@ mag_community <- ggplot(pond_community, aes(x = Treatment, group = Treatment_Tim
   facet_wrap(~Time)
 ggsave("figures/mag_community.pdf", mag_community, units = "cm", width = 17, height = 7)
 
-mags_glm <- glmer(n ~ Treatment + Time + Treatment * Time + (1|Name), family = poisson, data = pond_community)
-summary(mags_glm)
+mags_glmm <- glmer(n ~ Treatment * Time + (1|Name), family = poisson, data = pond_community)
+summary(mags_glmm)
 
 #figure 1
 mags_pcoa <- ggarrange(mag_community, ggarrange(T1_species, T2_species, common.legend = TRUE, legend = "none"),
-                       nrow = 2, widths = c(2, 1), common.legend = F, legend = "bottom", labels = c("A", "B"))
+                       nrow = 2, heights = c(1.15, 1), common.legend = F, legend = "bottom", labels = c("A", "B"))
 ggsave("figures/mags_pcoa.pdf", mags_pcoa, units = "cm", width = 17, height = 16)
 
 

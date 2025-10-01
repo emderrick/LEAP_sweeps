@@ -2,8 +2,7 @@ library(tidyverse)
 
 setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 
-mag_list <- c("MAG_00097_1", "MAG_00103_1", "MAG_00110_1", "MAG_00179_1",
-              "MAG_00194_1", "MAG_00197_1", "MAG_00201_1", "MAG_00674_1")
+mag_list <- c("MAG_00097_1", "MAG_00103_1", "MAG_00110_1", "MAG_00179_1","MAG_00194_1", "MAG_00197_1", "MAG_00201_1", "MAG_00674_1")
 
 sample_names <- read_csv("data files/chapter_1_sample_names.csv")
 mag_scaffold_info <- read_tsv("data files/T1_refined.stb", col_names = F)
@@ -25,7 +24,7 @@ all_genes$Name_Time <- paste(all_genes$Time, all_genes$Name, sep = " ")
 all_genes <- all_genes[, c(24,1,2,26,3:5,8:10,14,17)]
 all_genes <- all_genes %>% rename("gene_coverage" = "coverage")
 all_genes <- all_genes %>% rename("gene_breadth" = "breadth")
-write.csv(all_genes, "T1_MAG_genes.csv", row.names = F)
+write.csv(all_genes, "data files/T1_MAG_genes.csv", row.names = F)
 
 mag_genes <- subset(all_genes, mag %in% mag_list)
 mag_info <- read_csv("data files/T1_mag_info.csv")
@@ -59,23 +58,29 @@ mag_gene_change$GBH_CTRL_change_abs <- abs(mag_gene_change$GBH_CTRL_change)
 gene_loss_GBH <- subset(mag_gene_change, CTRL_0 >= 0.6 & GBH_0 >= 0.6 & GBH_28 <= 0.1 & CTRL_28 >= 0.6)
 write.csv(gene_loss_GBH, "data files/GBH_gene_loss.csv", row.names = F)
 
-gene_gain_GBH <- subset(mag_gene_change, GBH_change >= 0.5 & GBH_CTRL_change >= 0.5)
+gene_gain_GBH <- subset(mag_gene_change, GBH_change >= 0.5 & CTRL_change < 0)
 write.csv(gene_gain_GBH, "data files/GBH_gene_gain.csv", row.names = F)
 
 gene_loss_CTRL <- subset(mag_gene_change, CTRL_0 >= 0.6 & GBH_0 >= 0.6 & GBH_28 >= 0.6 & CTRL_28 <= 0.1)
 write.csv(gene_loss_CTRL, "data files/CTRL_gene_loss.csv", row.names = F)
 
-gene_plot <- pivot_longer(gene_loss_GBH, cols = c(3:6), values_to = "avg_cov", names_to = "Treatment_Time")
-gene_plot$Treatment <- gene_plot$Treatment_Time %>% substr(1,4)
-gene_plot$Treatment <- gene_plot$Treatment %>% str_remove("_")
-gene_plot$Time <- gene_plot$Treatment_Time %>% str_sub(-2) %>% str_remove("_")
-gene_plot$Time <- paste("Day ", gene_plot$Time, sep = "")
-gene_plot$gene_Treatment <- paste(gene_plot$gene, gene_plot$Treatment)
+eggnog_genes <- read_tsv("data files/eggnog_genes.emapper.annotations", skip = 4)
+colnames(eggnog_genes)[1]="gene"
+eggnog_genes$COG_ID<- str_extract(eggnog_genes$eggNOG_OGs, "COG\\d{4}")
+eggnog_genes <- eggnog_genes[, c("gene", "COG_ID", "Description", "Preferred_name")]
+eggnog_genes$scaffold <- eggnog_genes$gene %>% str_extract("[^_]*_[^_]*")
+background_cog <- subset(eggnog_genes, gene %in% mag_genes_wide$gene)
+background_cog <- subset(background_cog, is.na(COG_ID) == F)
+write.csv(background_cog, "data files/cog_background_copy_number_genes.csv", row.names = F)
 
-ggplot(gene_plot, aes(x = Time, y = avg_cov, colour = Treatment))+
-  geom_line(aes(group = gene_Treatment))+
-  #geom_smooth(aes(group = Treatment), method = "lm")+
-  scale_colour_manual(values = c("darkgreen", "darkmagenta"))+
-  scale_x_discrete(expand = c(0, 0))
+gene_loss_GBH <- left_join(gene_loss_GBH, background_cog) 
+write.csv(gene_loss_GBH, "data files/GBH_gene_loss_significant_genes.csv", row.names = F)
 
+gene_gain_GBH <- left_join(gene_gain_GBH, background_cog) 
+write.csv(gene_gain_GBH, "data files/GBH_gene_gain_significant_genes.csv", row.names = F)
+
+gene_loss_CTRL <- left_join(gene_loss_CTRL, background_cog) 
+write.csv(gene_loss_CTRL, "data files/CTRL_gene_loss_significant_genes.csv", row.names = F)
+
+sum_gain <- gene_gain_GBH %>% group_by(mag) %>% count()
 

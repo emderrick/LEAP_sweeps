@@ -84,34 +84,28 @@ for (category in unique(COG_gene_to_category$V2)) {
 
 categories_to_ignore <- c('A', 'B', 'Y', 'Z')
 
-all_background_genes <- read_csv("data files/cog_background_genes.csv")
+all_background_genes <- read_csv("data files/cog_background_snv_freq_genes.csv")
 
-gene_files <- list.files("data files", pattern = "significant_genes.csv", full.names = T)
+gene_files <- list.files("data files", pattern = "genes_0", full.names = T)
 
 for(i in 1: length(gene_files)){
   file_name <- gene_files[i] %>% str_remove("data files/")
-  file_name <- file_name %>% str_remove("_significant_genes.csv")
-
+  file_name <- file_name %>% str_remove("_significant_genes")
+  file_name <- file_name %>% str_remove(".csv")
+  
   significant_genes_df <- read_csv(gene_files[i])
   significant_genes <- significant_genes_df[, c("COG_ID")] %>% na.omit()
   significant_genes <- significant_genes[['COG_ID']]
   background_genes_df <- all_background_genes %>% subset(!(gene %in% significant_genes_df$gene))
   background_genes <- background_genes_df[, c("COG_ID")] %>% na.omit()
   background_genes <- background_genes[['COG_ID']] 
-    
+  
   COG_enrichment_output <- identify_enriched_categories(genes = significant_genes,
                                                         background = background_genes,
                                                         gene_to_category_map = COG_category_to_COG,
                                                         min_category_count = 10, #categories without at least 10 COG gene families in the sig set and background are ignored
                                                         to_ignore = categories_to_ignore)
-    
+  
   
   write.csv(COG_enrichment_output, paste("data files/", file_name, "_COG_enrichment.csv", sep = ""), row.names = F)
 }
-
-#COG_gene_to_pathway <- read.table("refined data files/cog-24.pathways.tsv", header = FALSE, sep = "\t")
-#COG_category_to_COG <- list()
-#for (category in unique(COG_gene_to_category$V2)) {
-#  COG_category_to_COG[[category]] <- COG_gene_to_category[which(COG_gene_to_category$V2 == category), "V1"]
-#}
-

@@ -25,7 +25,7 @@ CTRL_gene_loss <- read_csv("data files/CTRL_gene_loss.csv")
 CTRL_gene_loss <- left_join(CTRL_gene_loss, background_cog) 
 write.csv(CTRL_gene_loss, "data files/CTRL_gene_loss_significant_genes.csv", row.names = F)
 
-snv_frequency <- read_csv("data files/snv_frequency_changes.csv")
+snv_frequency <- read_csv("data files/snv_frequency_changes_07.csv")
 
 sig_b_changes <- subset(snv_frequency, case == "case_b")
 sig_b_nonsyn_changes <- subset(sig_b_changes, mutation_type == "N")
@@ -38,13 +38,13 @@ sig_b_nonsyn_sum <- sig_b_nonsyn_changes %>% group_by(mag, gene) %>% count()
 sig_b_syn_sum <- sig_b_syn_changes %>% group_by(mag, gene) %>% count()
 
 significant_b_genes <- left_join(sig_b_snvs_sum, background_cog) 
-write.csv(significant_b_genes, "data files/allele_shifts_b_significant_genes.csv", row.names = F)
+write.csv(significant_b_genes, "data files/allele_shifts_b_significant_genes_07.csv", row.names = F)
 
 significant_b_nonsyn_genes <- left_join(sig_b_nonsyn_sum, background_cog) 
-write.csv(significant_b_nonsyn_genes, "data files/nonsyn_allele_shifts_b_significant_genes.csv", row.names = F)
+write.csv(significant_b_nonsyn_genes, "data files/nonsyn_allele_shifts_b_significant_genes_07.csv", row.names = F)
 
 significant_b_syn_genes <- left_join(sig_b_syn_sum, background_cog) 
-write.csv(significant_b_syn_genes, "data files/syn_allele_shifts_b_significant_genes.csv", row.names = F)
+write.csv(significant_b_syn_genes, "data files/syn_allele_shifts_b_significant_genes_07.csv", row.names = F)
 
 sig_a_changes <- subset(snv_frequency, case == "case_a")
 sig_a_nonsyn_changes <- subset(sig_a_changes, mutation_type == "N")
@@ -57,13 +57,13 @@ sig_a_nonsyn_sum <- sig_a_nonsyn_changes %>% group_by(mag, gene) %>% count()
 sig_a_syn_sum <- sig_a_syn_changes %>% group_by(mag, gene) %>% count()
 
 significant_a_genes <- left_join(sig_a_snvs_sum, background_cog) 
-write.csv(significant_a_genes, "data files/allele_shifts_a_significant_genes.csv", row.names = F)
+write.csv(significant_a_genes, "data files/allele_shifts_a_significant_genes_07.csv", row.names = F)
 
 significant_a_nonsyn_genes <- left_join(sig_a_nonsyn_sum, background_cog) 
-write.csv(significant_a_nonsyn_genes, "data files/nonsyn_allele_shifts_a_significant_genes.csv", row.names = F)
+write.csv(significant_a_nonsyn_genes, "data files/nonsyn_allele_shifts_a_significant_genes_07.csv", row.names = F)
 
 significant_a_syn_genes <- left_join(sig_a_syn_sum, background_cog) 
-write.csv(significant_a_syn_genes, "data files/syn_allele_shifts_a_significant_genes.csv", row.names = F)
+write.csv(significant_a_syn_genes, "data files/syn_allele_shifts_a_significant_genes_07.csv", row.names = F)
 
 
 

@@ -20,6 +20,7 @@ all_mags <- all_mags %>% rename("mag" = "genome")
 all_mags <- all_mags %>% rename("mag_coverage" = "coverage")
 all_mags <- all_mags %>% rename("mag_breadth" = "breadth")
 all_mags$mag <- all_mags$mag %>% str_sub(end = -4)
+write.csv(all_mags, "data files/all_mag_info.csv", row.names = F)
 mapping_info <- all_mags[, c(1:3,5,26,27,30,31)]
 write.csv(mapping_info, "data files/mag_mapping_info.csv", row.names = F)
 

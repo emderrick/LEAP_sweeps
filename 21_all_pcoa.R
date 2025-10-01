@@ -13,8 +13,42 @@ sample_info <- subset(sample_info, !(Name == "CTRL E"))
 T1_samples <- subset(sample_info, Time == "Day 0")
 T2_samples <- subset(sample_info, Time == "Day 28")
 
-
 day_0_beta_div_files <- list.files("data files", pattern = "day_0.txt", full.names = T)
+day_28_beta_div_files <- list.files("data files", pattern = "day_28.txt", full.names = T)
+
+# pvals <- data.frame()
+# for(i in 1: length(day_0_beta_div_files)){
+#   kraken_beta <- read_tsv(day_0_beta_div_files[i], skip = 8)
+#   rownames(kraken_beta) <- kraken_beta$x
+#   kraken_beta  <- kraken_beta[, c(2:9)]
+#   kraken_beta  <- t(kraken_beta)
+#   kraken_bray <- as.dist(kraken_beta)
+#   permanova <- adonis2(kraken_bray ~ Treatment, data = T1_samples, permutations = 1000)
+#   level <- day_0_beta_div_files[i] %>% str_remove("data files/")
+#   level <- level %>% str_remove("beta_div_")
+#   level <- level %>% str_remove(".txt")
+#   result <- c(level, permanova$R2[1], permanova$`Pr(>F)`[1])
+#   pvals <- rbind(pvals, result)
+# }  
+# 
+# for(i in 1: length(day_28_beta_div_files)){
+#   kraken_beta <- read_tsv(day_28_beta_div_files[i], skip = 8)
+#   rownames(kraken_beta) <- kraken_beta$x
+#   kraken_beta  <- kraken_beta[, c(2:9)]
+#   kraken_beta  <- t(kraken_beta)
+#   kraken_bray <- as.dist(kraken_beta)
+#   permanova <- adonis2(kraken_bray ~ Treatment, data = T2_samples, permutations = 1000)
+#   level <- day_28_beta_div_files[i] %>% str_remove("data files/")
+#   level <- level %>% str_remove("beta_div_")
+#   level <- level %>% str_remove(".txt")
+#   result <- c(level, permanova$R2[1], permanova$`Pr(>F)`[1])
+#   pvals <- rbind(pvals, result)
+#   
+# }
+# 
+# colnames(pvals) <- c("Level", "R2", "p_value")
+# pvals$padj <- p.adjust(pvals$p_value, method="BH")
+# write.csv(pvals, "data files/permanovas.csv", row.names = F)
 
 for(i in 1: length(day_0_beta_div_files)){
   level <- day_0_beta_div_files[i] %>% str_remove("data files/")
@@ -50,7 +84,6 @@ for(i in 1: length(day_0_beta_div_files)){
   ggsave(paste("figures/beta_div_pcoa_", level, "_day_0.pdf", sep = ""), pcoa_plot, limitsize = F, width = 6, height = 4)
 }
 
-day_28_beta_div_files <- list.files("data files", pattern = "day_28.txt", full.names = T)
 
 for(i in 1: length(day_28_beta_div_files)){
   level <- day_28_beta_div_files[i] %>% str_remove("data files/")
@@ -85,26 +118,3 @@ for(i in 1: length(day_28_beta_div_files)){
   
   ggsave(paste("figures/beta_div_pcoa_", level, "_day_28.pdf", sep = ""), pcoa_plot, limitsize = F, width = 6, height = 4)
 }
-
-
-for(i in 1: length(day_0_beta_div_files)){
-  kraken_beta <- read_tsv(day_0_beta_div_files[i], skip = 8)
-  rownames(kraken_beta) <- kraken_beta$x
-  kraken_beta  <- kraken_beta[, c(2:9)]
-  kraken_beta  <- t(kraken_beta)
-  kraken_bray <- as.dist(kraken_beta)
-  print(day_0_beta_div_files[i])
-  print(adonis2(kraken_bray ~ Treatment, data = T1_samples, permutations = 9999))
-}  
-
-
-for(i in 1: length(day_28_beta_div_files)){
-  kraken_beta <- read_tsv(day_28_beta_div_files[i], skip = 8)
-  rownames(kraken_beta) <- kraken_beta$x
-  kraken_beta  <- kraken_beta[, c(2:9)]
-  kraken_beta  <- t(kraken_beta)
-  kraken_bray <- as.dist(kraken_beta)
-  print(day_28_beta_div_files[i])
-  print(adonis2(kraken_bray ~ Treatment, data = T2_samples, permutations = 9999))
-} 
-
