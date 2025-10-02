@@ -478,7 +478,7 @@ parallel -j 18 --plus 'seqtk sample -s100 {} 87942340 | gzip > {/R2.fastq.gz/sub
 ```
 
 
-#### run kraken with the QC reads
+#### run kraken
 
 ```bash
 #!/usr/bin/bash
@@ -555,11 +555,20 @@ python /mfs/ederrick/miniconda3/envs/kraken2/bin/beta_diversity.py -i *phylum.br
 
 #### calculate relative abundance of MAGs
 
+remap subsampled reads
+
+```
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate bowtie2
+parallel -j 6 --plus 'bowtie2 -x T1_refined -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --threads 24 | samtools sort -o {/R1.fastq.gz/sub_coverM.bam} --write-index -@ 24' ::: *sub_R1.fastq.gz
+```
+
 with coverM
 
 ```bash
 conda activate coverM
-coverm genome --bam-files *.bam --genome-fasta-directory refined_good_MAGs --min-read-percent-identity 0.95 -m relative_abundance mean covered_bases count reads_per_base rpkm -o T1_refined_coverM.tsv --output-format sparse --min-covered-fraction 0 -tmx fa -t 64
+coverm genome --bam-files *sub_coverM.bam --genome-fasta-directory refined_good_MAGs --min-read-percent-identity 0.95 -m relative_abundance mean covered_bases count reads_per_base rpkm -o T1_refined_sub_coverM.tsv --output-format sparse --min-covered-fraction 0 -tmx fa -t 64
 ```
 
 
