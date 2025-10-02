@@ -146,18 +146,6 @@ conda activate instrain
 parallel -j 18 --plus 'inStrain profile {} T1_50_MAGs.fa -o {/P_T1_50_MAGs.bam/T1_95_inStrain} -p 12 -g T1_50_MAG_genes.fna -s T1_50_MAGs.stb  --min_read_ani 0.92 --min_mapq 1' ::: *T1_50_MAGs.bam
 ```
 
-#### annotate genes with eggnog to get COG categories
-
-```bash
-emapper.py -m diamond --itype CDS -i T1_50_MAG_genes.fna -o eggnog_genes --output_dir /mfs/ederrick/chapter_1/06_inStrain/T1_50_inStrain/ --cpu 72
-```
-
-#### also annotate with bakta?
-
-```bash
-for f in *.fa; do bakta --db /mfs/ederrick/db $f ${f%*.fa}_bakta --threads 8; done
-```
-
 ### Try with adding in Timepoint 3 MAGs
 
 ```bash
@@ -293,20 +281,6 @@ conda activate instrain
 
 parallel -j 6 --plus 'inStrain profile {} nonred_T1_T3.fa -o {/.bam/_inStrain} -p 24 -g nonred_T1_T3_genes.fna -s nonred_T1_T3_MAGs.stb --min_read_ani 0.92 --min_mapq 2 --min_genome_coverage 
 1' ::: *nonred_T1_T3.bam
-```
-
-get depth of each position
-
-```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate instrain
-
-parallel -j 18 'samtools depth -a -Q 1 LEAP_META_{}_P_nonred_T1_T3.bam -o LEAP_META_{}_nonred_depth.txt' ::: {01..18}
-```
-
-```bash
-Rscript get_depth.R
 ```
 
 ### MAGs kind of suck. run anvi'o pipeline to manually check and refine MAGs
@@ -450,7 +424,7 @@ run eggnog
 emapper.py -m diamond --itype CDS -i T1_refined_genes.fna -o eggnog_genes --output_dir /mfs/ederrick/chapter_1/09_anvio_binning/ --cpu 72
 ```
 
-also annotate with bakta?
+also annotate with bakta
 
 ```bash
 parallel -j 24 --plus 'bakta --db /mfs/ederrick/db {} -o {/.fa/_bakta} --threads 8' ::: *.fa
@@ -486,81 +460,34 @@ parallel -j 12 --plus 'rgi main -i {} -n 8 --low_quality --clean -o {/.fa/_RGI}'
 parallel -j 12 --plus 'rgi main -i {} -n 8 --low_quality --clean --include_loose -o {/.fa/_loose_RGI}' ::: *.fa
 ```
 
-#### calculate relative abundance of MAGs
-
-with coverM
-
-```bash
-conda activate coverM
-coverm genome --bam-files *.bam --genome-fasta-directory refined_good_MAGs --min-read-percent-identity 0.95 -m relative_abundance mean covered_bases count reads_per_base rpkm -o T1_refined_coverM.tsv --output-format sparse --min-covered-fraction 0 -tmx fa -t 64
-```
-
-with inStrain but profile all MAGs regardless of coverage
-
-```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate instrain
-
-parallel -j 18 --plus 'inStrain profile {} T1_refined.fa -o {/P_T1_refined.bam/T1_refined_all_inStrain} -p 12 -g T1_refined_genes.fna -s T1_refined.stb  --min_read_ani 0.95 --min_mapq 1' ::: *T1_refined.bam
-```
-
 ### community composition of ponds
 
-#### use reads with stricter filtering. Subsample first.
+#### Subsample first.
 
 find lowest read depth
 
 ```bash
-seqkit stats -j 18 *.gz -a -T > QC_read_stats.tsv
+seqkit stats -j 18 *.gz -a -T > paired_read_stats.tsv
 ```
 
 subsample
 
 ```bash
-parallel -j 18 --plus 'seqtk sample -s100 {} 68107586 | gzip > {/R1.fastq.gz/sub_R1.fastq.gz}' ::: *QC_R1.fastq.gz
-parallel -j 18 --plus 'seqtk sample -s100 {} 68107586 | gzip > {/R2.fastq.gz/sub_R2.fastq.gz}' ::: *QC_R2.fastq.gz
-parallel -j 18 --plus 'seqtk sample -s100 {} 20194431 | gzip > {/R1.fastq.gz/sub_R1.fastq.gz}' ::: *UP_R1.fastq.gz
+parallel -j 18 --plus 'seqtk sample -s100 {} 87942340 | gzip > {/R1.fastq.gz/sub_R1.fastq.gz}' ::: *P_R1.fastq.gz
+parallel -j 18 --plus 'seqtk sample -s100 {} 87942340 | gzip > {/R2.fastq.gz/sub_R2.fastq.gz}' ::: *P_R2.fastq.gz
 ```
 
-#### run metaphlan with paired reads and unpaired
 
-```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate metaphlan
-
-parallel -j 18 --plus 'metaphlan {},{/R1_fastq.gz/R2.fastq.gz},{/QC_sub_R1.fastq.gz/UP_sub_R1.fastq.gz} --bowtie2out {/_R1.fastq.gz/.bowtie2.bz2} --nproc 12 --input_type fastq --unclassified_estimation -o {/R1.fastq.gz/metaphlan.txt}' ::: *QC_sub_R1.fastq.gz
-```
-
-```bash
-merge_metaphlan_tables.py *metaphlan.txt > QC_merged_metaphlan_abundance_table.tsv
-```
-
-see without unclassified 
-
-```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate metaphlan
-
-parallel -j 6 --plus 'metaphlan {},{/R1_fastq.gz/R2.fastq.gz},{/QC_sub_R1.fastq.gz/UP_sub_R1.fastq.gz} --bowtie2out {/R1.fastq.gz/nounclass.bowtie2.bz2} --nproc 12 --input_type fastq -o {/R1.fastq.gz/no_unclass_metaphlan.txt}' ::: *QC_sub_R1.fastq.gz
-```
-
-```bash
-merge_metaphlan_tables.py *metaphlan.txt > QC_merged_metaphlan_abundance_table.tsv
-```
-
-#### one last try kraken with the QC reads. Does not support the SE library with the paired.
+#### run kraken with the QC reads
 
 ```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate kraken2
 
-for f in *QC_sub_R1.fastq.gz
+for f in *P_R1.fastq.gz
 do
-kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --confidence 0.1 --threads 72 --output ${f%*R1.fastq.gz}kraken_output.txt --report ${f%*R1.fastq.gz}kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
+kraken2 --db /mfs/ederrick/k2_standard_db --threads 64 --output ${f%*R1.fastq.gz}P_sub_kraken_output.txt --report ${f%*R1.fastq.gz}P_sub_kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
 done
 ```
 
@@ -571,7 +498,18 @@ extract only bacterial reads
 source /mfs/ederrick/.bash_profile
 conda activate kraken2
 
-parallel -j 6 'python /mfs/ederrick/miniconda3/envs/kraken2/bin/extract_kraken_reads.py -k LEAP_META_{}_QC_sub_kraken_output.txt -r LEAP_META_{}_QC_sub_kraken_report.txt -s LEAP_META_{}_QC_sub_R1.fastq.gz -s2 LEAP_META_{}_QC_sub_R2.fastq.gz -o LEAP_META_{}_QC_bac_R1.fastq.gz -o2 LEAP_META_{}_QC_bac_R2.fastq.gz -t 2 --include-children' ::: {01..18}
+parallel -j 18 'python /mfs/ederrick/miniconda3/envs/kraken2/bin/extract_kraken_reads.py -k LEAP_META_{}_P_sub_kraken_output.txt -r LEAP_META_{}_P_sub_kraken_report.txt -s LEAP_META_{}_P_sub_R1.fastq.gz -s2 LEAP_META_{}_P_sub_R2.fastq.gz -o LEAP_META_{}_bac_R1.fastq.gz -o2 LEAP_META_{}_bac_R2.fastq.gz -t 2 --include-children' ::: {01..18}
+```
+
+```bash
+#!/usr/bin/bash
+source /mfs/ederrick/.bash_profile
+conda activate kraken2
+
+for f in *bac_R1.fastq.gz
+do
+kraken2 --db /mfs/ederrick/k2_standard_db --threads 64 --output ${f%*R1.fastq.gz}kraken_output.txt --report ${f%*R1.fastq.gz}kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
+done
 ```
 
 run bracken
@@ -581,68 +519,48 @@ run bracken
 source /mfs/ederrick/.bash_profile
 conda activate bracken
 
-for f in *report.txt
+for f in *bac_kraken_report.txt
 do
-bracken -d /mfs/databases/kraken-core-nt-dec-28-2024 -i $f -o ${f%*kraken_report.txt}phylum.bracken -r 100 -l P -t 10
+bracken -d /mfs/ederrick/k2_standard_db -i $f -o ${f%*kraken_report.txt}species.bracken -w ${f%*kraken_report.txt}species_bracken_report.txt -r 100 -l S -t 10
+bracken -d /mfs/ederrick/k2_standard_db -i $f -o ${f%*kraken_report.txt}genus.bracken -w ${f%*kraken_report.txt}genus_bracken_report.txt -r 100 -l G -t 10
+bracken -d /mfs/ederrick/k2_standard_db -i $f -o ${f%*kraken_report.txt}class.bracken -w ${f%*kraken_report.txt}class_bracken_report.txt -r 100 -l C -t 10
+bracken -d /mfs/ederrick/k2_standard_db -i $f -o ${f%*kraken_report.txt}phylum.bracken -w ${f%*kraken_report.txt}phylum_bracken_report.txt -r 100 -l P -t 10
 done
 ```
 
-```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate bracken
-
-for f in *report.txt
-do
-bracken -d /mfs/databases/kraken-core-nt-dec-28-2024 -i $f -o ${f%*kraken_report.txt}class.bracken -r 100 -l C -t 10
-done
-```
-
-```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate bracken
-
-for f in *report.txt
-do
-bracken -d /mfs/databases/kraken-core-nt-dec-28-2024 -i $f -o ${f%*kraken_report.txt}genus.bracken -r 100 -l G -t 10
-done
-```
-
-```bash
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
-conda activate bracken
-
-for f in *report.txt
-do
-bracken -d /mfs/databases/kraken-core-nt-dec-28-2024 -i $f -o ${f%*kraken_report.txt}species.bracken -r 100 -l S -t 10
-done
-```
-
-```bash
-for f in *.bracken; do  python /mfs/ederrick/miniconda3/envs/kraken2/bin/alpha_diversity.py -f $f -a Si; done
-```
-
-
-#### try with no confidence threshold
+calculate beta div - first separate files by day
 
 ```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate kraken2
 
-parallel -j 4 'kraken2 --db /mfs/databases/kraken-core-nt-dec-28-2024 --threads 24 --output LEAP_META_{}_QC_sub_kraken_output.txt --report LEAP_META_{}_QC_sub_kraken_report.txt --paired LEAP_META_{}_QC_sub_R1.fastq.gz LEAP_META_{}_QC_sub_R2.fastq.gz' ::: {01..18}
+python /mfs/ederrick/miniconda3/envs/kraken2/bin/beta_diversity.py -i *species.bracken --type bracken > beta_div_species_day_0.txt
+python /mfs/ederrick/miniconda3/envs/kraken2/bin/beta_diversity.py -i *genus.bracken --type bracken > beta_div_genus_day_0.txt
+python /mfs/ederrick/miniconda3/envs/kraken2/bin/beta_diversity.py -i *class.bracken --type bracken > beta_div_class_day_0.txt
+python /mfs/ederrick/miniconda3/envs/kraken2/bin/beta_diversity.py -i *phylum.bracken --type bracken > beta_div_phylum_day_0.txt
 ```
-
-extract only bacterial reads
 
 ```bash
 #!/usr/bin/bash
 source /mfs/ederrick/.bash_profile
 conda activate kraken2
 
-parallel -j 6 'python /mfs/ederrick/miniconda3/envs/kraken2/bin/extract_kraken_reads.py -k LEAP_META_{}_QC_sub_kraken_output.txt -r LEAP_META_{}_QC_sub_kraken_report.txt -s LEAP_META_{}_QC_sub_R1.fastq.gz -s2 LEAP_META_{}_QC_sub_R2.fastq.gz -o LEAP_META_{}_QC_bac_R1.fastq.gz -o2 LEAP_META_{}_QC_bac_R2.fastq.gz -t 2 --include-children' ::: {01..18}
+python /mfs/ederrick/miniconda3/envs/kraken2/bin/beta_diversity.py -i *species.bracken --type bracken > beta_div_species_day_28.txt
+python /mfs/ederrick/miniconda3/envs/kraken2/bin/beta_diversity.py -i *genus.bracken --type bracken > beta_div_genus_day_28.txt
+python /mfs/ederrick/miniconda3/envs/kraken2/bin/beta_diversity.py -i *class.bracken --type bracken > beta_div_class_day_28.txt
+python /mfs/ederrick/miniconda3/envs/kraken2/bin/beta_diversity.py -i *phylum.bracken --type bracken > beta_div_phylum_day_28.txt
 ```
+
+
+#### calculate relative abundance of MAGs
+
+with coverM
+
+```bash
+conda activate coverM
+coverm genome --bam-files *.bam --genome-fasta-directory refined_good_MAGs --min-read-percent-identity 0.95 -m relative_abundance mean covered_bases count reads_per_base rpkm -o T1_refined_coverM.tsv --output-format sparse --min-covered-fraction 0 -tmx fa -t 64
+```
+
 
 
