@@ -381,14 +381,13 @@ conda activate instrain
 parallel -j 18 --plus 'inStrain profile {} T1_refined.fa -o {/P_T1_refined.bam/T1_refined_inStrain} -p 12 -g T1_refined_genes.fna -s T1_refined.stb  --min_read_ani 0.92 --min_mapq 1 --min_genome_coverage 1' ::: *T1_refined.bam
 ```
 
-#### subsample to 5x (R script subsampling.R to get list of samtools commands to run (each mag x pond combination) and rerun instrain for some analyses. 
+#### subsample to 5x (R script subsampling.R to get list of samtools commands to run (each mag x pond combination) and rerun instrain for some analyses. sample 03 and 12 have been removed.
 
 merge mags back together by timepoint
 
 ```bash
 samtools merge LEAP_META_01_sub.bam *LEAP_META_01*
 samtools merge LEAP_META_02_sub.bam *LEAP_META_02*
-samtools merge LEAP_META_03_sub.bam *LEAP_META_03*
 samtools merge LEAP_META_04_sub.bam *LEAP_META_04*
 samtools merge LEAP_META_05_sub.bam *LEAP_META_05*
 samtools merge LEAP_META_06_sub.bam *LEAP_META_06*
@@ -397,7 +396,6 @@ samtools merge LEAP_META_08_sub.bam *LEAP_META_08*
 samtools merge LEAP_META_09_sub.bam *LEAP_META_09*
 samtools merge LEAP_META_10_sub.bam *LEAP_META_10*
 samtools merge LEAP_META_11_sub.bam *LEAP_META_11*
-samtools merge LEAP_META_12_sub.bam *LEAP_META_12*
 samtools merge LEAP_META_13_sub.bam *LEAP_META_13*
 samtools merge LEAP_META_14_sub.bam *LEAP_META_14*
 samtools merge LEAP_META_15_sub.bam *LEAP_META_15*
