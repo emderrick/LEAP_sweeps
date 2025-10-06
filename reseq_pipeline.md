@@ -475,7 +475,6 @@ parallel -j 18 --plus 'seqtk sample -s100 {} 87942340 | gzip > {/R1.fastq.gz/sub
 parallel -j 18 --plus 'seqtk sample -s100 {} 87942340 | gzip > {/R2.fastq.gz/sub_R2.fastq.gz}' ::: *P_R2.fastq.gz
 ```
 
-
 #### run kraken
 
 ```bash
@@ -483,9 +482,9 @@ parallel -j 18 --plus 'seqtk sample -s100 {} 87942340 | gzip > {/R2.fastq.gz/sub
 source /mfs/ederrick/.bash_profile
 conda activate kraken2
 
-for f in *P_R1.fastq.gz
+for f in *P_sub_R1.fastq.gz
 do
-kraken2 --db /mfs/ederrick/k2_standard_db --threads 64 --output ${f%*R1.fastq.gz}P_sub_kraken_output.txt --report ${f%*R1.fastq.gz}P_sub_kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
+kraken2 --db /mfs/ederrick/k2_standard_db --threads 64 --output ${f%*R1.fastq.gz}kraken_output.txt --report ${f%*R1.fastq.gz}kraken_report.txt --paired $f ${f%*R1.fastq.gz}R2.fastq.gz
 done
 ```
 
