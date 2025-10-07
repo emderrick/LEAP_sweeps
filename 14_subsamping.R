@@ -16,7 +16,7 @@ sample_names <- read_csv("data files/chapter_1_sample_names.csv")
 sample_names$Name_Time <- paste(sample_names$Name, sample_names$Pond_Time %>% str_sub(-1))
 mag_SNVs <- read_csv("data files/T1_SNV_summary_MAG.csv")
 
-mag_SNVs_5x <- subset(mag_SNVs, mag_coverage >= 5 & mag_breadth >= 0.5)
+mag_SNVs_5x <- subset(mag_SNVs, mag_coverage >= 5 & mag_breadth >= 0.7)
 mag_SNVs_5x <- left_join(mag_SNVs_5x, sample_names[, c(1:4)])
 mag_SNVs_5x <- mag_SNVs_5x[, c(1,21,3)]
 mag_SNVs_5x$cov_want <- 5

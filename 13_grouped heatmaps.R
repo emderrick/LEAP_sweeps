@@ -5,8 +5,7 @@ library(patchwork)
 
 setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 
-mag_list <- c("MAG_00097_1", "MAG_00103_1", "MAG_00110_1", "MAG_00179_1",
-              "MAG_00194_1", "MAG_00197_1", "MAG_00201_1","MAG_00674_1")
+mag_list <- c("MAG_00097_1", "MAG_00110_1", "MAG_00179_1", "MAG_00194_1", "MAG_00197_1", "MAG_00201_1","MAG_00674_1")
 
 all_samples <- read_csv("data files/chapter_1_sample_names.csv")
 all_samples$Time <- ifelse(grepl("_1", all_samples$Pond_Time), "Day 0", "Day 28")
@@ -15,10 +14,10 @@ all_samples <- subset(all_samples, !(Name == "CTRL E"))
 all_snv <- read_csv("data files/MAG_SNV_depth_info.csv")
 all_snv$Time <- ifelse(grepl("1", all_snv$time), "Day 0", "Day 28")
 all_snv$Treatment <- ifelse(grepl("CTRL", all_snv$Name), "Control", "GBH")
-mag_snv <- subset(all_snv, mag_coverage >= 5 & mag_breadth >= 0.5)
+mag_snv <- subset(all_snv, mag_coverage >= 5 & mag_breadth >= 0.7)
 
 all_sum <- read_csv("data files/T1_SNV_summary_MAG.csv")
-all_sum <- subset(all_sum, mag %in% mag_list & mag_coverage >= 5 & mag_breadth >= 0.5)
+all_sum <- subset(all_sum, mag %in% mag_list & mag_coverage >= 5 & mag_breadth >= 0.7)
 
 for(i in 1:length(mag_list)){
   bin_sum <- subset(all_sum, mag == mag_list[i])

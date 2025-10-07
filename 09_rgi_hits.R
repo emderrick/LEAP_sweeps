@@ -1,8 +1,7 @@
 library(tidyverse)
 setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 
-mag_list <- c("MAG_00097_1", "MAG_00103_1", "MAG_00110_1", "MAG_00179_1",
-              "MAG_00194_1", "MAG_00197_1", "MAG_00201_1", "MAG_00674_1")
+mag_list <- c("MAG_00097_1", "MAG_00110_1", "MAG_00179_1", "MAG_00194_1", "MAG_00197_1", "MAG_00201_1", "MAG_00674_1")
 
 arg_files <- list.files("data files/refined_MAG_RGI/", recursive = T, pattern = ".*RGI.txt", full.names = T)
 

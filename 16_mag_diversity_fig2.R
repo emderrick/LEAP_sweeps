@@ -61,3 +61,39 @@ pond_sns_snvs <- ggarrange(pond_vs_SNV_boxplot, pond_vs_SNS_boxplot, nrow = 2, c
                            legend = "bottom", labels = c("A", "B"))
 
 ggsave("figures/pond_vs_SNV_SNS.pdf", pond_sns_snvs, units = "cm", width = 17, height = 16)
+
+
+gbh28 <- subset(mag_SNVs, Treatment_Time == "GBH Day 28")
+GBH_mag_snvs <- subset(mag_SNVs, mag %in% gbh28$mag)
+
+gbh_pond_vs_SNV_boxplot <- ggplot(GBH_mag_snvs, aes(x = Name, y = SNVs_Kbp))+
+  geom_boxplot(outliers = F, aes(colour = Treatment_Time))+
+  geom_point(aes(colour = Treatment_Time), size = 0.25, position = position_jitterdodge(jitter.width = 0.25))+
+  scale_fill_manual(values = c("white", "white"))+
+  scale_colour_manual(values = c("#98BF64", "darkgreen", "#BE93D4", "darkmagenta"))+
+  labs(x = "", y = "Polymorphic sites per Kbp", colour = "Treatment")+
+  theme_classic()+
+  theme(axis.text = element_text(size = 10, colour = "black"),
+        axis.title = element_text(size = 12, colour = "black"),
+        legend.text = element_text(size = 12, colour = "black"),
+        legend.title = element_text(size = 12, colour = "black"),
+        plot.margin = unit(c(1, 1, 0, 0.25), "cm"))
+
+gbh_pond_vs_SNS_boxplot <- ggplot(GBH_mag_snvs, aes(x = Name, y = SNSs_Kbp))+
+  geom_boxplot(outliers = F, aes(colour = Treatment_Time))+
+  geom_point(aes(colour = Treatment_Time), size = 0.25, position = position_jitterdodge(jitter.width = 0.25))+
+  scale_fill_manual(values = c("white", "white"))+
+  scale_colour_manual(values = c("#98BF64", "darkgreen", "#BE93D4", "darkmagenta"))+
+  labs(x = "", y = "Fixed substiturions per Kbp", colour = "Treatment")+  
+  theme_classic()+
+  theme(axis.text = element_text(size = 10, colour = "black"),
+        axis.title = element_text(size = 12, colour = "black"),
+        legend.text = element_text(size = 12, colour = "black"),
+        legend.title = element_text(size = 12, colour = "black"),
+        plot.margin = unit(c(1, 1, 0, 0.25), "cm"))
+
+gbh_pond_sns_snvs <- ggarrange(gbh_pond_vs_SNV_boxplot, gbh_pond_vs_SNS_boxplot, nrow = 2, common.legend = TRUE,
+                           legend = "bottom", labels = c("A", "B"))
+
+ggsave("figures/GBH_day_28_pond_vs_SNV_SNS.pdf", gbh_pond_sns_snvs, units = "cm", width = 17, height = 16)
+

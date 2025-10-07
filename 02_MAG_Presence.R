@@ -8,7 +8,7 @@ mag_pres$Treatment <- ifelse(grepl("CTRL", mag_pres$Name), "Control", "GBH")
 mag_pres$Name_Time <- paste(mag_pres$Name, mag_pres$time, sep = " ")
 mag_pres$coverage <- as.integer(mag_pres$mag_coverage)
 
-mag_pres <- subset(mag_pres, mag_breadth >= 0.5)
+mag_pres <- subset(mag_pres, mag_breadth >= 0.7)
 
 mag_pres_plot <- ggplot(mag_pres, aes(x = as.character(time), y = fct_reorder(Name, desc(Treatment)), colour = Treatment))+
   geom_text(aes(label = coverage), size = 6)+

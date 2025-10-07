@@ -1,8 +1,8 @@
 library(tidyverse)
 library(lme4)
-library(car)
+#library(car)
 
-options(scipen=999)
+#options(scipen=999)
 setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 
 mag_SNVs <- read_csv("data files/T1_subsamp_SNV_summary_MAG.csv")
@@ -33,11 +33,13 @@ variance_snv_kbp <- var(mag_SNVs$SNVs_Kbp)
 # ggplot(mag_SNVs, aes(x = SNVs_Kbp, y = SNSs_Kbp))+
 #   geom_point()
 
+snv_glmm <- glmer(SNVs_Kbp ~  Treatment * Time + (1|Name), family = poisson, data = mag_SNVs)
+summary(snv_glmm)
+
 sns_glmm <- glmer(SNSs_Kbp ~ Treatment * Time + (1|Name), family = poisson, data = mag_SNVs)
 summary(sns_glmm)
 
-snv_glmm <- glmer(SNVs_Kbp ~  Treatment * Time + (1|Name), family = poisson, data = mag_SNVs)
-summary(snv_glmm)
+
 
 
 

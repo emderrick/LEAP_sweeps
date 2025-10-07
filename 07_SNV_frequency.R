@@ -2,12 +2,8 @@ library(tidyverse)
 
 setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 
-mag_list <- c("MAG_00097_1", "MAG_00110_1", "MAG_00179_1",
-              "MAG_00194_1", "MAG_00197_1", "MAG_00201_1","MAG_00674_1")
-
 all_mag_SNVs <- read_csv("data files/MAG_SNV_depth_info.csv")
-all_mag_SNVs <- subset(all_mag_SNVs, mag %in% mag_list)
-all_mag_SNVs <- subset(all_mag_SNVs, mag_coverage >= 5 & mag_breadth >= 0.5)
+all_mag_SNVs <- subset(all_mag_SNVs, mag_coverage >= 5 & mag_breadth >= 0.7)
 
 all_mag_SNVs$time <- with(all_mag_SNVs, ifelse(time == "1", "Day 0", "Day 28"))
 all_mag_SNVs$pond_time <- paste(all_mag_SNVs$time, all_mag_SNVs$Name, sep = " ")
@@ -41,14 +37,58 @@ snv_frequency$GBH_CTRL_T2 <- snv_frequency$GBH_28 - snv_frequency$CTRL_28
 snv_frequency$GBH_CTRL_T1_abs <- abs(snv_frequency$GBH_CTRL_T1)
 #snv_frequency$GBH_CTRL_T2_abs <- abs(snv_frequency$GBH_CTRL_T2)
 
-snv_frequency$case <- with(snv_frequency, ifelse((GBH_CTRL_T1_abs <= 0.3 & GBH_change <= -0.7 & GBH_CTRL_T2 <= -0.7), "case_a", "no"))
-snv_frequency$case <- with(snv_frequency, ifelse((GBH_CTRL_T1_abs <= 0.3 & CTRL_change <= -0.7 & GBH_CTRL_T2 >= 0.7), "case_b", case))
+snv_frequency$shift <- with(snv_frequency, ifelse((GBH_CTRL_T1_abs <= 0.3 & GBH_change <= -0.7 & GBH_CTRL_T2 <= -0.7), "sig_shift", "not_sig"))
 write.csv(snv_frequency, "data files/snv_frequency_changes_07.csv", row.names = F)
 
+## get gene info
 
-mag_genes <- read_csv("data files/MAG_gene_info.csv")
+mag_list <- c("MAG_00097_1", "MAG_00110_1", "MAG_00179_1", "MAG_00194_1", "MAG_00197_1", "MAG_00201_1", "MAG_00674_1")
+
+sample_names <- read_csv("data files/chapter_1_sample_names.csv")
+mag_scaffold_info <- read_tsv("data files/T1_refined.stb", col_names = F)
+colnames(mag_scaffold_info) <-  c("scaffold", "mag")
+
+gene_files <- list.files("data files/T1_refined_inStrain", recursive = T, pattern = ".*gene_info.tsv", full.names = T)
+
+all_genes <- data.frame()
+for(i in 1:length(gene_files)){
+  pond_time_genes <- read.table(gene_files[i], sep="\t", header = T)
+  pond_time_genes$Sample <- gene_files[i] %>% substr(32,43)
+  all_genes <- rbind(all_genes, pond_time_genes)
+}
+
+all_genes <- left_join(all_genes, sample_names)
+all_genes <- left_join(all_genes, mag_scaffold_info)
+all_genes$mag <- all_genes$mag %>% str_sub(end = -4)
+all_genes$Time <- ifelse(grepl("_1", all_genes$Pond_Time), "Day 0", "Day 28")
+all_genes$Name_Time <- paste(all_genes$Time, all_genes$Name, sep = " ")
+all_genes <- all_genes[, c(24,1,2,26,3:5,8:10,14,17)]
+all_genes <- all_genes %>% rename("gene_coverage" = "coverage")
+all_genes <- all_genes %>% rename("gene_breadth" = "breadth")
+write.csv(all_genes, "data files/T1_MAG_genes.csv", row.names = F)
+
+mag_genes <- subset(all_genes, mag %in% mag_list)
+mag_info <- read_csv("data files/T1_mag_info.csv")
+mag_info$time <- with(mag_info, ifelse(time == "1", "Day 0", "Day 28"))
+mag_info$Name_Time <- paste(mag_info$time, mag_info$Name, sep = " ")
+mag_info <- mag_info[, c(1:3,10)]
+mag_genes <- left_join(mag_genes, mag_info)
+mag_genes <- subset(mag_genes, mag_coverage >= 5 & mag_breadth >= 0.7)
+write.csv(mag_genes, "data files/MAG_gene_info.csv", row.names = F)
+
 mag_genes$rel_cov <- mag_genes$gene_coverage / mag_genes$mag_coverage
 mag_genes <- subset(mag_genes, rel_cov <= 1.2 & rel_cov >= 0.6)
+
+sig_changes <- subset(snv_frequency, shift == "sig_shift")
+sig_changes <- subset(sig_changes, gene %in% mag_genes$gene)
+sig_nonsyn_changes <- subset(sig_changes, mutation_type == "N")
+sig_syn_changes <- subset(sig_changes, mutation_type == "S")
+
+sig_snvs_sum <- sig_changes %>% group_by(mag, gene) %>% count()
+sig_snvs_sum <- subset(sig_snvs_sum, !str_detect(gene, ","))
+
+sig_nonsyn_sum <- sig_nonsyn_changes %>% group_by(mag, gene) %>% count()
+sig_syn_sum <- sig_syn_changes %>% group_by(mag, gene) %>% count()
 
 eggnog_genes <- read_tsv("data files/eggnog_genes.emapper.annotations", skip = 4)
 colnames(eggnog_genes)[1]="gene"
@@ -59,74 +99,15 @@ background_cog_snv <- subset(eggnog_genes, gene %in% mag_genes$gene)
 background_cog_snv <- subset(background_cog_snv, is.na(COG_ID) == F)
 write.csv(background_cog_snv, "data files/cog_background_snv_freq_genes.csv", row.names = F)
 
-sig_a_changes <- subset(snv_frequency, case == "case_a")
-sig_a_nonsyn_changes <- subset(sig_a_changes, mutation_type == "N")
-sig_a_syn_changes <- subset(sig_a_changes, mutation_type == "S")
+significant_genes <- left_join(sig_snvs_sum, background_cog_snv) 
+write.csv(significant_genes, "data files/allele_shifts_significant_genes_07.csv", row.names = F)
 
-sig_a_snvs_sum <- sig_a_changes %>% group_by(mag, gene) %>% count()
-sig_a_snvs_sum <- subset(sig_a_snvs_sum, !str_detect(gene, ","))
+significant_nonsyn_genes <- left_join(sig_nonsyn_sum, background_cog_snv) 
+write.csv(significant_nonsyn_genes, "data files/nonsyn_allele_shifts_significant_genes_07.csv", row.names = F)
 
-sig_a_nonsyn_sum <- sig_a_nonsyn_changes %>% group_by(mag, gene) %>% count()
-sig_a_syn_sum <- sig_a_syn_changes %>% group_by(mag, gene) %>% count()
+significant_syn_genes <- left_join(sig_syn_sum, background_cog_snv) 
+write.csv(significant_syn_genes, "data files/syn_allele_shifts_significant_genes_07.csv", row.names = F)
 
-significant_a_genes <- left_join(sig_a_snvs_sum, background_cog_snv) 
-write.csv(significant_a_genes, "data files/allele_shifts_a_significant_genes_07.csv", row.names = F)
-sum_significant_a_genes <- significant_a_genes %>% group_by(mag) %>% count()
-
-significant_a_nonsyn_genes <- left_join(sig_a_nonsyn_sum, background_cog_snv) 
-write.csv(significant_a_nonsyn_genes, "data files/nonsyn_allele_shifts_a_significant_genes_07.csv", row.names = F)
-
-significant_a_syn_genes <- left_join(sig_a_syn_sum, background_cog_snv) 
-write.csv(significant_a_syn_genes, "data files/syn_allele_shifts_a_significant_genes_07.csv", row.names = F)
-
-sig_b_changes <- subset(snv_frequency, case == "case_b")
-sig_b_nonsyn_changes <- subset(sig_b_changes, mutation_type == "N")
-sig_b_syn_changes <- subset(sig_b_changes, mutation_type == "S")
-
-sig_b_snvs_sum <- sig_b_changes %>% group_by(mag, gene) %>% count()
-sig_b_snvs_sum <- subset(sig_b_snvs_sum, !str_detect(gene, ","))
-
-sig_b_nonsyn_sum <- sig_b_nonsyn_changes %>% group_by(mag, gene) %>% count()
-sig_b_syn_sum <- sig_b_syn_changes %>% group_by(mag, gene) %>% count()
-
-significant_b_genes <- left_join(sig_b_snvs_sum, background_cog_snv) 
-write.csv(significant_b_genes, "data files/allele_shifts_b_significant_genes_07.csv", row.names = F)
-
-significant_b_nonsyn_genes <- left_join(sig_b_nonsyn_sum, background_cog_snv) 
-write.csv(significant_b_nonsyn_genes, "data files/nonsyn_allele_shifts_b_significant_genes_07.csv", row.names = F)
-
-significant_b_syn_genes <- left_join(sig_b_syn_sum, background_cog_snv)
-write.csv(significant_b_syn_genes, "data files/syn_allele_shifts_b_significant_genes_07.csv", row.names = F)
-
-
-# snv_frequency_plot <- pivot_longer(snv_frequency, cols = c(5:8), values_to = "avg_freq", names_to = "Treatment_Time")
-# snv_frequency_plot$Treatment <- snv_frequency_plot$Treatment_Time %>% substr(1,4)
-# snv_frequency_plot$Treatment <- snv_frequency_plot$Treatment %>% str_remove("_")
-# snv_frequency_plot$Treatment_group <- paste(snv_frequency_plot$Treatment, snv_frequency_plot$group)
-# snv_frequency_plot$Time <- snv_frequency_plot$Treatment_Time %>% str_sub(-2) %>% str_remove("_")
-# snv_frequency_plot$Time <- paste("Day ", snv_frequency_plot$Time, sep = "")
-
-# snv_frequency_plot_a <- subset(snv_frequency_plot, case == "case_a")
-# plot_a <- ggplot(snv_frequency_plot_a, aes(x = Time, y = avg_freq, colour = Treatment))+
-#   geom_smooth(aes(group = Treatment), method = "lm")+
-#   #geom_point()+
-#   #geom_line(aes(group = Treatment_group))+
-#   scale_colour_manual(values = c("darkgreen", "darkmagenta"))+
-#   scale_x_discrete(expand = c(0, 0))+
-#   ylim(0,1)+
-#   labs(y = "Reference Frequency")+
-#   theme_bw()
-# ggsave("figures/snv_freq_case_a_plot.pdf", plot_a, units = "cm", width = 10, height = 6)
-# 
-# snv_frequency_plot_b <- subset(snv_frequency_plot, case == "case_b")
-# plot_b <- ggplot(snv_frequency_plot_b, aes(x = Time, y = avg_freq, colour = Treatment))+
-#   geom_smooth(aes(group = Treatment), method = "lm")+
-#   #geom_point()+
-#   #geom_line(aes(group = Treatment_group))+
-#   scale_colour_manual(values = c("darkgreen", "darkmagenta"))+
-#   scale_x_discrete(expand = c(0, 0))+
-#   ylim(0,1)+
-#   labs(y = "Reference Frequency")+
-#   theme_bw()
-# ggsave("figures/snv_freq_case_b_plot.pdf", plot_b, units = "cm", width = 10, height = 6)
+sum_genes <- significant_genes %>% group_by(mag) %>% count()
+write.csv(sum_genes, "data files/sum_sig_shifts_07.csv", row.names = F)
 
