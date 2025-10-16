@@ -29,7 +29,7 @@ mag_gene_change$GBH_CTRL_change_abs <- abs(mag_gene_change$GBH_CTRL_change)
 gene_loss_GBH <- subset(mag_gene_change, CTRL_0 >= 0.6 & GBH_0 >= 0.6 & GBH_28 <= 0.1 & CTRL_28 >= 0.6)
 write.csv(gene_loss_GBH, "data files/GBH_gene_loss.csv", row.names = F)
 
-gene_gain_GBH <- subset(mag_gene_change, GBH_change >= 0.5 & CTRL_change < 0)
+gene_gain_GBH <- subset(mag_gene_change, GBH_change >= 0.7 & CTRL_change < 0)
 write.csv(gene_gain_GBH, "data files/GBH_gene_gain.csv", row.names = F)
 
 gene_loss_CTRL <- subset(mag_gene_change, CTRL_0 >= 0.6 & GBH_0 >= 0.6 & GBH_28 >= 0.6 & CTRL_28 <= 0.1)

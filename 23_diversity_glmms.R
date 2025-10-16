@@ -1,6 +1,5 @@
 library(tidyverse)
 library(lme4)
-#library(car)
 
 #options(scipen=999)
 setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
@@ -33,13 +32,21 @@ variance_snv_kbp <- var(mag_SNVs$SNVs_Kbp)
 # ggplot(mag_SNVs, aes(x = SNVs_Kbp, y = SNSs_Kbp))+
 #   geom_point()
 
+mag_sum <- mag_SNVs %>% group_by(Name, Time) %>% count()
+
 snv_glmm <- glmer(SNVs_Kbp ~  Treatment * Time + (1|Name), family = poisson, data = mag_SNVs)
 summary(snv_glmm)
 
 sns_glmm <- glmer(SNSs_Kbp ~ Treatment * Time + (1|Name), family = poisson, data = mag_SNVs)
 summary(sns_glmm)
 
+gbh_28 <- subset(mag_SNVs, Treatment == "GBH" & Time == "Day 28")
+gbh_28_snvs <- subset(mag_SNVs, mag %in% gbh_28$mag)
+gbh_28_mag_sum <- gbh_28_snvs %>% group_by(Name, Time) %>% count()
 
+gbh_28_snv_glmm <- glmer(SNVs_Kbp ~  Treatment * Time + (1|Name), family = poisson, data = gbh_28_snvs)
+summary(gbh_28_snv_glmm)
 
-
+gbh_28_sns_glmm <- glmer(SNSs_Kbp ~ Treatment * Time + (1|Name), family = poisson, data = gbh_28_snvs)
+summary(gbh_28_sns_glmm)
 

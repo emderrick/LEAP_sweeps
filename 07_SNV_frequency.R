@@ -22,7 +22,7 @@ mag_snvs_wide$CTRL_28 <- rowMeans(mag_snvs_wide[, grep("Day 28 CTRL", colnames(m
 mag_snvs_wide$GBH_28 <- rowMeans(mag_snvs_wide[, grep("Day 28 GBH", colnames(mag_snvs_wide))], na.rm = T)
 mag_snvs_wide <- mag_snvs_wide %>% mutate_all(function(x) ifelse(is.nan(x), NA, x))
 mag_snvs_wide <- mag_snvs_wide[, c("mag", "gene", "group", "mutation_type", "CTRL_0", "GBH_0", "CTRL_28", "GBH_28")]
-write.csv(mag_snvs_wide, "data files/all_snv_frequency.csv", row.names = F)
+#write.csv(mag_snvs_wide, "data files/all_snv_frequency.csv", row.names = F)
 
 snv_frequency <- mag_snvs_wide[complete.cases(mag_snvs_wide), ]
 snv_frequency$GBH_change <- snv_frequency$GBH_28 - snv_frequency$GBH_0
@@ -38,7 +38,7 @@ snv_frequency$GBH_CTRL_T1_abs <- abs(snv_frequency$GBH_CTRL_T1)
 #snv_frequency$GBH_CTRL_T2_abs <- abs(snv_frequency$GBH_CTRL_T2)
 
 snv_frequency$shift <- with(snv_frequency, ifelse((GBH_CTRL_T1_abs <= 0.3 & GBH_change <= -0.7 & GBH_CTRL_T2 <= -0.7), "sig_shift", "not_sig"))
-write.csv(snv_frequency, "data files/snv_frequency_changes_07.csv", row.names = F)
+#write.csv(snv_frequency, "data files/snv_frequency_changes_07.csv", row.names = F)
 
 ## get gene info
 
@@ -65,7 +65,7 @@ all_genes$Name_Time <- paste(all_genes$Time, all_genes$Name, sep = " ")
 all_genes <- all_genes[, c(24,1,2,26,3:5,8:10,14,17)]
 all_genes <- all_genes %>% rename("gene_coverage" = "coverage")
 all_genes <- all_genes %>% rename("gene_breadth" = "breadth")
-write.csv(all_genes, "data files/T1_MAG_genes.csv", row.names = F)
+#write.csv(all_genes, "data files/T1_MAG_genes.csv", row.names = F)
 
 mag_genes <- subset(all_genes, mag %in% mag_list)
 mag_info <- read_csv("data files/T1_mag_info.csv")
@@ -74,7 +74,7 @@ mag_info$Name_Time <- paste(mag_info$time, mag_info$Name, sep = " ")
 mag_info <- mag_info[, c(1:3,10)]
 mag_genes <- left_join(mag_genes, mag_info)
 mag_genes <- subset(mag_genes, mag_coverage >= 5 & mag_breadth >= 0.7)
-write.csv(mag_genes, "data files/MAG_gene_info.csv", row.names = F)
+#write.csv(mag_genes, "data files/MAG_gene_info.csv", row.names = F)
 
 mag_genes$rel_cov <- mag_genes$gene_coverage / mag_genes$mag_coverage
 mag_genes <- subset(mag_genes, rel_cov <= 1.2 & rel_cov >= 0.6)
@@ -97,17 +97,26 @@ eggnog_genes <- eggnog_genes[, c("gene", "COG_ID", "Description", "Preferred_nam
 eggnog_genes$scaffold <- eggnog_genes$gene %>% str_extract("[^_]*_[^_]*")
 background_cog_snv <- subset(eggnog_genes, gene %in% mag_genes$gene)
 background_cog_snv <- subset(background_cog_snv, is.na(COG_ID) == F)
-write.csv(background_cog_snv, "data files/cog_background_snv_freq_genes.csv", row.names = F)
+#write.csv(background_cog_snv, "data files/cog_background_snv_freq_genes.csv", row.names = F)
 
 significant_genes <- left_join(sig_snvs_sum, background_cog_snv) 
-write.csv(significant_genes, "data files/allele_shifts_significant_genes_07.csv", row.names = F)
+#write.csv(significant_genes, "data files/allele_shifts_significant_genes_07.csv", row.names = F)
 
 significant_nonsyn_genes <- left_join(sig_nonsyn_sum, background_cog_snv) 
-write.csv(significant_nonsyn_genes, "data files/nonsyn_allele_shifts_significant_genes_07.csv", row.names = F)
+#write.csv(significant_nonsyn_genes, "data files/nonsyn_allele_shifts_significant_genes_07.csv", row.names = F)
 
 significant_syn_genes <- left_join(sig_syn_sum, background_cog_snv) 
-write.csv(significant_syn_genes, "data files/syn_allele_shifts_significant_genes_07.csv", row.names = F)
+#write.csv(significant_syn_genes, "data files/syn_allele_shifts_significant_genes_07.csv", row.names = F)
 
 sum_genes <- significant_genes %>% group_by(mag) %>% count()
 write.csv(sum_genes, "data files/sum_sig_shifts_07.csv", row.names = F)
 
+sum_syn_genes <- significant_syn_genes %>% group_by(mag) %>% count()
+write.csv(sum_syn_genes, "data files/sum_syn_sig_shifts_07.csv", row.names = F)
+
+sum_nonsyn_genes <- significant_nonsyn_genes %>% group_by(mag) %>% count()
+write.csv(sum_nonsyn_genes, "data files/sum_nonsyn_sig_shifts_07.csv", row.names = F)
+
+aro_genes <- significant_nonsyn_genes[grepl("aro", significant_nonsyn_genes$Preferred_name),]
+
+                    
