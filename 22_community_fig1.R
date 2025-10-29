@@ -8,7 +8,7 @@ setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 
 sample_info <- read_csv("data files/chapter_1_sample_names.csv")
 sample_info$Treatment <- ifelse(grepl("CTRL", sample_info$Name), "Control", "GBH")
-sample_info$Time <- ifelse(grepl("_1", sample_info$Pond_Time), "Day 0", "Day 28")
+sample_info$Time <- ifelse(grepl("_1", sample_info$Pond), "Day 0", "Day 28")
 sample_info$Treatment_Time <- paste(sample_info$Treatment, sample_info$Time, sep = " ")
 sample_info <- subset(sample_info, !(Name == "CTRL E"))
 

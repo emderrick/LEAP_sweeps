@@ -8,7 +8,7 @@ setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 mag_list <- c("MAG_00097_1", "MAG_00110_1", "MAG_00179_1", "MAG_00194_1", "MAG_00197_1", "MAG_00201_1","MAG_00674_1")
 
 all_samples <- read_csv("data files/chapter_1_sample_names.csv")
-all_samples$Time <- ifelse(grepl("_1", all_samples$Pond_Time), "Day 0", "Day 28")
+all_samples$Time <- ifelse(grepl("_1", all_samples$Pond), "Day 0", "Day 28")
 all_samples <- subset(all_samples, !(Name == "CTRL E"))
 
 all_snv <- read_csv("data files/MAG_SNV_depth_info.csv")

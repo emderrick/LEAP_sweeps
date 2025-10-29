@@ -12,7 +12,7 @@ for(i in 1:length(genome_files)){
 }
 
 all_mags <- left_join(all_mags, sample_names)
-all_mags$time <- all_mags$Pond_Time %>% substr(4,4)
+all_mags$time <- all_mags$Pond %>% substr(4,4)
 all_mags <- all_mags %>% rename("mag_length" = "length")
 all_mags <- all_mags %>% rename("mag" = "genome")
 all_mags <- all_mags %>% rename("mag_coverage" = "coverage")

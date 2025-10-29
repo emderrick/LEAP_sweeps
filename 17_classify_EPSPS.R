@@ -15,4 +15,5 @@ EPSPS$Classification <- with(EPSPS, ifelse(Classification == "Classified"
                                            & max_classifation == ClassII,
                                            "Class II", Classification))
 EPSPS$Classification <- with(EPSPS, ifelse(motifs >= 1, "Class III", Classification))
+EPSPS <- EPSPS[, c(7, 2:6, 8:10)]
 write.csv(EPSPS, "data files/EPSPS_MAG_Classification.csv", row.names = F)

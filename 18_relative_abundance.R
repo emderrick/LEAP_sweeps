@@ -13,7 +13,7 @@ rel_abun <- left_join(rel_abun, sample_names)
 colnames(rel_abun)[2] <- "mag"
 colnames(rel_abun)[3] <- "Relative_Abundance"
 rel_abun <- subset(rel_abun, !(mag == "unmapped"))
-rel_abun$Time <- rel_abun$Pond_Time %>% substr(4,4)
+rel_abun$Time <- rel_abun$Pond %>% substr(4,4)
 rel_abun$Treatment <- ifelse(grepl("CTRL", rel_abun$Name), "Control", "GBH")
 rel_abun <- rel_abun[, c(2,10:12,3,5)]
 rel_abun <- subset(rel_abun, !(Name == "CTRL E"))

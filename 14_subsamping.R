@@ -9,11 +9,11 @@ mag_list <- (unique(mag_contigs$mag))
 for(i in 1:length(mag_list)){
   contigs <- subset(mag_contigs, mag == mag_list[i])
   contigs <- contigs[, c(1)]
-  write_tsv(contigs, paste("data files/mag contig lists/", mag_list[i], "_contigs.txt", sep = ""), col_names = F)
+  write_tsv(contigs, paste("data files/mag_contig_lists/", mag_list[i], "_contigs.txt", sep = ""), col_names = F)
 }
 
 sample_names <- read_csv("data files/chapter_1_sample_names.csv")
-sample_names$Name_Time <- paste(sample_names$Name, sample_names$Pond_Time %>% str_sub(-1))
+sample_names$Name_Time <- paste(sample_names$Name, sample_names$Pond %>% str_sub(-1))
 mag_SNVs <- read_csv("data files/T1_SNV_summary_MAG.csv")
 
 mag_SNVs_5x <- subset(mag_SNVs, mag_coverage >= 5 & mag_breadth >= 0.7)

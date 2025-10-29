@@ -7,7 +7,7 @@ setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
 
 sample_info <- read_csv("data files/chapter_1_sample_names.csv")
 sample_info$Treatment <- ifelse(grepl("CTRL", sample_info$Name), "Control", "GBH")
-sample_info$Time <- ifelse(grepl("_1", sample_info$Pond_Time), "Day 0", "Day 28")
+sample_info$Time <- ifelse(grepl("_1", sample_info$Pond), "Day 0", "Day 28")
 sample_info$Treatment_Time <- paste(sample_info$Treatment, sample_info$Time, sep = " ")
 sample_info <- subset(sample_info, !(Name == "CTRL E"))
 T1_samples <- subset(sample_info, Time == "Day 0")
@@ -48,7 +48,7 @@ for(i in 1: length(day_28_beta_div_files)){
 
 colnames(pvals) <- c("Level", "R2", "p_value")
 pvals$padj <- p.adjust(pvals$p_value, method="BH")
-write.csv(pvals, "data files/permanovas.csv", row.names = F)
+#write.csv(pvals, "data files/permanovas.csv", row.names = F)
 
 for(i in 1: length(day_0_beta_div_files)){
   level <- day_0_beta_div_files[i] %>% str_remove("data files/")

@@ -47,7 +47,7 @@ pond_vs_SNS_boxplot <- ggplot(mag_SNVs, aes(x = Name, y = SNSs_Kbp))+
   geom_point(aes(colour = Treatment_Time), size = 0.25, position = position_jitterdodge(jitter.width = 0.25))+
   scale_fill_manual(values = c("white", "white"))+
   scale_colour_manual(values = c("#98BF64", "darkgreen", "#BE93D4", "darkmagenta"))+
-  labs(x = "", y = "Fixed substiturions per Kbp", colour = "Treatment")+  
+  labs(x = "", y = "Fixed substitutions per Kbp", colour = "Treatment")+  
   theme_classic()+
   theme(axis.text = element_text(size = 10, colour = "black"),
         axis.title = element_text(size = 12, colour = "black"),
@@ -60,7 +60,7 @@ ggsave("figures/pond_vs_SNS_boxplot.pdf", pond_vs_SNS_boxplot, units = "cm", wid
 pond_sns_snvs <- ggarrange(pond_vs_SNV_boxplot, pond_vs_SNS_boxplot, nrow = 2, common.legend = TRUE,
                            legend = "bottom", labels = c("A", "B"))
 
-ggsave("figures/pond_vs_SNV_SNS.pdf", pond_sns_snvs, units = "cm", width = 17, height = 16)
+ggsave("figures/pond_vs_SNV_SNS_fig2.pdf", pond_sns_snvs, units = "cm", width = 17, height = 16)
 
 
 gbh28 <- subset(mag_SNVs, Treatment_Time == "GBH Day 28")
@@ -84,7 +84,7 @@ gbh_pond_vs_SNS_boxplot <- ggplot(GBH_mag_snvs, aes(x = Name, y = SNSs_Kbp))+
   geom_point(aes(colour = Treatment_Time), size = 0.25, position = position_jitterdodge(jitter.width = 0.25))+
   scale_fill_manual(values = c("white", "white"))+
   scale_colour_manual(values = c("#98BF64", "darkgreen", "#BE93D4", "darkmagenta"))+
-  labs(x = "", y = "Fixed substiturions per Kbp", colour = "Treatment")+  
+  labs(x = "", y = "Fixed substitutions per Kbp", colour = "Treatment")+  
   theme_classic()+
   theme(axis.text = element_text(size = 10, colour = "black"),
         axis.title = element_text(size = 12, colour = "black"),
