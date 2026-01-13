@@ -3,45 +3,45 @@ library(rstatix)
 library(ggpubr)
 
 setwd("/Users/emma/Documents/GitHub/LEAP_sweeps/")
-# 
-# all_MAG_SNVs <- read_csv("data files/snvs_for_depth.csv")
-# all_MAG_SNVs$time <- as.character(all_MAG_SNVs$time)
-# 
-# sample_names <- read_csv("data files/chapter_1_sample_names.csv")
-# limited_depth <- list.files("data files", recursive = T, pattern = "MAG_SNV_depth_info_", full.names = T)
-# 
-# all_depth <- data_frame()
-# for(i in 1:length(limited_depth)){
-#   sample_depth <- read_csv(limited_depth[i])
-#   all_depth <- rbind(all_depth, sample_depth)
-# }
-# 
-# colnames(all_depth)[3] <- "depth"
-# all_depth <- left_join(all_depth, sample_names)
-# all_depth$time <- as.character(all_depth$Pond %>% substr(4,4))
-# all_depth <- all_depth[, c(1:3,5,6)]
-#write.csv(all_depth, "data files/all_mag_depth_info.csv", row.names = F)
-# 
-#all_depth <- read_csv("data files/all_mag_depth_info.csv")
-#
-# N_SNVs <- subset(all_MAG_SNVs, mutation_type == "N")
-# all_depth$time <- as.character(all_depth$time)
-# N_depth <- subset(all_depth, group %in% N_SNVs$group)
-# N_SNV_depth <- full_join(N_SNVs, N_depth)
-# N_SNV_depth$new_ref_freq <- with(N_SNV_depth, ifelse(depth >= 5, 1, NA))
-# N_SNV_depth$final_ref_freq <- with(N_SNV_depth, ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
-# N_SNV_depth <- N_SNV_depth %>% group_by(group) %>% fill(mag, .direction = "updown")
-# N_SNV_depth <- N_SNV_depth %>% group_by(Sample) %>% fill(Name, time, .direction = "updown")
-# N_SNV_depth <- N_SNV_depth %>% group_by(Sample, mag) %>% fill(mag_pond, time, .direction = "updown")
-# N_SNV_depth <- N_SNV_depth %>% ungroup()
-# N_SNV_depth <- N_SNV_depth[, c("mag", "Name", "time", "group", "final_ref_freq")]
-# write.csv(N_SNV_depth, "data files/nonsyn_snv_depth.csv", row.names = F)
-# 
-# N_SNV_depth <- read_csv("data files/nonsyn_snv_depth.csv")
-# snv_freq_wide <- pivot_wider(N_SNV_depth, names_from = "time", values_from = "final_ref_freq")
-# snv_freq_wide <- snv_freq_wide[complete.cases(snv_freq_wide), ]
-# snv_freq_wide$freq_dif <- snv_freq_wide$`1` - snv_freq_wide$`3`
-# write.csv(snv_freq_wide, "data files/snv_freq_wide.csv", row.names = F)
+
+all_MAG_SNVs <- read_csv("data files/snvs_for_depth.csv")
+all_MAG_SNVs$time <- as.character(all_MAG_SNVs$time)
+
+sample_names <- read_csv("data files/chapter_1_sample_names.csv")
+limited_depth <- list.files("data files", recursive = T, pattern = "MAG_SNV_depth_info_", full.names = T)
+
+all_depth <- data_frame()
+for(i in 1:length(limited_depth)){
+  sample_depth <- read_csv(limited_depth[i])
+  all_depth <- rbind(all_depth, sample_depth)
+}
+
+colnames(all_depth)[3] <- "depth"
+all_depth <- left_join(all_depth, sample_names)
+all_depth$time <- as.character(all_depth$Pond %>% substr(4,4))
+all_depth <- all_depth[, c(1:3,5,6)]
+write.csv(all_depth, "data files/all_mag_depth_info.csv", row.names = F)
+
+all_depth <- read_csv("data files/all_mag_depth_info.csv")
+
+N_SNVs <- subset(all_MAG_SNVs, mutation_type == "N")
+all_depth$time <- as.character(all_depth$time)
+N_depth <- subset(all_depth, group %in% N_SNVs$group)
+N_SNV_depth <- full_join(N_SNVs, N_depth)
+N_SNV_depth$new_ref_freq <- with(N_SNV_depth, ifelse(depth >= 5, 1, NA))
+N_SNV_depth$final_ref_freq <- with(N_SNV_depth, ifelse(is.na(ref_freq), new_ref_freq, ref_freq))
+N_SNV_depth <- N_SNV_depth %>% group_by(group) %>% fill(mag, .direction = "updown")
+N_SNV_depth <- N_SNV_depth %>% group_by(Sample) %>% fill(Name, time, .direction = "updown")
+N_SNV_depth <- N_SNV_depth %>% group_by(Sample, mag) %>% fill(mag_pond, time, .direction = "updown")
+N_SNV_depth <- N_SNV_depth %>% ungroup()
+N_SNV_depth <- N_SNV_depth[, c("mag", "Name", "time", "group", "final_ref_freq")]
+write.csv(N_SNV_depth, "data files/nonsyn_snv_depth.csv", row.names = F)
+
+N_SNV_depth <- read_csv("data files/nonsyn_snv_depth.csv")
+snv_freq_wide <- pivot_wider(N_SNV_depth, names_from = "time", values_from = "final_ref_freq")
+snv_freq_wide <- snv_freq_wide[complete.cases(snv_freq_wide), ]
+snv_freq_wide$freq_dif <- snv_freq_wide$`1` - snv_freq_wide$`3`
+write.csv(snv_freq_wide, "data files/snv_freq_wide.csv", row.names = F)
 
 snv_freq_wide <- read_csv("data files/snv_freq_wide.csv")
 rel_abun <- read_csv("data files/MAG_rel_abun_change.csv")

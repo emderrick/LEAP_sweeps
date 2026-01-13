@@ -35,10 +35,13 @@ T1_species <- ggplot(T1_species_pcoa_coords, aes(x = Axis.1, y = Axis.2, colour 
   ylim(-0.35, 0.35)+
   theme_classic()+
   theme(title = element_text(size = 10),
+        text = element_text(size = 4),
         axis.text = element_text(size = 10, colour = "black"),
         axis.title = element_text(size = 12, colour = "black"),
         legend.text = element_text(size = 12, colour = "black"),
-        legend.title = element_text(size = 12, colour = "black"))
+        legend.title = element_text(size = 12, colour = "black"))+
+  annotate("text", x = -0.215, y = -0.28, label = "Pr (>F) = 0.4426", size = 3)+
+  annotate("text", x = -0.265, y = -0.33, label = "R^2 == 0.127", size = 3, parse = TRUE)
 
 T2_samples <- subset(sample_info, Time == "Day 28")
 T2_species_beta <- read_tsv("data files/beta_div_species_day_28.txt", skip = 8)
@@ -66,7 +69,9 @@ T2_species <- ggplot(T2_species_pcoa_coords, aes(x = Axis.1, y = Axis.2, colour 
         axis.text = element_text(size = 10, colour = "black"),
         axis.title = element_text(size = 12, colour = "black"),
         legend.text = element_text(size = 12, colour = "black"),
-        legend.title = element_text(size = 12, colour = "black"))
+        legend.title = element_text(size = 12, colour = "black"))+
+  annotate("text", x = -0.215, y = -0.28, label = "Pr (>F) = 0.0240", size = 3)+
+  annotate("text", x = -0.255, y = -0.33, label = "R^2 == 0.5337", size = 3, parse = TRUE)
 
 species_pcoa <- ggarrange(T1_species, T2_species, nrow = 1, common.legend = F, legend = "bottom")
 ggsave("figures/beta_div_species.pdf", species_pcoa, units = "cm", width = 17, height = 8)

@@ -38,7 +38,7 @@ snv_frequency$GBH_CTRL_T1_abs <- abs(snv_frequency$GBH_CTRL_T1)
 #snv_frequency$GBH_CTRL_T2_abs <- abs(snv_frequency$GBH_CTRL_T2)
 
 snv_frequency$shift <- with(snv_frequency, ifelse((GBH_CTRL_T1_abs <= 0.3 & GBH_change <= -0.7 & GBH_CTRL_T2 <= -0.7), "sig_shift", "not_sig"))
-write.csv(snv_frequency, "data files/snv_frequency_changes_07.csv", row.names = F)
+#write.csv(snv_frequency, "data files/snv_frequency_changes_07.csv", row.names = F)
 
 ## get gene info
 
@@ -100,23 +100,23 @@ background_cog_snv <- subset(background_cog_snv, is.na(COG_ID) == F)
 #write.csv(background_cog_snv, "data files/cog_background_snv_freq_genes.csv", row.names = F)
 
 significant_genes <- left_join(sig_snvs_sum, background_cog_snv) 
-write.csv(significant_genes, "data files/allele_shifts_significant_genes_07.csv", row.names = F)
+#write.csv(significant_genes, "data files/allele_shifts_significant_genes_07.csv", row.names = F)
 
 significant_nonsyn_genes <- left_join(sig_nonsyn_sum, background_cog_snv) 
-write.csv(significant_nonsyn_genes, "data files/nonsyn_allele_shifts_significant_genes_07.csv", row.names = F)
+#write.csv(significant_nonsyn_genes, "data files/nonsyn_allele_shifts_significant_genes_07.csv", row.names = F)
 
 significant_syn_genes <- left_join(sig_syn_sum, background_cog_snv) 
-write.csv(significant_syn_genes, "data files/syn_allele_shifts_significant_genes_07.csv", row.names = F)
+#write.csv(significant_syn_genes, "data files/syn_allele_shifts_significant_genes_07.csv", row.names = F)
 
 sum_genes <- significant_genes %>% group_by(mag) %>% count()
-write.csv(sum_genes, "data files/sum_sig_shifts_07.csv", row.names = F)
+#write.csv(sum_genes, "data files/sum_sig_shifts_07.csv", row.names = F)
 
 sum_syn_genes <- significant_syn_genes %>% group_by(mag) %>% count()
-write.csv(sum_syn_genes, "data files/sum_syn_sig_shifts_07.csv", row.names = F)
+#write.csv(sum_syn_genes, "data files/sum_syn_sig_shifts_07.csv", row.names = F)
 
 sum_nonsyn_genes <- significant_nonsyn_genes %>% group_by(mag) %>% count()
-write.csv(sum_nonsyn_genes, "data files/sum_nonsyn_sig_shifts_07.csv", row.names = F)
+#write.csv(sum_nonsyn_genes, "data files/sum_nonsyn_sig_shifts_07.csv", row.names = F)
 
-aro_genes <- significant_nonsyn_genes[grepl("aro", significant_nonsyn_genes$Preferred_name),]
+aro_genes <- significant_genes[grepl("aro", significant_genes$Preferred_name),]
 
                     

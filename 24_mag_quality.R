@@ -25,3 +25,8 @@ colnames(mag_info) <- c("MAG", "Completeness", "Contamination", "GTDB Classifica
 avg_comp <- mean(mag_info$Completeness)
 avg_contam <- mean(mag_info$Contamination)
 avg_len <- mean(mag_info$`Genome Length`) / 1000000
+
+
+mag_list <- c("MAG_00097_1", "MAG_00110_1", "MAG_00179_1", "MAG_00194_1", "MAG_00197_1", "MAG_00201_1", "MAG_00674_1")
+mag_info <- subset(mag_info, MAG %in% mag_list)
+write.csv(mag_info, "mag_comp_contam.csv", row.names = F)

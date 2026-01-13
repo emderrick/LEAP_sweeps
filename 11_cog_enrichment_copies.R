@@ -82,6 +82,8 @@ for (category in unique(COG_gene_to_category$V2)) {
   COG_category_to_COG[[category]] <- COG_gene_to_category[which(COG_gene_to_category$V2 == category), "V1"]
 }
 
+cog_sum <- COG_gene_to_category %>% group_by(V1) %>% summarize(V2 = toString(V2))
+
 categories_to_ignore <- c('A', 'B', 'Y', 'Z')
 
 all_background_genes <- read_csv("data files/cog_background_copy_number_genes.csv")
@@ -93,6 +95,10 @@ for(i in 1: length(gene_files)){
   file_name <- file_name %>% str_remove("_significant_genes.csv")
 
   significant_genes_df <- read_csv(gene_files[i])
+  significant_genes_df <- left_join(significant_genes_df, cog_sum, by = c("COG_ID" = "V1"))
+  colnames(significant_genes_df)[17] <- "COG_category"
+  write.csv(significant_genes_df, paste("data files/", file_name, "_enriched_genes.csv", sep = ""), row.names = F)
+  
   significant_genes <- significant_genes_df[, c("COG_ID")] %>% na.omit()
   significant_genes <- significant_genes[['COG_ID']]
   background_genes_df <- all_background_genes %>% subset(!(gene %in% significant_genes_df$gene))
@@ -102,7 +108,7 @@ for(i in 1: length(gene_files)){
   COG_enrichment_output <- identify_enriched_categories(genes = significant_genes,
                                                         background = background_genes,
                                                         gene_to_category_map = COG_category_to_COG,
-                                                        min_category_count = 10, #categories without at least 10 COG gene families in the sig set and background are ignored
+                                                        min_category_count = 1, #categories without at least 10 COG gene families in the sig set and background are ignored
                                                         to_ignore = categories_to_ignore)
     
   

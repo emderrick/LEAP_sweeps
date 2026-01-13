@@ -21,4 +21,4 @@ ggplot(mag_info, aes(x = popANI_reference))+
   facet_grid(rows = vars(time), cols = vars(Treatment))
 
 mag_info <- subset(mag_info, mag %in% mag_list)
-ani <- mag_info %>% group_by(mag) %>% summarise(range(popANI_reference))
+ani <- mag_info %>% group_by(mag, time) %>% summarise(range(popANI_reference))
