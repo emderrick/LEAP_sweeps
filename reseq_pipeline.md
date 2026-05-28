@@ -555,8 +555,6 @@ python /mfs/ederrick/miniconda3/envs/kraken2/bin/beta_diversity.py -i *phylum.br
 remap subsampled reads
 
 ```
-#!/usr/bin/bash
-source /mfs/ederrick/.bash_profile
 conda activate bowtie2
 parallel -j 6 --plus 'bowtie2 -x T1_refined -1 {} -2 {/R1.fastq.gz/R2.fastq.gz} --threads 24 | samtools sort -o {/R1.fastq.gz/sub_coverM.bam} --write-index -@ 24' ::: *sub_R1.fastq.gz
 ```
