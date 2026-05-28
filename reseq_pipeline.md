@@ -381,9 +381,9 @@ conda activate instrain
 parallel -j 18 --plus 'inStrain profile {} T1_refined.fa -o {/P_T1_refined.bam/T1_refined_inStrain} -p 12 -g T1_refined_genes.fna -s T1_refined.stb  --min_read_ani 0.92 --min_mapq 1 --min_genome_coverage 1' ::: *T1_refined.bam
 ```
 
-#### subsample to 5x (R script subsampling.R to get list of samtools commands to run (each mag x pond combination) and rerun instrain for some analyses. sample 03 and 12 have been removed.
+#### subsample to 5x (R script subsampling.R to get list of samtools commands to run (each mag x pond combination) and rerun instrain. Do subsampling 5 times to see if we get the same results. sample 03 and 12 have been removed.
 
-merge mags back together by timepoint
+for each subsampling directory merge mags back together by timepoint
 
 ```bash
 samtools merge LEAP_META_01_sub.bam *LEAP_META_01*
@@ -404,7 +404,7 @@ samtools merge LEAP_META_17_sub.bam *LEAP_META_17*
 samtools merge LEAP_META_18_sub.bam *LEAP_META_18*
 ```
 
-rerun instrain
+for each subsampling directory rerun instrain
 
 ```bash
 #!/usr/bin/bash
@@ -567,6 +567,7 @@ with coverM
 conda activate coverM
 coverm genome --bam-files *sub_coverM.bam --genome-fasta-directory refined_good_MAGs --min-read-percent-identity 0.95 -m relative_abundance mean covered_bases count reads_per_base rpkm -o T1_refined_sub_coverM.tsv --output-format sparse --min-covered-fraction 0 -tmx fa -t 64
 ```
+
 
 
 
