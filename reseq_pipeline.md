@@ -404,6 +404,81 @@ samtools merge LEAP_META_17_sub.bam *LEAP_META_17*
 samtools merge LEAP_META_18_sub.bam *LEAP_META_18*
 ```
 
+```bash
+samtools merge LEAP_META_01_sub_02.bam *LEAP_META_01*
+samtools merge LEAP_META_02_sub_02.bam *LEAP_META_02*
+samtools merge LEAP_META_04_sub_02.bam *LEAP_META_04*
+samtools merge LEAP_META_05_sub_02.bam *LEAP_META_05*
+samtools merge LEAP_META_06_sub_02.bam *LEAP_META_06*
+samtools merge LEAP_META_07_sub_02.bam *LEAP_META_07*
+samtools merge LEAP_META_08_sub_02.bam *LEAP_META_08*
+samtools merge LEAP_META_09_sub_02.bam *LEAP_META_09*
+samtools merge LEAP_META_10_sub_02.bam *LEAP_META_10*
+samtools merge LEAP_META_11_sub_02.bam *LEAP_META_11*
+samtools merge LEAP_META_13_sub_02.bam *LEAP_META_13*
+samtools merge LEAP_META_14_sub_02.bam *LEAP_META_14*
+samtools merge LEAP_META_15_sub_02.bam *LEAP_META_15*
+samtools merge LEAP_META_16_sub_02.bam *LEAP_META_16*
+samtools merge LEAP_META_17_sub_02.bam *LEAP_META_17*
+samtools merge LEAP_META_18_sub_02.bam *LEAP_META_18*
+```
+
+```bash
+samtools merge LEAP_META_01_sub_03.bam *LEAP_META_01*
+samtools merge LEAP_META_02_sub_03.bam *LEAP_META_02*
+samtools merge LEAP_META_04_sub_03.bam *LEAP_META_04*
+samtools merge LEAP_META_05_sub_03.bam *LEAP_META_05*
+samtools merge LEAP_META_06_sub_03.bam *LEAP_META_06*
+samtools merge LEAP_META_07_sub_03.bam *LEAP_META_07*
+samtools merge LEAP_META_08_sub_03.bam *LEAP_META_08*
+samtools merge LEAP_META_09_sub_03.bam *LEAP_META_09*
+samtools merge LEAP_META_10_sub_03.bam *LEAP_META_10*
+samtools merge LEAP_META_11_sub_03.bam *LEAP_META_11*
+samtools merge LEAP_META_13_sub_03.bam *LEAP_META_13*
+samtools merge LEAP_META_14_sub_03.bam *LEAP_META_14*
+samtools merge LEAP_META_15_sub_03.bam *LEAP_META_15*
+samtools merge LEAP_META_16_sub_03.bam *LEAP_META_16*
+samtools merge LEAP_META_17_sub_03.bam *LEAP_META_17*
+samtools merge LEAP_META_18_sub_03.bam *LEAP_META_18*
+```
+
+```bash
+samtools merge LEAP_META_01_sub_04.bam *LEAP_META_01*
+samtools merge LEAP_META_02_sub_04.bam *LEAP_META_02*
+samtools merge LEAP_META_04_sub_04.bam *LEAP_META_04*
+samtools merge LEAP_META_05_sub_04.bam *LEAP_META_05*
+samtools merge LEAP_META_06_sub_04.bam *LEAP_META_06*
+samtools merge LEAP_META_07_sub_04.bam *LEAP_META_07*
+samtools merge LEAP_META_08_sub_04.bam *LEAP_META_08*
+samtools merge LEAP_META_09_sub_04.bam *LEAP_META_09*
+samtools merge LEAP_META_10_sub_04.bam *LEAP_META_10*
+samtools merge LEAP_META_11_sub_04.bam *LEAP_META_11*
+samtools merge LEAP_META_13_sub_04.bam *LEAP_META_13*
+samtools merge LEAP_META_14_sub_04.bam *LEAP_META_14*
+samtools merge LEAP_META_15_sub_04.bam *LEAP_META_15*
+samtools merge LEAP_META_16_sub_04.bam *LEAP_META_16*
+samtools merge LEAP_META_17_sub_04.bam *LEAP_META_17*
+samtools merge LEAP_META_18_sub_04.bam *LEAP_META_18*
+```
+
+```bash
+samtools merge LEAP_META_01_sub_05.bam *LEAP_META_01*
+samtools merge LEAP_META_02_sub_05.bam *LEAP_META_02*
+samtools merge LEAP_META_04_sub_05.bam *LEAP_META_04*
+samtools merge LEAP_META_05_sub_05.bam *LEAP_META_05*
+samtools merge LEAP_META_06_sub_05.bam *LEAP_META_06*
+samtools merge LEAP_META_07_sub_05.bam *LEAP_META_07*
+samtools merge LEAP_META_08_sub_05.bam *LEAP_META_08*
+samtools merge LEAP_META_09_sub_05.bam *LEAP_META_09*
+samtools merge LEAP_META_10_sub_05.bam *LEAP_META_10*
+samtools merge LEAP_META_11_sub_05.bam *LEAP_META_11*
+samtools merge LEAP_META_13_sub_05.bam *LEAP_META_13*
+samtools merge LEAP_META_14_sub_05.bam *LEAP_META_14*
+samtools merge LEAP_META_15_sub_05.bam *LEAP_META_15*
+samtools merge LEAP_META_16_sub_05.bam *LEAP_META_16*
+samtools merge LEAP_META_17_sub_05.bam *LEAP_META_17*
+samtools merge LEAP_META_18_sub_05.bam *LEAP_META_18*
+```
 for each subsampling directory rerun instrain
 
 ```bash
