@@ -638,7 +638,7 @@ with coverM
 
 ```bash
 conda activate coverM
-coverm genome --bam-files *sub_coverM.bam --genome-fasta-directory refined_good_MAGs --min-read-percent-identity 0.95 -m relative_abundance mean covered_bases count reads_per_base rpkm -o T1_refined_sub_coverM.tsv --output-format sparse --min-covered-fraction 0 -tmx fa -t 64
+coverm genome --bam-files *sub_coverM.bam --genome-fasta-directory refined_good_MAGs --min-read-percent-identity 0.95 -m relative_abundance mean covered_bases count reads_per_base rpkm -o T1_refined_sub_coverM.tsv --output-format sparse --min-covered-fraction 0 -x fa -t 64
 ```
 
 
